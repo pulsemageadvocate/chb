@@ -7,10 +7,8 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 
 import javafx.scene.control.Tab;
-import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.util.Callback;
 import pulad.chb.App;
 import pulad.chb.dto.TreeItemDto;
 

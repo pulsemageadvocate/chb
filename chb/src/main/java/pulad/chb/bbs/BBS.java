@@ -2,9 +2,7 @@ package pulad.chb.bbs;
 
 import java.nio.charset.Charset;
 import java.util.Collection;
-import java.util.function.Predicate;
 
-import pulad.chb.dto.ResDto;
 import pulad.chb.read.thread.AbstractThreadLoadTask;
 
 public interface BBS {
