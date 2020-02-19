@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style>
+.root {
+	padding: 17px 20px 17px 5px;
+}
+.popuproot {
+	padding: 0px 20px 0px 5px;
+}
+.root,.popuproot {
+	font-family: "ＭＳ Ｐゴシック","MS PGothic",RobotoJAA,"IPA モナー Pゴシック",IPAMonaPGothic,sans-serif;
+	font-size: 16px;
+	line-height: 20px;
+	letter-spacing: 0;
+	background-image: url("20051018020842.gif");
+	background-position: left bottom;
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	background-overflow: visible;
+}
+.resdiv0 {
+	padding: 1px 10px 0px 0px;
+}
+.abone {
+	background-color: #C0C0C0;
+}
+.resmsg {
+	padding: 1px 10px 17px 30px;
+}
+.resimg {
+	padding: 1px 10px 17px 30px;
+}
+.resimg img {
+	max-width: 80px;
+	max-height: 60px;
+	border: 1px solid #FF6655;
+}
+.newline {
+	padding: 1px 10px 1px 10px;
+	font-style: bold;
+	background-color: #9898FF;
+	color: #FFFFFF;
+}
+.bkmkdiv0 {
+	padding: 35px 10px 34px 0px;
+}
+.sa2 {
+	color: #000000;
+}
+.sa3 {
+	color: #d20000;
+}
+.sa5 {
+	color: #228b22;
+}
+.sa7 {
+	color: #666666;
+}
+.sa14 {
+	color: #d20000;
+}
+a {
+	color: blue;
+	text-decoration: underline;
+}
+</style>
+<title id="title" th:text="${title}"></title>
+<data-filtered id="filtered" th:value="${filtered} ? '1' : '0'" />
+</head>
+<body class="root" id="root">
+	<DIV th:if="${lastResCount} le 0 and ${newResCount} ge 0">
+		<SPAN name="current"></SPAN>
+		<DIV class="newline">
+			新着： <span th:text="${newResCount}">123</span>
+		</DIV>
+	</DIV>
+<th:block th:each="res, iter : ${resMap.values()}" th:with="number=(${res.number} lt 1) ? ${iter.count} : ${res.number}" class="res">
+	<DIV th:if="${filtered} or ${res.abone} == ${ABONE_LEVEL_NONE}" th:data-timeLong="${res.timeLong}">
+		<DIV class="resdiv0">
+			<SPAN class="sa7">│<a th:name="'R' + ${number}" th:text="${number}" th:chain="${#sets.isEmpty(res.referredSet)} ? '' : ${res.referredLink}">1</a><!--
+				--><th:block th:unless="${#sets.isEmpty(res.referredSet)}">+<span th:text="${#sets.size(res.referredSet)}">3</span></th:block>
+				名前：
+			</SPAN>
+			<SPAN class="sa14">
+				<span th:if="${res.abone} != ${ABONE_LEVEL_NONE}">あぼ～ん：<span th:text="${res.aboneLabel}"></span></span>
+				<span th:if="${res.anonymous}" th:utext="${res.name}">名無しさん＠お腹いっぱい。</span>
+				<a th:unless="${res.anonymous}" th:utext="${res.name}" th:chain="${res.nameLink}" aboneable="name">名前</a>
+			</SPAN>
+			<SPAN>
+				<th:block th:if="${res.nameCount} ne 0">
+					(<span th:text="${res.nameIndex}">1</span>/<span th:text="${res.nameCount}">3</span>)
+				</th:block>
+				<th:block th:unless="${#strings.isEmpty(res.wacchoi)}">
+					(<!--
+					--><a th:unless="${#strings.isEmpty(res.wacchoiLink)} or ${res.wacchoiCount} le 1" th:chain="${res.wacchoiLink}" th:text="${res.wacchoi}" aboneable="wacchoi">ﾜｯﾁｮｲ 1234-5678</a><!--
+					--><span th:if="${#strings.isEmpty(res.wacchoiLink)} or ${res.wacchoiCount} le 1" th:text="${res.wacchoi}" aboneable="wacchoi">ﾜｯﾁｮｲ 1234-5678</span>
+					(<span th:text="${res.wacchoiIndex}">1</span>/<span th:text="${res.wacchoiCount}">3</span>)
+					<th:block th:unless="${#strings.isEmpty(res.wacchoiLower)}">
+						<a th:unless="${#strings.isEmpty(res.wacchoiLowerLink)} or ${res.wacchoiLowerCount} le 1" th:chain="${res.wacchoiLowerLink}" th:text="${res.wacchoiLower}" aboneable="wacchoiLower">-5678</a>
+						<span th:if="${#strings.isEmpty(res.wacchoiLowerLink)} or ${res.wacchoiLowerCount} le 1" th:text="${res.wacchoiLower}" aboneable="wacchoiLower">-5678</span>
+						(<span th:text="${res.wacchoiLowerIndex}">1</span>/<span th:text="${res.wacchoiLowerCount}">3</span>)
+					</th:block>
+					<th:block th:unless="${#strings.isEmpty(res.ip)} and ${#strings.isEmpty(res.ipTrailing)}">
+						[<!--
+						--><a th:unless="${#strings.isEmpty(res.ipLink)} or ${res.ipCount} le 1" th:chain="${res.ipLink}" th:text="${res.ip}" aboneable="ip">123.45.67.89</a><!--
+						--><span th:if="${#strings.isEmpty(res.ipLink)} or ${res.ipCount} le 1" th:utext="${res.ip}" aboneable="ip">123.45.67.89</span>
+						<th:block th:unless="${#strings.isEmpty(res.ip)}">(<span th:text="${res.ipIndex}">1</span>/<span th:text="${res.ipCount}">3</span>)</th:block>
+						<span th:text="${res.ipTrailing}">上級国民</span>
+						]
+					</th:block>
+					)
+				</th:block>
+			</SPAN>
+			<SPAN class="sa7">
+				[<span th:utext="${res.mail}">sage</span>]
+				投稿日： <span th:text="${res.time}">2019/03/31(日) 02:27:16.17</span>
+				<th:block th:unless="${#strings.isEmpty(res.id)}">
+					ID:<!--
+					--><a th:unless="${#strings.isEmpty(res.idLink)} or ${res.idCount} le 1" th:chain="${res.idLink}" th:text="${res.id}" aboneable="id">aQMqEw220</a><!--
+					--><span th:if="${#strings.isEmpty(res.idLink)} or ${res.idCount} le 1" th:text="${res.id}" aboneable="id">aQMqEw220</span>
+					<th:block th:if="${res.idCount} ne 0">
+						(<span th:text="${res.idIndex}">1</span>/<span th:text="${res.idCount}">3</span>)
+					</th:block>
+				</th:block>
+			</SPAN>
+			<SPAN th:if="(${number} gt ${lastResCount}) and (${newResCount} ge 0)" class="sa3">(*‘ω‘ *) New!</SPAN>
+		</DIV>
+		<DIV class="resmsg"><SPAN class="sa2"><span th:utext="${res.body}"></span></SPAN></DIV>
+		<DIV class="resimg" th:unless="${#lists.isEmpty(res.images)}">
+			<span th:each="image, iterImage : ${res.images}">
+				<img th:data-src="${image}" />
+			</span>
+		</DIV>
+	</DIV>
+	<DIV th:if="! ${filtered} and ${res.abone} == ${ABONE_LEVEL_ABONE}" th:data-timeLong="${res.timeLong}">
+		<DIV class="resdiv0 abone">
+			<SPAN class="sa7">│<a th:name="'R' + ${number}" th:text="${number}" th:chain="${res.referredLink}">1</a><!--
+				--><th:block th:unless="${#sets.isEmpty(res.referredSet)}">+<span th:text="${#sets.size(res.referredSet)}">3</span></th:block>
+			</SPAN>
+			<SPAN class="sa14">
+				あぼ～ん：<span th:text="${res.aboneLabel}"></span>
+				<span th:if="${res.anonymous}" th:utext="${res.name}">名無しさん＠お腹いっぱい。</span>
+				<a th:unless="${res.anonymous}" th:utext="${res.name}" th:chain="${res.nameLink}" aboneable="name">名前</a>
+			</SPAN>
+			<SPAN>
+				<th:block th:if="${res.nameCount} ne 0">
+					(<span th:text="${res.nameIndex}">1</span>/<span th:text="${res.nameCount}">3</span>)
+				</th:block>
+				<th:block th:unless="${#strings.isEmpty(res.wacchoi)}">
+					(<!--
+					--><a th:unless="${#strings.isEmpty(res.wacchoiLink)}" th:chain="${res.wacchoiLink}" th:text="${res.wacchoi}" aboneable="wacchoi">ﾜｯﾁｮｲ 1234-5678</a><!--
+					--><span th:if="${#strings.isEmpty(res.wacchoiLink)}" th:text="${res.wacchoi}" aboneable="wacchoi">ﾜｯﾁｮｲ 1234-5678</span>
+					(<span th:text="${res.wacchoiIndex}">1</span>/<span th:text="${res.wacchoiCount}">3</span>)
+					<th:block th:unless="${#strings.isEmpty(res.wacchoiLower)}">
+						<a th:unless="${#strings.isEmpty(res.wacchoiLowerLink)}" th:chain="${res.wacchoiLowerLink}" th:text="${res.wacchoiLower}" aboneable="wacchoiLower">-5678</a>
+						<span th:if="${#strings.isEmpty(res.wacchoiLowerLink)}" th:text="${res.wacchoiLower}" aboneable="wacchoiLower">-5678</span>
+						(<span th:text="${res.wacchoiLowerIndex}">1</span>/<span th:text="${res.wacchoiLowerCount}">3</span>)
+					</th:block>
+					<th:block th:unless="${#strings.isEmpty(res.ip)}">
+						[<!--
+						--><a th:unless="${#strings.isEmpty(res.ipLink)}" th:chain="${res.ipLink}" th:text="${res.ip}" aboneable="ip">123.45.67.89</a><!--
+						--><span th:if="${#strings.isEmpty(res.ipLink)}" th:utext="${res.ip}" aboneable="ip">123.45.67.89</span>
+						<th:block th:unless="${#strings.isEmpty(res.ip)}">(<span th:text="${res.ipIndex}">1</span>/<span th:text="${res.ipCount}">3</span>)</th:block>
+						<span th:text="${res.ipTrailing}">上級国民</span>
+						]
+					</th:block>
+					)
+				</th:block>
+			</SPAN>
+			<SPAN class="sa7">
+				[<span th:utext="${res.mail}">sage</span>]
+				投稿日： <span th:text="${res.time}">2019/03/31(日) 02:27:16.17</span>
+				<th:block th:unless="${#strings.isEmpty(res.id)}">
+					ID:<!--
+					--><a th:unless="${#strings.isEmpty(res.idLink)}" th:chain="${res.idLink}" th:text="${res.id}" aboneable="id">aQMqEw220</a><!--
+					--><span th:if="${#strings.isEmpty(res.idLink)}" th:text="${res.id}" aboneable="id">aQMqEw220</span>
+					<th:block th:if="${res.idCount} ne 0">
+						(<span th:text="${res.idIndex}">1</span>/<span th:text="${res.idCount}">3</span>)
+					</th:block>
+				</th:block>
+			</SPAN>
+			<SPAN th:if="(${number} gt ${lastResCount}) and (${newResCount} ge 0)" class="sa3">(*‘ω‘ *) New!</SPAN>
+		</DIV>
+		<DIV class="resmsg abone"></DIV>
+	</DIV>
+	<DIV th:if="! ${filtered} and ${res.abone} == ${ABONE_LEVEL_INVISIBLE}" th:data-timeLong="${res.timeLong}">
+		<DIV class="resdiv0 abone" style="display: none;">
+			<a th:name="'R' + ${number}" th:text="${number}">1</a>
+		</DIV>
+	</DIV>
+	<!--/* lastResCountのレスの後に表示するが、対象のレス番が削除されている場合はその前のレスの後に表示する。ログにあるはずだからありえない？とりあえずiter.countだとずれるので不可。 */-->
+	<DIV th:if="(${number} == ${lastResCount}) and (${newResCount} ge 0)">
+		<SPAN name="current"></SPAN>
+		<DIV class="newline">
+			新着： <span th:text="${newResCount}">123</span>
+		</DIV>
+	</DIV>
+</th:block>
+</body>
+</html>

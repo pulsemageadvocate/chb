@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project chb with libraries in sub-folder">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <!--define folder properties-->
+    <property name="dir.buildfile" value="."/>
+    <property name="dir.workspace" value="${dir.buildfile}/.."/>
+    <property name="dir.jarfile" value="R:/V2C"/>
+    <target name="create_run_jar">
+        <jar destfile="${dir.jarfile}/chb.jar">
+            <manifest>
+                <attribute name="Main-Class" value="pulad.chb.App"/>
+                <attribute name="Class-Path" value=". chb_lib/rhino-1.7.11.jar chb_lib/javafx-controls-11.0.2.jar chb_lib/javafx-controls-11.0.2-win.jar chb_lib/javafx-graphics-11.0.2.jar chb_lib/javafx-graphics-11.0.2-win.jar chb_lib/javafx-base-11.0.2.jar chb_lib/javafx-base-11.0.2-win.jar chb_lib/javafx-web-11.0.2.jar chb_lib/javafx-web-11.0.2-win.jar chb_lib/javafx-media-11.0.2.jar chb_lib/javafx-media-11.0.2-win.jar chb_lib/thymeleaf-3.0.11.RELEASE.jar chb_lib/ognl-3.1.12.jar chb_lib/javassist-3.20.0-GA.jar chb_lib/attoparser-2.0.5.RELEASE.jar chb_lib/unbescape-1.1.6.RELEASE.jar chb_lib/slf4j-api-1.7.25.jar chb_lib/logback-classic-1.2.3.jar chb_lib/logback-core-1.2.3.jar chb_lib/jackson-core-2.9.9.jar chb_lib/jackson-databind-2.9.9.jar chb_lib/jackson-annotations-2.9.0.jar"/>
+            </manifest>
+            <fileset dir="${dir.buildfile}/target/classes"/>
+        </jar>
+        <delete dir="${dir.jarfile}/chb_lib"/>
+        <mkdir dir="${dir.jarfile}/chb_lib"/>
+        <copy file="${dir.buildfile}/lib/rhino-1.7.11.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/org/openjfx/javafx-controls/11.0.2/javafx-controls-11.0.2.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/org/openjfx/javafx-controls/11.0.2/javafx-controls-11.0.2-win.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/org/openjfx/javafx-graphics/11.0.2/javafx-graphics-11.0.2.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/org/openjfx/javafx-graphics/11.0.2/javafx-graphics-11.0.2-win.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/org/openjfx/javafx-base/11.0.2/javafx-base-11.0.2.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/org/openjfx/javafx-base/11.0.2/javafx-base-11.0.2-win.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/org/openjfx/javafx-web/11.0.2/javafx-web-11.0.2.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/org/openjfx/javafx-web/11.0.2/javafx-web-11.0.2-win.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/org/openjfx/javafx-media/11.0.2/javafx-media-11.0.2.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/org/openjfx/javafx-media/11.0.2/javafx-media-11.0.2-win.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/org/thymeleaf/thymeleaf/3.0.11.RELEASE/thymeleaf-3.0.11.RELEASE.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/ognl/ognl/3.1.12/ognl-3.1.12.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/org/javassist/javassist/3.20.0-GA/javassist-3.20.0-GA.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/org/attoparser/attoparser/2.0.5.RELEASE/attoparser-2.0.5.RELEASE.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/org/unbescape/unbescape/1.1.6.RELEASE/unbescape-1.1.6.RELEASE.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/ch/qos/logback/logback-classic/1.2.3/logback-classic-1.2.3.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/ch/qos/logback/logback-core/1.2.3/logback-core-1.2.3.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.9.9/jackson-core-2.9.9.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.9.9/jackson-databind-2.9.9.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.9.0/jackson-annotations-2.9.0.jar" todir="${dir.jarfile}/chb_lib"/>
+    </target>
+</project>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style>
+.root {
+	padding: 17px 20px 17px 5px;
+}
+.root,.popuproot {
+	font-family: "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
+	font-size: 16px;
+	line-height: 18px;
+	letter-spacing: 0;
+	background-image: url("image/20051018020842.bmp");
+	background-position: left bottom;
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	background-overflow: visible;
+}
+a {
+	color: blue;
+	text-decoration: underline;
+}
+</style>
+<title id="title" th:text="${title}"></title>
+</head>
+<body class="root" id="root">
+	<div th:text="${exception}">
+		Exception: なんとかかんとか
+	</div>
+	<div th:each="element : ${exception.stackTrace}" th:text="${element}">
+	</div>
+</body>
+</html>

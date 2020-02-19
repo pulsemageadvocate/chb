@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Rsrc-Class-Path: ./ rhino-1.7.11.jar javafx-controls-11.0.2.jar javafx-c
+ ontrols-11.0.2-win.jar javafx-graphics-11.0.2.jar javafx-graphics-11.0.
+ 2-win.jar javafx-base-11.0.2.jar javafx-base-11.0.2-win.jar javafx-web-
+ 11.0.2.jar javafx-web-11.0.2-win.jar javafx-media-11.0.2.jar javafx-med
+ ia-11.0.2-win.jar thymeleaf-3.0.11.RELEASE.jar ognl-3.1.12.jar javassis
+ t-3.20.0-GA.jar attoparser-2.0.5.RELEASE.jar unbescape-1.1.6.RELEASE.ja
+ r slf4j-api-1.7.25.jar slf4j-simple-1.7.26.jar jackson-core-2.9.9.jar j
+ ackson-databind-2.9.9.jar jackson-annotations-2.9.0.jar
+Class-Path: .
+Rsrc-Main-Class: pulad.chb.App
+Main-Class: org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader
+
