@@ -36,7 +36,7 @@
         <copy file="C:/Users/pulad/.m2/repository/ch/qos/logback/logback-classic/1.2.3/logback-classic-1.2.3.jar" todir="${dir.jarfile}/chb_lib"/>
         <copy file="C:/Users/pulad/.m2/repository/ch/qos/logback/logback-core/1.2.3/logback-core-1.2.3.jar" todir="${dir.jarfile}/chb_lib"/>
         <copy file="C:/Users/pulad/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.9.9/jackson-core-2.9.9.jar" todir="${dir.jarfile}/chb_lib"/>
-        <copy file="C:/Users/pulad/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.9.9/jackson-databind-2.9.9.jar" todir="${dir.jarfile}/chb_lib"/>
-        <copy file="C:/Users/pulad/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.9.0/jackson-annotations-2.9.0.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.9.10.2/jackson-databind-2.9.10.2.jar" todir="${dir.jarfile}/chb_lib"/>
+        <copy file="C:/Users/pulad/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.9.10/jackson-annotations-2.9.10.jar" todir="${dir.jarfile}/chb_lib"/>
     </target>
 </project>
