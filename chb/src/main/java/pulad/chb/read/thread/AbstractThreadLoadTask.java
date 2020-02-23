@@ -145,6 +145,7 @@ public abstract class AbstractThreadLoadTask extends Task<ThreadLoadTaskResponse
 	}
 
 	private ThreadLoadTaskResponseDto errorProcess(Exception e) {
+		App.logger.error("AbstractThreadLoadTask失敗", e);
 		ThreadLoadTaskResponseDto threadLoadTaskResponseDto = new ThreadLoadTaskResponseDto();
 		threadLoadTaskResponseDto.setErrorMessage(e.getMessage());
 

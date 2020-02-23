@@ -115,7 +115,8 @@ public class PopupThreadViewProcessor {
 
 		@Override
 		public void handle(WorkerStateEvent event) {
-			String html = (String) event.getSource().getValue();
+			ThreadLoadTaskResponseDto threadLoadTaskResponseDto = (ThreadLoadTaskResponseDto) event.getSource().getValue();
+			String html = threadLoadTaskResponseDto.getHtml();
 			if (html == null) {
 				return;
 			}
