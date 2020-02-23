@@ -32,6 +32,7 @@ import pulad.chb.bbs.BBS;
 import pulad.chb.bbs.BBSManager;
 import pulad.chb.board.BoardManager;
 import pulad.chb.dto.BoardDto;
+import pulad.chb.dto.BoardLoadTaskResponseDto;
 import pulad.chb.dto.ThreadDto;
 import pulad.chb.read.board.BoardLoadTask;
 import pulad.chb.util.ResCountComparator;
@@ -253,7 +254,7 @@ public class BoardViewProcessor {
 		service.start();
 	}
 
-	private static class BoardLoadService extends Service<BoardDto> {
+	private static class BoardLoadService extends Service<BoardLoadTaskResponseDto> {
 		private String url;
 		private boolean remote;
 
@@ -263,7 +264,7 @@ public class BoardViewProcessor {
 		}
 
 		@Override
-		protected Task<BoardDto> createTask() {
+		protected Task<BoardLoadTaskResponseDto> createTask() {
 			BoardLoadTask task = new BoardLoadTask(url, remote);
 			// なぜかこれを呼ぶとServiceのOnSucceededも呼ばれるようになる
 			task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
@@ -284,7 +285,10 @@ public class BoardViewProcessor {
 
 		@Override
 		public void handle(WorkerStateEvent event) {
-			BoardDto boardDto = (BoardDto) event.getSource().getValue();
+			BoardLoadTaskResponseDto boardLoadTaskResponseDto = (BoardLoadTaskResponseDto) event.getSource().getValue();
+			tab.getProperties().put(App.TAB_PROPERTY_STATUS_ERROR, boardLoadTaskResponseDto.getErrorMessage());
+			App.getInstance().notifyChangeStatus();
+			BoardDto boardDto = boardLoadTaskResponseDto.getDto();
 			if (boardDto == null) {
 				return;
 			}

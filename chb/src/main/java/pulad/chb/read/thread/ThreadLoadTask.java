@@ -229,6 +229,7 @@ public class ThreadLoadTask extends AbstractThreadLoadTask {
 			connection.setReadTimeout(30000);
 			connection.connect();
 			dto.setResponseCode(connection.getResponseCode());
+			dto.setResponseMessage(connection.getResponseMessage());
 			String contentType = connection.getContentType();
 			dto.setContentType(contentType);
 			long lengthLong = connection.getContentLengthLong();
@@ -249,6 +250,21 @@ public class ThreadLoadTask extends AbstractThreadLoadTask {
 			while ((length > actualLength) && ((readLength = is.readNBytes(data, actualLength, length - actualLength)) > 0)) {
 				actualLength += readLength;
 			}
+		} catch (IOException e) {
+			if (connection == null) {
+				dto.setResponseCode(-1);
+				dto.setResponseMessage(e.getClass().getName() + ": " + e.getMessage());
+			} else {
+				try {
+					dto.setResponseCode(connection.getResponseCode());
+					dto.setResponseMessage("HTTP " + connection.getResponseCode() + " " + connection.getResponseMessage());
+				} catch (IOException e1) {
+					dto.setResponseCode(-1);
+					dto.setResponseMessage(e.getClass().getName() + ": " + e.getMessage());
+				}
+			}
+			App.logger.error("request失敗", e);
+			return dto;
 		} finally {
 			if (is != null) {
 				try {

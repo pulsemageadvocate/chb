@@ -102,6 +102,7 @@ public class ShitarabaThreadLoadTask extends AbstractThreadLoadTask {
 		dto.setCheckTime(downloadDto.getCheckTime());
 		dto.setAccessTime(downloadDto.getAccessTime());
 		dto.setResponseCode(downloadDto.getResponseCode());
+		dto.setResponseMessage(downloadDto.getResponseMessage());
 		dto.setContentType(downloadDto.getContentType());
 		dto.setContentLength(downloadDto.getContentLength());
 		dto.setExpiration(downloadDto.getExpiration());

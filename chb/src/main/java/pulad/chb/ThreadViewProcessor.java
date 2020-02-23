@@ -25,6 +25,7 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import pulad.chb.bbs.BBS;
 import pulad.chb.bbs.BBSManager;
+import pulad.chb.dto.ThreadLoadTaskResponseDto;
 
 /**
  * スレッドを開く処理。
@@ -108,7 +109,7 @@ public class ThreadViewProcessor {
 		return webView;
 	}
 
-	private static class ThreadLoadService extends Service<String> {
+	private static class ThreadLoadService extends Service<ThreadLoadTaskResponseDto> {
 		private String url;
 		private boolean remote;
 
@@ -118,9 +119,9 @@ public class ThreadViewProcessor {
 		}
 
 		@Override
-		protected Task<String> createTask() {
+		protected Task<ThreadLoadTaskResponseDto> createTask() {
 			BBS bbsObject = BBSManager.getBBSFromUrl(url);
-			Task<String> task = bbsObject.createThreadLoadTask(url, remote);
+			Task<ThreadLoadTaskResponseDto> task = bbsObject.createThreadLoadTask(url, remote);
 			// なぜかこれを呼ぶとServiceのOnSucceededも呼ばれるようになる
 			task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 				@Override
@@ -146,7 +147,10 @@ public class ThreadViewProcessor {
 
 		@Override
 		public void handle(WorkerStateEvent event) {
-			String html = (String) event.getSource().getValue();
+			ThreadLoadTaskResponseDto threadLoadTaskResponseDto = (ThreadLoadTaskResponseDto) event.getSource().getValue();
+			tab.getProperties().put(App.TAB_PROPERTY_STATUS_ERROR, threadLoadTaskResponseDto.getErrorMessage());
+			App.getInstance().notifyChangeStatus();
+			String html = threadLoadTaskResponseDto.getHtml();
 			if (html == null) {
 				return;
 			}

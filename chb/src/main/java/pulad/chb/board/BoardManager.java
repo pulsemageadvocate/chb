@@ -68,7 +68,10 @@ public class BoardManager {
 			dto.setUrl(url);
 			// SETTING.TXTを（無ければ）ダウンロード
 			if (!Files.exists(settingFilePath) && remote) {
-				DownloadProcessor.download(bbsObject.getSettingTxtUrl(url), settingFilePath, 1048576);
+				try {
+					DownloadProcessor.download(bbsObject.getSettingTxtUrl(url), settingFilePath, 1048576);
+				} catch (IOException e) {
+				}
 			}
 
 			// SETTING.TXT読み込み

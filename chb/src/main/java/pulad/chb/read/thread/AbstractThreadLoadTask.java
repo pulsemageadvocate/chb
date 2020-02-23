@@ -30,11 +30,12 @@ import pulad.chb.constant.AboneLevel;
 import pulad.chb.dto.BoardDto;
 import pulad.chb.dto.ResDto;
 import pulad.chb.dto.ThreadDto;
+import pulad.chb.dto.ThreadLoadTaskResponseDto;
 import pulad.chb.dto.ThreadResponseDto;
 import pulad.chb.util.DateTimeUtil;
 import pulad.chb.util.NumberUtil;
 
-public abstract class AbstractThreadLoadTask extends Task<String> {
+public abstract class AbstractThreadLoadTask extends Task<ThreadLoadTaskResponseDto> {
 
 	protected static final String templateFileName = "ThreadTemplate";
 	protected static final String errorTemplateFileName = "ErrorTemplate";
@@ -82,7 +83,9 @@ public abstract class AbstractThreadLoadTask extends Task<String> {
 	protected abstract List<ResProcessor> createResProcessors();
 
 	@Override
-	protected String call() {
+	protected ThreadLoadTaskResponseDto call() {
+		ThreadLoadTaskResponseDto threadLoadTaskResponseDto = new ThreadLoadTaskResponseDto();
+
 		try {
 			this.now = DateTimeUtil.localDateTimeToHttpLong(LocalDateTime.now());
 
@@ -100,6 +103,9 @@ public abstract class AbstractThreadLoadTask extends Task<String> {
 					readDat(res, threadResponseDto.getData());
 					newResCount = res.lastKey() - lastResCount;
 					writeDat(res, lastRes, threadResponseDto);
+				} else if (threadResponseDto.getResponseCode() != 200) {
+					// エラー時
+					threadLoadTaskResponseDto.setErrorMessage(threadResponseDto.getResponseMessage());
 				}
 			}
 
@@ -130,17 +136,24 @@ public abstract class AbstractThreadLoadTask extends Task<String> {
 			context.setVariable("ABONE_LEVEL_NONE", AboneLevel.NONE);
 			context.setVariable("ABONE_LEVEL_ABONE", AboneLevel.ABONE);
 			context.setVariable("ABONE_LEVEL_INVISIBLE", AboneLevel.INVISIBLE);
-			return templateEngine.process(templateFileName, context);
+			threadLoadTaskResponseDto.setHtml(templateEngine.process(templateFileName, context));
+
+			return threadLoadTaskResponseDto;
 		} catch (Exception e) {
 			return errorProcess(e);
 		}
 	}
 
-	private String errorProcess(Exception e) {
+	private ThreadLoadTaskResponseDto errorProcess(Exception e) {
+		ThreadLoadTaskResponseDto threadLoadTaskResponseDto = new ThreadLoadTaskResponseDto();
+		threadLoadTaskResponseDto.setErrorMessage(e.getMessage());
+
 		// html生成
 		org.thymeleaf.context.Context context = new org.thymeleaf.context.Context(Locale.JAPANESE);
 		context.setVariable("exception", e);
-		return templateEngine.process(errorTemplateFileName, context);
+		threadLoadTaskResponseDto.setHtml(templateEngine.process(errorTemplateFileName, context));
+
+		return threadLoadTaskResponseDto;
 	}
 
 	/**

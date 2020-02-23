@@ -27,6 +27,7 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import pulad.chb.bbs.BBS;
 import pulad.chb.bbs.BBSManager;
+import pulad.chb.dto.ThreadLoadTaskResponseDto;
 
 /**
  * スレッドのID等からポップアップするレス一覧。
@@ -69,7 +70,7 @@ public class PopupThreadViewProcessor {
 		return popup;
 	}
 
-	private static class ThreadLoadService extends Service<String> {
+	private static class ThreadLoadService extends Service<ThreadLoadTaskResponseDto> {
 		private String url;
 		private List<Integer> resFilter;
 
@@ -79,9 +80,9 @@ public class PopupThreadViewProcessor {
 		}
 
 		@Override
-		protected Task<String> createTask() {
+		protected Task<ThreadLoadTaskResponseDto> createTask() {
 			BBS bbsObject = BBSManager.getBBSFromUrl(url);
-			Task<String> task = bbsObject.createThreadLoadTask(url, false, resFilter);
+			Task<ThreadLoadTaskResponseDto> task = bbsObject.createThreadLoadTask(url, false, resFilter);
 			// なぜかこれを呼ぶとServiceのOnSucceededも呼ばれるようになる
 			task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 				@Override

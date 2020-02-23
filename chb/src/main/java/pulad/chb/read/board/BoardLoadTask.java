@@ -18,11 +18,13 @@ import pulad.chb.bbs.BBS;
 import pulad.chb.bbs.BBSManager;
 import pulad.chb.board.BoardManager;
 import pulad.chb.dto.BoardDto;
+import pulad.chb.dto.BoardLoadTaskResponseDto;
+import pulad.chb.dto.DownloadDto;
 import pulad.chb.dto.ThreadDto;
 import pulad.chb.util.DateTimeUtil;
 import pulad.chb.util.FileUtil;
 
-public class BoardLoadTask extends Task<BoardDto> {
+public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 	// immutable
 	private final Pattern regSubject = Pattern.compile("^(?<dat>(?<thread>[0-9]*).*?)(\\<\\>|,)(?<title>.*)\\((?<res>[0-9]+)\\)$", Pattern.CASE_INSENSITIVE);
 	private List<ThreadProcessor> threadProcessors;
@@ -41,7 +43,9 @@ public class BoardLoadTask extends Task<BoardDto> {
 	}
 
 	@Override
-	protected BoardDto call() throws Exception {
+	protected BoardLoadTaskResponseDto call() throws Exception {
+		BoardLoadTaskResponseDto boardLoadTaskResponseDto = new BoardLoadTaskResponseDto();
+
 		BBS bbsObject = BBSManager.getBBSFromUrl(urlStr);
 		String bbs = bbsObject.getLogDirectoryName();
 		String board = bbsObject.getBoardFromBoardUrl(urlStr);
@@ -49,7 +53,15 @@ public class BoardLoadTask extends Task<BoardDto> {
 
 		// subject.txtダウンロード
 		if (this.remote) {
-			DownloadProcessor.download(urlStr + "subject.txt", subjectFilePath, 1048576);
+			try {
+				DownloadDto downloadDto = DownloadProcessor.download(urlStr + "subject.txt", subjectFilePath, 1048576);
+				if (downloadDto.getResponseCode() <= 0) {
+					boardLoadTaskResponseDto.setErrorMessage(downloadDto.getResponseMessage());
+				} else if (downloadDto.getResponseCode() != 200) {
+					boardLoadTaskResponseDto.setErrorMessage("HTTP " + downloadDto.getResponseCode() + " " + downloadDto.getResponseMessage());
+				}
+			} catch (IOException e) {
+			}
 		}
 
 		// subject.txt/threadst.txt読み込み
@@ -90,6 +102,7 @@ public class BoardLoadTask extends Task<BoardDto> {
 				}
 			}
 		} catch (Exception e) {
+			boardLoadTaskResponseDto.setErrorMessage(e.getClass().getName() + ": " + e.getMessage());
 			ThreadDto dto = new ThreadDto();
 			dto.setTitle(e.toString());
 			thread.add(dto);
@@ -113,6 +126,7 @@ public class BoardLoadTask extends Task<BoardDto> {
 		}
 		boardDto.setThread(thread);
 
-		return boardDto;
+		boardLoadTaskResponseDto.setDto(boardDto);
+		return boardLoadTaskResponseDto;
 	}
 }

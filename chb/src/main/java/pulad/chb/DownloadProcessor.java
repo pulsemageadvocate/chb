@@ -18,30 +18,45 @@ import pulad.chb.util.DateTimeUtil;
 
 public class DownloadProcessor {
 
-	public static boolean download(String urlStr, Path filePath) {
+	/**
+	 * ファイルをダウンロードして保存する。ダウンロードの詳細を返す。
+	 * @param urlStr
+	 * @param filePath
+	 * @return
+	 * @throws IOException 書き込みに失敗した場合
+	 */
+	public static DownloadDto download(String urlStr, Path filePath) throws IOException {
 		return download(urlStr, filePath, 1048576);
 	}
 
-	public static boolean download(String urlStr, Path filePath, int maxLength) {
+	/**
+	 * ファイルをダウンロードして保存する。ダウンロードの詳細を返す。
+	 * @param urlStr
+	 * @param filePath
+	 * @param maxLength
+	 * @return
+	 * @throws IOException 書き込みに失敗した場合
+	 */
+	public static DownloadDto download(String urlStr, Path filePath, int maxLength) throws IOException {
 		DownloadDto dto = downloadBytes(urlStr, maxLength);
 		if (dto == null) {
-			return false;
+			return null;
 		}
 		byte[] data = dto.getData();
 		if (data == null) {
-			return false;
+			return dto;
 		}
 		try {
 			Files.write(filePath, data, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 		} catch (IOException e) {
 			App.logger.error("download失敗", e);
-			return false;
+			throw e;
 		}
-		return true;
+		return dto;
 	}
 
 	/**
-	 * ファイルをダウンロードする。
+	 * ファイルをダウンロードする。ダウンロードの詳細を返す。
 	 * @param urlStr URL
 	 * @return DownloadDto
 	 */
@@ -50,7 +65,7 @@ public class DownloadProcessor {
 	}
 
 	/**
-	 * ファイルをダウンロードする。
+	 * ファイルをダウンロードする。ダウンロードの詳細を返す。
 	 * @param urlStr URL
 	 * @param maxLength ファイルサイズが指定バイトを超える場合はダウンロードしない。
 	 * @return DownloadDto
@@ -60,7 +75,7 @@ public class DownloadProcessor {
 	}
 
 	/**
-	 * ファイルをダウンロードする。
+	 * ファイルをダウンロードする。ダウンロードの詳細を返す。
 	 * @param urlStr URL
 	 * @param maxLength ファイルサイズが指定バイトを超える場合はダウンロードしない。
 	 * @param filter falseを返した場合はダウンロードしない。
@@ -86,6 +101,7 @@ public class DownloadProcessor {
 			connection.connect();
 
 			dto.setResponseCode(connection.getResponseCode());
+			dto.setResponseMessage(connection.getResponseMessage());
 			String contentType = connection.getContentType();
 			dto.setContentType(contentType);
 			long lengthLong = connection.getContentLengthLong();
@@ -116,15 +132,19 @@ public class DownloadProcessor {
 			dto.setData(data);
 		} catch (UnknownHostException e) {
 			dto.setResponseCode(410); // 410 Goneにして再度要求しないようにする
+			dto.setResponseMessage(e.getClass().getName() + ": " + e.getMessage());
 			// コンソールに出てくるとうざいだけなので出さない
 		} catch (IOException e) {
 			if (connection == null) {
 				dto.setResponseCode(-1);
+				dto.setResponseMessage(e.getClass().getName() + ": " + e.getMessage());
 			} else {
 				try {
 					dto.setResponseCode(connection.getResponseCode());
+					dto.setResponseMessage("HTTP " + connection.getResponseCode() + " " + connection.getResponseMessage());
 				} catch (IOException e1) {
 					dto.setResponseCode(-1);
+					dto.setResponseMessage(e.getClass().getName() + ": " + e.getMessage());
 				}
 			}
 			App.logger.error("downloadBytes失敗", e);

@@ -9,6 +9,7 @@ public class ResponseDto implements Serializable {
 	private long checkTime;
 	private long accessTime;
 	private int responseCode;
+	private String responseMessage;
 	private String contentType;
 	private long contentLength;
 	private long expiration;
@@ -39,6 +40,12 @@ public class ResponseDto implements Serializable {
 	}
 	public void setResponseCode(int responseCode) {
 		this.responseCode = responseCode;
+	}
+	public String getResponseMessage() {
+		return responseMessage;
+	}
+	public void setResponseMessage(String responseMessage) {
+		this.responseMessage = responseMessage;
 	}
 	public String getContentType() {
 		return contentType;

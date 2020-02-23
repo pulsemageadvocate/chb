@@ -14,6 +14,7 @@ import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.thymeleaf.util.ObjectUtils;
 import org.thymeleaf.util.StringUtils;
 import org.w3c.dom.events.EventListener;
 
@@ -73,7 +74,7 @@ public class App extends Application {
 	 * Tabのcontent(Node型）のgetPropertyで設定する値。
 	 * Consumer&lt;String&gt;型。
 	 */
-	public static final String PROPERTY_SEARCH_FUNCTION = "SEARCH_FUNCTION";
+	public static final String PROPERTY_SEARCH_FUNCTION = "searchFunction";
 	/**
 	 * TabのProperty値のURL。
 	 */
@@ -82,6 +83,10 @@ public class App extends Application {
 	 * TabのProperty値のステータスバーに表示する文字。
 	 */
 	public static final String TAB_PROPERTY_STATUS = "status";
+	/**
+	 * TabのProperty値のステータスバーに表示するエラーメッセージ。
+	 */
+	public static final String TAB_PROPERTY_STATUS_ERROR = "statusError";
 
 	private static App app = null;
 	private Stage stage = null;
@@ -334,7 +339,8 @@ public class App extends Application {
 				statusBar.setText("");
 				return;
 			}
-			statusBar.setText((String) tab.getProperties().getOrDefault(App.TAB_PROPERTY_STATUS, ""));
+			statusBar.setText(ObjectUtils.nullSafe((String) tab.getProperties().getOrDefault(App.TAB_PROPERTY_STATUS_ERROR, null), "") +
+					" " + (String) tab.getProperties().getOrDefault(App.TAB_PROPERTY_STATUS, ""));
 		}
 	}
 
@@ -370,6 +376,7 @@ public class App extends Application {
 			BoardViewProcessor.open(tab, this, url, remote);
 			threadTabPane.getTabs().add(tab);
 		} else {
+			tab.getProperties().remove(TAB_PROPERTY_STATUS_ERROR);
 			BoardViewProcessor.reload(tab, this, url, remote);
 		}
 		threadTabPane.getSelectionModel().select(tab);
@@ -406,6 +413,7 @@ public class App extends Application {
 			ThreadViewProcessor.open(tab, url, remote);
 			threadTabPane.getTabs().add(tab);
 		} else {
+			tab.getProperties().remove(TAB_PROPERTY_STATUS_ERROR);
 			ThreadViewProcessor.reload(tab, url, remote);
 		}
 		threadTabPane.getSelectionModel().select(tab);
