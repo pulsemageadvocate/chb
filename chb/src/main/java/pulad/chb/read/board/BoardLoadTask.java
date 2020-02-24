@@ -54,7 +54,7 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 		// subject.txtダウンロード
 		if (this.remote) {
 			try {
-				DownloadDto downloadDto = DownloadProcessor.download(urlStr + "subject.txt", subjectFilePath, 1048576);
+				DownloadDto downloadDto = DownloadProcessor.download(urlStr + "subject.txt", subjectFilePath, 1048576, 10000);
 				if (downloadDto.getResponseCode() <= 0) {
 					boardLoadTaskResponseDto.setErrorMessage(downloadDto.getResponseMessage());
 				} else if (downloadDto.getResponseCode() != 200) {

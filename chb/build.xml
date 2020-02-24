@@ -14,6 +14,7 @@
             </manifest>
             <fileset dir="${dir.buildfile}/target/classes"/>
         </jar>
+        <copy file="${dir.jarfile}/chb.jar" todir="R:/Temp"/>
         <delete dir="${dir.jarfile}/chb_lib"/>
         <mkdir dir="${dir.jarfile}/chb_lib"/>
         <copy file="${dir.buildfile}/lib/rhino-1.7.11.jar" todir="${dir.jarfile}/chb_lib"/>

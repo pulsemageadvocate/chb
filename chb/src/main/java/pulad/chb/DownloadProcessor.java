@@ -26,7 +26,7 @@ public class DownloadProcessor {
 	 * @throws IOException 書き込みに失敗した場合
 	 */
 	public static DownloadDto download(String urlStr, Path filePath) throws IOException {
-		return download(urlStr, filePath, 1048576);
+		return download(urlStr, filePath, 1048576, 30000);
 	}
 
 	/**
@@ -38,7 +38,20 @@ public class DownloadProcessor {
 	 * @throws IOException 書き込みに失敗した場合
 	 */
 	public static DownloadDto download(String urlStr, Path filePath, int maxLength) throws IOException {
-		DownloadDto dto = downloadBytes(urlStr, maxLength);
+		return download(urlStr, filePath, maxLength, 30000);
+	}
+
+	/**
+	 * ファイルをダウンロードして保存する。ダウンロードの詳細を返す。
+	 * @param urlStr
+	 * @param filePath
+	 * @param maxLength
+	 * @param timeout タイムアウト（ミリ秒）
+	 * @return
+	 * @throws IOException 書き込みに失敗した場合
+	 */
+	public static DownloadDto download(String urlStr, Path filePath, int maxLength, int timeout) throws IOException {
+		DownloadDto dto = downloadBytes(urlStr, maxLength, timeout);
 		if (dto == null) {
 			return null;
 		}
@@ -61,7 +74,7 @@ public class DownloadProcessor {
 	 * @return DownloadDto
 	 */
 	public static DownloadDto downloadBytes(String urlStr) {
-		return downloadBytes(urlStr, 1048576, null);
+		return downloadBytes(urlStr, 1048576, 30000, null);
 	}
 
 	/**
@@ -71,7 +84,18 @@ public class DownloadProcessor {
 	 * @return DownloadDto
 	 */
 	public static DownloadDto downloadBytes(String urlStr, int maxLength) {
-		return downloadBytes(urlStr, maxLength, null);
+		return downloadBytes(urlStr, maxLength, 30000, null);
+	}
+
+	/**
+	 * ファイルをダウンロードする。ダウンロードの詳細を返す。
+	 * @param urlStr URL
+	 * @param maxLength ファイルサイズが指定バイトを超える場合はダウンロードしない。
+	 * @param timeout タイムアウト（ミリ秒）
+	 * @return DownloadDto
+	 */
+	public static DownloadDto downloadBytes(String urlStr, int maxLength, int timeout) {
+		return downloadBytes(urlStr, maxLength, timeout, null);
 	}
 
 	/**
@@ -82,6 +106,18 @@ public class DownloadProcessor {
 	 * @return DownloadDto
 	 */
 	public static DownloadDto downloadBytes(String urlStr, int maxLength, Predicate<HttpURLConnection> filter) {
+		return downloadBytes(urlStr, maxLength, 30000, filter);
+	}
+
+	/**
+	 * ファイルをダウンロードする。ダウンロードの詳細を返す。
+	 * @param urlStr URL
+	 * @param maxLength ファイルサイズが指定バイトを超える場合はダウンロードしない。
+	 * @param timeout タイムアウト（ミリ秒）
+	 * @param filter falseを返した場合はダウンロードしない。
+	 * @return DownloadDto
+	 */
+	public static DownloadDto downloadBytes(String urlStr, int maxLength, int timeout, Predicate<HttpURLConnection> filter) {
 		DownloadDto dto = new DownloadDto();
 		dto.setUrl(urlStr);
 		long now = DateTimeUtil.localDateTimeToHttpLong(LocalDateTime.now());
@@ -96,7 +132,8 @@ public class DownloadProcessor {
 			URL url = new URL(urlStr);
 			connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
-			connection.setReadTimeout(30000);
+			connection.setConnectTimeout(timeout);
+			connection.setReadTimeout(timeout);
 			connection.setInstanceFollowRedirects(true);
 			connection.connect();
 

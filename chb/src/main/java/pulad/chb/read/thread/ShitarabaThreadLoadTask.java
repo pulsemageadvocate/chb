@@ -95,7 +95,7 @@ public class ShitarabaThreadLoadTask extends AbstractThreadLoadTask {
 		} else {
 			//urlLast = urlLast;
 		}
-		DownloadDto downloadDto = DownloadProcessor.downloadBytes(urlLast, 1048576);
+		DownloadDto downloadDto = DownloadProcessor.downloadBytes(urlLast, 1048576, 120000);
 
 		ThreadResponseDto dto = new ThreadResponseDto();
 		dto.setUrl(downloadDto.getUrl());

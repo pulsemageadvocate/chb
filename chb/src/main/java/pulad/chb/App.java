@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
@@ -339,8 +340,9 @@ public class App extends Application {
 				statusBar.setText("");
 				return;
 			}
-			statusBar.setText(ObjectUtils.nullSafe((String) tab.getProperties().getOrDefault(App.TAB_PROPERTY_STATUS_ERROR, null), "") +
-					" " + (String) tab.getProperties().getOrDefault(App.TAB_PROPERTY_STATUS, ""));
+			Map<Object, Object> properties = tab.getProperties();
+			statusBar.setText(ObjectUtils.nullSafe((String) properties.getOrDefault(App.TAB_PROPERTY_STATUS_ERROR, null), "") +
+					" " + (String) properties.getOrDefault(App.TAB_PROPERTY_STATUS, ""));
 		}
 	}
 
