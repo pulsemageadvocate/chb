@@ -74,6 +74,7 @@ public class ImageViewProcessor {
 		public void handle(MouseEvent event) {
 			// ドラッグ（の時間後）の場合は反応しないようにする
 			if (event.isStillSincePress()) {
+				App.logger.debug("ImageViewProcessor.MouseClickEventHandler.handle();");
 				popup.hide();
 				event.consume();
 			}
