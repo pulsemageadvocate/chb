@@ -3,6 +3,7 @@ package pulad.chb;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 
@@ -21,7 +22,10 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Tab;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DataFormat;
 import javafx.scene.web.WebView;
 import pulad.chb.bbs.BBS;
 import pulad.chb.bbs.BBSManager;
@@ -132,7 +136,11 @@ public class ThreadViewRightClickEventListener implements EventListener {
 		case "name":
 		{
 			List<MenuItem> itemList = new ArrayList<MenuItem>();
-			MenuItem item = new MenuItem("あぼ～ん スレッド");
+			MenuItem item = new MenuItem("コピー");
+			item.setOnAction(new CopyAction(currentThreadView));
+			itemList.add(item);
+			itemList.add(new SeparatorMenuItem());
+			item = new MenuItem("あぼ～ん スレッド");
 			item.setOnAction(new AddAboneNameAction(tab, url, getThread(url), word, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん 板");
@@ -164,7 +172,11 @@ public class ThreadViewRightClickEventListener implements EventListener {
 		case "wacchoi":
 		{
 			List<MenuItem> itemList = new ArrayList<MenuItem>();
-			MenuItem item = new MenuItem("あぼ～ん スレッド");
+			MenuItem item = new MenuItem("コピー");
+			item.setOnAction(new CopyAction(currentThreadView));
+			itemList.add(item);
+			itemList.add(new SeparatorMenuItem());
+			 item = new MenuItem("あぼ～ん スレッド");
 			item.setOnAction(new AddAboneWacchoiAction(tab, url, getThread(url), word, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん 板");
@@ -202,7 +214,11 @@ public class ThreadViewRightClickEventListener implements EventListener {
 //			}
 //			String lower = matcher.group();
 			List<MenuItem> itemList = new ArrayList<MenuItem>();
-			MenuItem item = new MenuItem("あぼ～ん スレッド");
+			MenuItem item = new MenuItem("コピー");
+			item.setOnAction(new CopyAction(currentThreadView));
+			itemList.add(item);
+			itemList.add(new SeparatorMenuItem());
+			item = new MenuItem("あぼ～ん スレッド");
 			item.setOnAction(new AddAboneWacchoiAction(tab, url, getThread(url), word, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん 板");
@@ -234,7 +250,11 @@ public class ThreadViewRightClickEventListener implements EventListener {
 		case "ip":
 		{
 			List<MenuItem> itemList = new ArrayList<MenuItem>();
-			MenuItem item = new MenuItem("あぼ～ん スレッド");
+			MenuItem item = new MenuItem("コピー");
+			item.setOnAction(new CopyAction(currentThreadView));
+			itemList.add(item);
+			itemList.add(new SeparatorMenuItem());
+			item = new MenuItem("あぼ～ん スレッド");
 			item.setOnAction(new AddAboneIPAction(tab, url, getThread(url), word, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん 板");
@@ -266,7 +286,11 @@ public class ThreadViewRightClickEventListener implements EventListener {
 		case "id":
 		{
 			List<MenuItem> itemList = new ArrayList<MenuItem>();
-			MenuItem item = new MenuItem("あぼ～ん スレッド");
+			MenuItem item = new MenuItem("コピー");
+			item.setOnAction(new CopyAction(currentThreadView));
+			itemList.add(item);
+			itemList.add(new SeparatorMenuItem());
+			item = new MenuItem("あぼ～ん スレッド");
 			item.setOnAction(new AddAboneIDAction(tab, url, getThread(url), word, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん 板");
@@ -320,7 +344,11 @@ public class ThreadViewRightClickEventListener implements EventListener {
 		}
 		if (StringUtils.isEmpty(selection)) {
 			List<MenuItem> itemList = new ArrayList<MenuItem>();
-			MenuItem item = new MenuItem("再読み込み");
+			MenuItem item = new MenuItem("コピー");
+			item.setOnAction(new CopyAction(currentThreadView));
+			itemList.add(item);
+			itemList.add(new SeparatorMenuItem());
+			item = new MenuItem("再読み込み");
 			item.setOnAction(x -> {
 				ThreadViewProcessor.open(tab, url, true, scrollY);
 			});
@@ -342,7 +370,11 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			menu.show(currentThreadView.getScene().getWindow(), event.getScreenX(), event.getScreenY());
 		} else {
 			List<MenuItem> itemList = new ArrayList<MenuItem>();
-			MenuItem item = new MenuItem("本文あぼ～ん スレッド");
+			MenuItem item = new MenuItem("コピー");
+			item.setOnAction(new CopyAction(currentThreadView));
+			itemList.add(item);
+			itemList.add(new SeparatorMenuItem());
+			item = new MenuItem("本文あぼ～ん スレッド");
 			item.setOnAction(new AddAboneBodyAction(tab, url, getThread(url), selection, false, selection, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("本文あぼ～ん 板");
@@ -398,6 +430,25 @@ public class ThreadViewRightClickEventListener implements EventListener {
 		String threadNGFileName = bbsObject.getThreadFromThreadUrl(url) + ".chb.txt";
 
 		return App.logFolder.resolve(bbs).resolve(board).resolve(threadNGFileName).toFile();
+	}
+
+	private static class CopyAction implements EventHandler<ActionEvent> {
+		private WebView currentThreadView;
+
+		private CopyAction(WebView currentThreadView) {
+			this.currentThreadView = currentThreadView;
+		}
+
+		@Override
+		public void handle(ActionEvent event) {
+			//currentThreadView.getEngine().executeScript("document.execCommand(\"copy\");");
+			String selection = (String) currentThreadView.getEngine().executeScript("window.getSelection().toString()");
+			if (!StringUtils.isEmptyOrWhitespace(selection)) {
+				HashMap<DataFormat, Object> content = new HashMap<>();
+				content.put(DataFormat.PLAIN_TEXT, selection);
+				Clipboard.getSystemClipboard().setContent(content);
+			}
+		}
 	}
 
 	private static abstract class AddAboneAction implements EventHandler<ActionEvent> {
