@@ -6,9 +6,9 @@ import java.util.Collection;
 import pulad.chb.read.thread.AbstractThreadLoadTask;
 
 public interface BBS {
-
 	public String getBBSDirectoryName();
 	public String getLogDirectoryName();
+	public boolean isUrl(String url);
 	public String getBoardFromBoardUrl(String boardUrl);
 	public String getBoardFromThreadUrl(String threadUrl);
 	public String getBoardUrlFromThreadUrl(String threadUrl);

@@ -165,7 +165,7 @@ public abstract class AbstractThreadLoadTask extends Task<ThreadLoadTaskResponse
 	 * @param datFileName
 	 */
 	private void readDat(TreeMap<Integer, ResDto> res) {
-		BBS bbsObject = BBSManager.getBBSFromDirectoryName(bbs);
+		BBS bbsObject = BBSManager.getBBSFromLogDirectoryName(bbs);
 		try {
 			readDat(res, new BufferedReader(new FileReader(App.logFolder.resolve(bbs).resolve(board).resolve(datFileName).toString(), bbsObject.getCharset())));
 		} catch (Exception e) {

@@ -9,6 +9,7 @@ import pulad.chb.read.thread.AbstractThreadLoadTask;
 import pulad.chb.read.thread.ThreadLoadTask;
 
 public class _5ch implements BBS {
+	private static final Pattern reg5ch = Pattern.compile("^(?<root>https?://[^/]+\\.[25]ch\\.[^/]+/)");
 	private static final Pattern reg5chBoard = Pattern.compile("^(?<root>https?://[^/]+\\.[25]ch\\.[^/]+/)(?<board>[^/]+)/");
 	private static final Pattern reg5chThread = Pattern.compile("^(?<root>https?://[^/]+\\.[25]ch\\.[^/]+/)test/read\\.cgi/(?<board>[^/]+)/(?<thread>[0-9]+)/");
 
@@ -20,6 +21,11 @@ public class _5ch implements BBS {
 	@Override
 	public String getLogDirectoryName() {
 		return "2ch_";
+	}
+
+	@Override
+	public boolean isUrl(String url) {
+		return reg5ch.matcher(url).find();
 	}
 
 	@Override

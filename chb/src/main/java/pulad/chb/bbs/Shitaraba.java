@@ -10,6 +10,7 @@ import pulad.chb.read.thread.AbstractThreadLoadTask;
 import pulad.chb.read.thread.ShitarabaThreadLoadTask;
 
 public class Shitaraba implements BBS {
+	private static final Pattern regShitaraba = Pattern.compile("^(?<root>https?://jbbs\\.shitaraba\\.(net|com)/)");
 	private static final Pattern regShitarabaBoard = Pattern.compile("^(?<root>https?://jbbs\\.shitaraba\\.(net|com)/)(?<board>[^/]+)/(?<num>[0-9]+)/");
 	private static final Pattern regShitarabaThread = Pattern.compile("^(?<root>https?://jbbs\\.shitaraba\\.(net|com)/)bbs/read\\.cgi/(?<board>[^/]+)/(?<num>[0-9]+)/(?<thread>[0-9]+)/");
 
@@ -21,6 +22,11 @@ public class Shitaraba implements BBS {
 	@Override
 	public String getLogDirectoryName() {
 		return "jbbs_";
+	}
+
+	@Override
+	public boolean isUrl(String url) {
+		return regShitaraba.matcher(url).find();
 	}
 
 	@Override

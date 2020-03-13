@@ -22,7 +22,7 @@ public class BBSMenuTreeProcessor {
 	public static void open(Tab tab, App app) {
 		tab.setClosable(false);
 
-		BBS bbsObject = BBSManager.ch;
+		BBS bbsObject = BBSManager.getBBSFromLogDirectoryName("2ch_");
 		String bbs = bbsObject.getBBSDirectoryName();
 		TreeView<TreeItemDto> tree = new BBSMenuTreeLoader(app).load(tab, FileUtil.realCapitalPath(App.bbsFolder.resolve(bbs).resolve("bbstree.txt")));
 		if (tree.getRoot() == null) {
