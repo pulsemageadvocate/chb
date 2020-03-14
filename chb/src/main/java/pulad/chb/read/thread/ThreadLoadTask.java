@@ -22,7 +22,6 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
 import pulad.chb.App;
-import pulad.chb.board.BoardManager;
 import pulad.chb.dto.BoardDto;
 import pulad.chb.dto.ResDto;
 import pulad.chb.dto.ThreadResponseDto;
@@ -60,8 +59,7 @@ public class ThreadLoadTask extends AbstractThreadLoadTask {
 	}
 
 	@Override
-	protected void readDat(TreeMap<Integer, ResDto> res, BufferedReader br) throws IOException {
-		BoardDto boardDto = BoardManager.get(bbsObject.getBoardUrlFromThreadUrl(urlStr), remote);
+	protected void readDat(BoardDto boardDto, TreeMap<Integer, ResDto> res, BufferedReader br) throws IOException {
 		String noNameName = boardDto.getSetting().getOrDefault("BBS_NONAME_NAME", "");
 
 		try {

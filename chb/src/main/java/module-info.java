@@ -5,7 +5,7 @@ module pulad.chb {
 	requires transitive javafx.web;
 	requires thymeleaf;
 	requires java.xml;
-	requires rhino;
+	requires transitive rhino;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.core;
 	requires java.desktop;
@@ -13,10 +13,11 @@ module pulad.chb {
 	requires transitive slf4j.api;
     opens templates;
     exports pulad.chb;
+    exports pulad.chb.bbs;
     exports pulad.chb.dto;
     exports pulad.chb.constant;
     exports pulad.chb.util;
     exports pulad.chb.favorite to pulad.chb;
-    exports pulad.chb.read.board to pulad.chb;
-    exports pulad.chb.read.thread to pulad.chb;
+    exports pulad.chb.read.board;
+    exports pulad.chb.read.thread;
 }

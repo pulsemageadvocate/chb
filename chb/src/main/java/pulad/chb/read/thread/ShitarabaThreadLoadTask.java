@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.TreeMap;
 
 import pulad.chb.DownloadProcessor;
-import pulad.chb.board.BoardManager;
 import pulad.chb.dto.BoardDto;
 import pulad.chb.dto.DownloadDto;
 import pulad.chb.dto.ResDto;
@@ -43,8 +42,7 @@ public class ShitarabaThreadLoadTask extends AbstractThreadLoadTask {
 	}
 
 	@Override
-	protected void readDat(TreeMap<Integer, ResDto> res, BufferedReader br) throws IOException {
-		BoardDto boardDto = BoardManager.get(bbsObject.getBoardUrlFromThreadUrl(urlStr), remote);
+	protected void readDat(BoardDto boardDto, TreeMap<Integer, ResDto> res, BufferedReader br) throws IOException {
 		String noNameName = boardDto.getSetting().getOrDefault("BBS_NONAME_NAME", "");
 
 		try {

@@ -90,8 +90,10 @@ public abstract class AbstractThreadLoadTask extends Task<ThreadLoadTaskResponse
 			this.now = DateTimeUtil.localDateTimeToHttpLong(LocalDateTime.now());
 
 			// dat読み込み
+			BoardDto boardDto = BoardManager.get(bbsObject.getBoardUrlFromThreadUrl(urlStr), remote);
+
 			TreeMap<Integer, ResDto> res = new TreeMap<>();
-			readDat(res);
+			readDat(boardDto, res);
 			int lastResCount = res.isEmpty() ? 0 : res.lastKey();
 			int newResCount = 0;
 
@@ -100,7 +102,8 @@ public abstract class AbstractThreadLoadTask extends Task<ThreadLoadTaskResponse
 				ThreadResponseDto threadResponseDto = request(res);
 				if (threadResponseDto.getData() != null) {
 					int lastRes = res.isEmpty() ? 0 : res.lastKey();
-					readDat(res, threadResponseDto.getData());
+
+					readDat(boardDto, res, threadResponseDto.getData());
 					newResCount = res.lastKey() - lastResCount;
 					writeDat(res, lastRes, threadResponseDto);
 				} else if (threadResponseDto.getResponseCode() != 200) {
@@ -159,15 +162,13 @@ public abstract class AbstractThreadLoadTask extends Task<ThreadLoadTaskResponse
 
 	/**
 	 * DATファイルからレスを取得してListに追加する。
+	 * @param boardDto
 	 * @param res
-	 * @param bbs
-	 * @param board
-	 * @param datFileName
 	 */
-	private void readDat(TreeMap<Integer, ResDto> res) {
+	private void readDat(BoardDto boardDto, TreeMap<Integer, ResDto> res) {
 		BBS bbsObject = BBSManager.getBBSFromLogDirectoryName(bbs);
 		try {
-			readDat(res, new BufferedReader(new FileReader(App.logFolder.resolve(bbs).resolve(board).resolve(datFileName).toString(), bbsObject.getCharset())));
+			readDat(boardDto, res, new BufferedReader(new FileReader(App.logFolder.resolve(bbs).resolve(board).resolve(datFileName).toString(), bbsObject.getCharset())));
 		} catch (Exception e) {
 			// 読めない場合は再取得
 		}
@@ -175,14 +176,15 @@ public abstract class AbstractThreadLoadTask extends Task<ThreadLoadTaskResponse
 
 	/**
 	 * readcgi.js処理済みの文字列からレスを取得してListに追加する。
+	 * @param boardDto
 	 * @param res
 	 * @param source
 	 */
-	private void readDat(TreeMap<Integer, ResDto> res, String source) throws IOException {
-		readDat(res, new BufferedReader(new StringReader(source)));
+	private void readDat(BoardDto boardDto, TreeMap<Integer, ResDto> res, String source) throws IOException {
+		readDat(boardDto, res, new BufferedReader(new StringReader(source)));
 	}
 
-	protected abstract void readDat(TreeMap<Integer, ResDto> res, BufferedReader br) throws IOException;
+	protected abstract void readDat(BoardDto boardDto, TreeMap<Integer, ResDto> res, BufferedReader br) throws IOException;
 
 	protected abstract ThreadResponseDto request(TreeMap<Integer, ResDto> res) throws IOException;
 
