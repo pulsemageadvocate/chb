@@ -55,6 +55,7 @@ public class ThreadLoadTask extends AbstractThreadLoadTask {
 		resProcessors.add(new CountResProcessor());
 		resProcessors.add(new LinkPopupResProcessor());
 		resProcessors.add(new AboneResProcessor());
+		resProcessors.add(new BodyWacchoiNGAnchorResProcessor());
 		return resProcessors;
 	}
 
