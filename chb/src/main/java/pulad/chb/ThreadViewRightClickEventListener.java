@@ -13,6 +13,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.MouseEvent;
+import org.w3c.dom.html.HTMLImageElement;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +37,8 @@ import pulad.chb.dto.AboneIPDto;
 import pulad.chb.dto.AboneNameDto;
 import pulad.chb.dto.AboneWacchoiDto;
 import pulad.chb.dto.NGFileDto;
+import pulad.chb.read.thread.LinkHistManager;
+import pulad.chb.read.thread.LocalURLStreamHandler;
 
 public class ThreadViewRightClickEventListener implements EventListener {
 	//private static final Pattern regWacchoiLower = Pattern.compile("-[^ -]{4}");
@@ -97,6 +100,36 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			handleDefault(event);
 			return;
 		}
+
+		if (handleImg(event)) {
+			return;
+		} else if (handleAboneable(event)) {
+			return;
+		}
+		handleDefault(event);
+	}
+
+	private boolean handleImg(MouseEvent event) {
+		Node target = (Node) event.getTarget();
+		if (!(target instanceof HTMLImageElement)) {
+		//if (!"img".equalsIgnoreCase(target.getNodeName())) {
+			return false;
+		}
+
+		HTMLImageElement img = (HTMLImageElement) target;
+		String src = img.getSrc();
+		String imageFileName = LinkHistManager.getCacheFileName(LocalURLStreamHandler.getSourceUrl(src));
+		List<MenuItem> itemList = new ArrayList<MenuItem>();
+		MenuItem item = new MenuItem("ファイル名をコピー");
+		item.setOnAction(new CopyAction(imageFileName));
+		itemList.add(item);
+		ContextMenu menu = new ContextMenu(itemList.toArray(new MenuItem[itemList.size()]));
+		menu.setAutoHide(true);
+		menu.show(currentThreadView.getScene().getWindow(), event.getScreenX(), event.getScreenY());
+		return true;
+	}
+
+	private boolean handleAboneable(MouseEvent event) {
 		Node target = (Node) event.getTarget();
 		// aboneable検索
 		String aboneable = null;
@@ -113,9 +146,9 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			aboneableNode = aboneableNode.getParentNode();
 		}
 		if (aboneable == null) {
-			handleDefault(event);
-			return;
+			return false;
 		}
+
 		// timeLong検索
 		long timeLong = 0L;
 		Node n = target.getParentNode();
@@ -319,7 +352,10 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			menu.show(currentThreadView.getScene().getWindow(), event.getScreenX(), event.getScreenY());
 		}
 			break;
+		default:
+			return false;
 		}
+		return true;
 	}
 
 	private void handleDefault(MouseEvent event) {
@@ -433,19 +469,25 @@ public class ThreadViewRightClickEventListener implements EventListener {
 	}
 
 	private static class CopyAction implements EventHandler<ActionEvent> {
-		private WebView currentThreadView;
+		private String text;
+
+		private CopyAction(String text) {
+			this.text = text;
+		}
 
 		private CopyAction(WebView currentThreadView) {
-			this.currentThreadView = currentThreadView;
+			//currentThreadView.getEngine().executeScript("document.execCommand(\"copy\");");
+			String selection = (String) currentThreadView.getEngine().executeScript("window.getSelection().toString()");
+			if (!StringUtils.isEmptyOrWhitespace(selection)) {
+				this.text = selection;
+			}
 		}
 
 		@Override
 		public void handle(ActionEvent event) {
-			//currentThreadView.getEngine().executeScript("document.execCommand(\"copy\");");
-			String selection = (String) currentThreadView.getEngine().executeScript("window.getSelection().toString()");
-			if (!StringUtils.isEmptyOrWhitespace(selection)) {
+			if (!StringUtils.isEmptyOrWhitespace(text)) {
 				HashMap<DataFormat, Object> content = new HashMap<>();
-				content.put(DataFormat.PLAIN_TEXT, selection);
+				content.put(DataFormat.PLAIN_TEXT, text);
 				Clipboard.getSystemClipboard().setContent(content);
 			}
 		}

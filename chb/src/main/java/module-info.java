@@ -11,6 +11,7 @@ module pulad.chb {
 	requires java.desktop;
 	requires unbescape;
 	requires transitive slf4j.api;
+	requires jdk.xml.dom;
     opens templates;
     exports pulad.chb;
     exports pulad.chb.bbs;
