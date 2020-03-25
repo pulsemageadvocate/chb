@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import pulad.chb.read.thread.AbstractThreadLoadTask;
 import pulad.chb.read.thread.ThreadLoadTask;
+import pulad.chb.write.AbstractWriteTask;
 
 public class _5ch implements BBS {
 	private static final Pattern reg5ch = Pattern.compile("^(?<root>https?://[^/]+\\.[25]ch\\.[^/]+/)");
@@ -117,5 +118,10 @@ public class _5ch implements BBS {
 	@Override
 	public AbstractThreadLoadTask createThreadLoadTask(String url, boolean remote, Collection<Integer> resFilter) {
 		return new ThreadLoadTask(url, remote, resFilter);
+	}
+
+	@Override
+	public AbstractWriteTask createWriteTask(String url, String name, String mail, String body) {
+		throw new UnsupportedOperationException("実装されていません。");
 	}
 }

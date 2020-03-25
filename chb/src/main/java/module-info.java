@@ -21,4 +21,5 @@ module pulad.chb {
     exports pulad.chb.favorite to pulad.chb;
     exports pulad.chb.read.board;
     exports pulad.chb.read.thread;
+    exports pulad.chb.write;
 }

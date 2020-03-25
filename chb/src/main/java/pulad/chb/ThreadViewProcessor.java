@@ -20,7 +20,15 @@ import javafx.concurrent.Task;
 import javafx.concurrent.Worker.State;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import pulad.chb.bbs.BBS;
@@ -92,19 +100,38 @@ public class ThreadViewProcessor {
 	 * @return
 	 */
 	private static WebView getWebView(Tab tab) {
+		BorderPane rootPane;
 		WebView webView;
 		javafx.scene.Node n = tab.getContent();
-		if (n instanceof WebView) {
-			webView = (WebView) n;
+		if (n instanceof BorderPane) {
+			rootPane = (BorderPane) n;
+			webView = (WebView) rootPane.getCenter();
 		} else {
+			rootPane = new BorderPane();
 			webView = new WebView();
-			tab.setContent(webView);
-			WebEngine engine = webView.getEngine();
+			rootPane.setCenter(webView);
+
+			Button writeButton = new Button("Write");
+			Label nameLabel = new Label("名前");
+			TextField nameInput = new TextField();
+			Label mailLabel = new Label("メール");
+			TextField mailInput = new TextField();
+			mailInput.setPromptText("sage");
+			HBox writeToolbox = new HBox(writeButton, nameLabel, nameInput, mailLabel, mailInput);
+			writeToolbox.setSpacing(10d);
+			writeToolbox.setAlignment(Pos.CENTER_LEFT);
+			TextArea bodyInput = new TextArea();
+			bodyInput.setPrefRowCount(3);
+			VBox writePane = new VBox(writeToolbox, bodyInput);
+			rootPane.setBottom(writePane);
+
 			// 検索テキスト入力時
+			WebEngine engine = webView.getEngine();
 			Consumer<String> f = text -> {
 				engine.executeScript("window.find(\"" + StringUtils.escapeJavaScript(text) + "\", false, false, true, false, true, false)");
 			};
-			webView.getProperties().put(App.PROPERTY_SEARCH_FUNCTION, f);
+			rootPane.getProperties().put(App.PROPERTY_SEARCH_FUNCTION, f);
+			tab.setContent(rootPane);
 		}
 		return webView;
 	}
@@ -155,7 +182,7 @@ public class ThreadViewProcessor {
 				return;
 			}
 
-			WebView threadView = (WebView) tab.getContent();
+			WebView threadView = (WebView) getWebView(tab);
 			//threadView.setContextMenuEnabled(false);
 			WebEngine engine = threadView.getEngine();
 			tab.setOnClosed(new CloseEventListener(engine));

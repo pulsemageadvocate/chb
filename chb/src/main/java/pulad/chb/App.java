@@ -2,6 +2,8 @@ package pulad.chb;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.CookieHandler;
+import java.net.CookieManager;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.FileLock;
@@ -158,11 +160,13 @@ public class App extends Application {
 		App.app = this;
 		this.stage = stage;
 		URL.setURLStreamHandlerFactory(new LocalURLStreamHandler.Factory());
+		CookieStore.initialize(App.rootFolder.resolve("chb_cookie.txt").toFile());
+		CookieHandler.setDefault(new CookieManager(CookieStore.get(), null));
 
-		final Menu menu1 = new Menu("ファイル(F)");
-		final Menu menu2 = new Menu("ヘルプ(H)");
-		MenuBar menuBar = new MenuBar();
-		menuBar.getMenus().addAll(menu1, menu2);
+//		final Menu menu1 = new Menu("ファイル(F)");
+//		final Menu menu2 = new Menu("ヘルプ(H)");
+//		MenuBar menuBar = new MenuBar();
+//		menuBar.getMenus().addAll(menu1, menu2);
 
 		ToggleButton offlineButton = new ToggleButton();
 		offlineButton.setText("Offline");
@@ -219,7 +223,7 @@ public class App extends Application {
 		BBSMenuTreeProcessor.open(chBoardTab, this);
 		favoriteTreeTabPane.getTabs().add(chBoardTab);
 
-		VBox topPane = new VBox(menuBar, toolbar);
+		VBox topPane = new VBox(/*menuBar, */toolbar);
 		//rootPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 		//rootPane.prefWidthProperty().bind(stage.widthProperty());
 		//rootPane.prefHeightProperty().bind(stage.heightProperty());
@@ -274,7 +278,7 @@ public class App extends Application {
 			}
 		});
 
-		// ウィンドウの位置を書き込み
+		// ウィンドウの位置とcookieを書き込み
 		stage.showingProperty().addListener(new ChangeListener<Boolean>() {
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -287,6 +291,8 @@ public class App extends Application {
 					configFileDto.setHeight((int)stage.getHeight());
 					configFileDto.setEditor(editorCommand);
 					Config.write(configFileDto);
+
+					CookieStore.get().save();
 				}
 			}
 		});
@@ -442,6 +448,10 @@ public class App extends Application {
 				rightClickEventListener,
 				url,
 				resFilter));
+	}
+
+	public void write(String url, String name, String mail, String body) {
+		WriteProcessor.write(url, name, mail, body);
 	}
 
 	/**

@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import pulad.chb.read.thread.AbstractThreadLoadTask;
 import pulad.chb.read.thread.ShitarabaThreadLoadTask;
+import pulad.chb.write.AbstractWriteTask;
 
 public class Shitaraba implements BBS {
 	private static final Pattern regShitaraba = Pattern.compile("^(?<root>https?://jbbs\\.shitaraba\\.(net|com)/)");
@@ -123,5 +124,10 @@ public class Shitaraba implements BBS {
 	@Override
 	public AbstractThreadLoadTask createThreadLoadTask(String url, boolean remote, Collection<Integer> resFilter) {
 		return new ShitarabaThreadLoadTask(url, remote, resFilter);
+	}
+
+	@Override
+	public AbstractWriteTask createWriteTask(String url, String name, String mail, String body) {
+		throw new UnsupportedOperationException("実装されていません。");
 	}
 }

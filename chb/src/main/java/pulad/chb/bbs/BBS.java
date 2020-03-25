@@ -4,6 +4,7 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 
 import pulad.chb.read.thread.AbstractThreadLoadTask;
+import pulad.chb.write.AbstractWriteTask;
 
 public interface BBS {
 	public String getBBSDirectoryName();
@@ -22,4 +23,5 @@ public interface BBS {
 	public AbstractThreadLoadTask createThreadLoadTask(String url);
 	public AbstractThreadLoadTask createThreadLoadTask(String url, boolean remote);
 	public AbstractThreadLoadTask createThreadLoadTask(String url, boolean remote, Collection<Integer> resFilter);
+	public AbstractWriteTask createWriteTask(String url, String name, String mail, String body);
 }
