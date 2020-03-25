@@ -13,7 +13,7 @@
 			<pattern>%d{HH:mm:ss.SSS} [%thread] %level - %msg%n</pattern>
 		</encoder>
 	</appender>
-	<logger name="pulad.chb.App" level="debug">
+	<logger name="pulad.chb.App" level="debug" additivity="false">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="FILE" />
 	</logger>
