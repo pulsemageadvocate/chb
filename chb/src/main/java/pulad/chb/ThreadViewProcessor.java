@@ -31,9 +31,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import pulad.chb.bbs.BBS;
 import pulad.chb.bbs.BBSManager;
 import pulad.chb.dto.ThreadLoadTaskResponseDto;
+import pulad.chb.interfaces.BBS;
+import pulad.chb.read.thread.ThreadLoadTask;
 
 /**
  * スレッドを開く処理。
@@ -148,7 +149,7 @@ public class ThreadViewProcessor {
 		@Override
 		protected Task<ThreadLoadTaskResponseDto> createTask() {
 			BBS bbsObject = BBSManager.getBBSFromUrl(url);
-			Task<ThreadLoadTaskResponseDto> task = bbsObject.createThreadLoadTask(url, remote);
+			Task<ThreadLoadTaskResponseDto> task = new ThreadLoadTask(bbsObject.createThreadLoader(url), url, remote);
 			// なぜかこれを呼ぶとServiceのOnSucceededも呼ばれるようになる
 			task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 				@Override
@@ -202,7 +203,7 @@ public class ThreadViewProcessor {
 							tab.setText(title.getTextContent());
 						}
 						ThreadViewRightClickEventListener rightClickEventListener = new ThreadViewRightClickEventListener(tab, threadView, url);
-						EventListener clickEventListener = new ClickEventListener(engine, url, rightClickEventListener);
+						EventListener clickEventListener = new ClickEventListener(url, rightClickEventListener);
 						Element root = document.getElementById("root");
 //						((EventTarget) root).addEventListener(
 //								"mouseover",
@@ -309,13 +310,11 @@ public class ThreadViewProcessor {
 //	}
 
 	private static class ClickEventListener implements EventListener {
-		private WebEngine engine;
 		private String url;
 		private ThreadViewRightClickEventListener rightClickEventListener;
 
-		public ClickEventListener(WebEngine engine, String url,
+		public ClickEventListener(String url,
 				ThreadViewRightClickEventListener rightClickEventListener) {
-			this.engine = engine;
 			this.url = url;
 			this.rightClickEventListener = rightClickEventListener;
 		}

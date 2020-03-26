@@ -16,12 +16,13 @@ import org.thymeleaf.util.ObjectUtils;
 import org.thymeleaf.util.StringUtils;
 
 import pulad.chb.App;
-import pulad.chb.DownloadProcessor;
-import pulad.chb.bbs.BBS;
 import pulad.chb.bbs.BBSManager;
+import pulad.chb.config.Config;
 import pulad.chb.dto.BoardDto;
 import pulad.chb.dto.ThreadDto;
+import pulad.chb.interfaces.BBS;
 import pulad.chb.util.DateTimeUtil;
+import pulad.chb.util.DownloadProcessor;
 import pulad.chb.util.FileUtil;
 import pulad.chb.util.NumberUtil;
 
@@ -44,6 +45,7 @@ public class BoardManager {
 	 * BoardDtoのクローンをキャッシュから取得する。
 	 * 無ければSETTING.TXTから読み込んで生成する。
 	 * SETTING.TXTが無ければダウンロードする。
+	 * 対応していないURLの場合はnullを返す。
 	 * @param url
 	 * @param remote
 	 * @return
@@ -61,9 +63,12 @@ public class BoardManager {
 			}
 
 			BBS bbsObject = BBSManager.getBBSFromUrl(url);
+			if (bbsObject == null) {
+				return null;
+			}
 			String bbs = bbsObject.getLogDirectoryName();
 			String board = bbsObject.getBoardFromBoardUrl(url);
-			Path settingFilePath = FileUtil.realCapitalPath(App.logFolder.resolve(bbs).resolve(board).resolve("setting.txt"));
+			Path settingFilePath = FileUtil.realCapitalPath(Config.getLogFolder().resolve(bbs).resolve(board).resolve("setting.txt"));
 			dto = new BoardDto();
 			dto.setUrl(url);
 			// SETTING.TXTを（無ければ）ダウンロード
@@ -144,7 +149,7 @@ public class BoardManager {
 	}
 
 	private static void readThreadst(BoardDto dto, String bbs, String board) {
-		Path threadstFilePath = FileUtil.realCapitalPath(App.logFolder.resolve(bbs).resolve(board).resolve("threadst.txt"));
+		Path threadstFilePath = FileUtil.realCapitalPath(Config.getLogFolder().resolve(bbs).resolve(board).resolve("threadst.txt"));
 
 		ConcurrentHashMap<String, ThreadDto> thread = new ConcurrentHashMap<>(1024, 0.75f, 1);
 		if (Files.exists(threadstFilePath)) {
@@ -194,7 +199,7 @@ public class BoardManager {
 	}
 
 	private static void writeThreadst(BoardDto dto, String bbs, String board) {
-		Path threadstFilePath = FileUtil.realCapitalPath(App.logFolder.resolve(bbs).resolve(board).resolve("threadst.txt"));
+		Path threadstFilePath = FileUtil.realCapitalPath(Config.getLogFolder().resolve(bbs).resolve(board).resolve("threadst.txt"));
 
 		BufferedWriter bw = null;
 		try {

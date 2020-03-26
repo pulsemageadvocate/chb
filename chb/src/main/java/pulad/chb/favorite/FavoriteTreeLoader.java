@@ -4,6 +4,7 @@ import org.thymeleaf.util.StringUtils;
 
 import pulad.chb.App;
 import pulad.chb.board.BoardManager;
+import pulad.chb.constant.TreeItemType;
 import pulad.chb.dto.BoardDto;
 import pulad.chb.dto.ThreadDto;
 
@@ -51,7 +52,7 @@ public class FavoriteTreeLoader extends TreeLoader {
 			// BoardManagerから取得する
 			String boardUrl = getBoardUrl(token);
 			BoardDto boardDto = BoardManager.get(boardUrl, false);
-			return (boardDto == null) ? "" : boardDto.getTitleOrig();
+			return (boardDto == null) ? boardUrl : boardDto.getTitleOrig();
 		}
 		case Folder:
 			return token[2];

@@ -18,8 +18,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pulad.chb.App;
-import pulad.chb.bbs.BBS;
 import pulad.chb.bbs.BBSManager;
+import pulad.chb.config.Config;
 import pulad.chb.constant.AboneLevel;
 import pulad.chb.constant.ChainIdentifier;
 import pulad.chb.dto.AboneBodyDto;
@@ -30,6 +30,8 @@ import pulad.chb.dto.AboneWacchoiDto;
 import pulad.chb.dto.AbstractAboneDto;
 import pulad.chb.dto.NGFileDto;
 import pulad.chb.dto.ResDto;
+import pulad.chb.interfaces.BBS;
+import pulad.chb.interfaces.ResProcessor;
 import pulad.chb.util.NotShitarabaIdPredicate;
 import pulad.chb.util.NumberUtil;
 
@@ -52,13 +54,13 @@ public class AboneResProcessor implements ResProcessor {
 
 		List<Abone> aboneList = new ArrayList<>();
 		// 全体
-		readAboneFile(aboneList, App.rootFolder.resolve("chb.txt").toFile());
+		readAboneFile(aboneList, Config.getRootFolder().resolve("chb.txt").toFile());
 		// BBS
-		readAboneFile(aboneList, App.bbsFolder.resolve(bbsDir).resolve("chb.txt").toFile());
+		readAboneFile(aboneList, Config.getBBSFolder().resolve(bbsDir).resolve("chb.txt").toFile());
 		// Board
-		readAboneFile(aboneList, App.logFolder.resolve(bbs).resolve(board).resolve("chb.txt").toFile());
+		readAboneFile(aboneList, Config.getLogFolder().resolve(bbs).resolve(board).resolve("chb.txt").toFile());
 		// Thread
-		readAboneFile(aboneList, App.logFolder.resolve(bbs).resolve(board).resolve(threadNGFileName).toFile());
+		readAboneFile(aboneList, Config.getLogFolder().resolve(bbs).resolve(board).resolve(threadNGFileName).toFile());
 
 		HashSet<Integer> aboneIndex = new HashSet<>();
 		for (ResDto dto : res.values()) {

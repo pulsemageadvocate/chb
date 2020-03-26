@@ -4,8 +4,8 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
-import pulad.chb.bbs.BBS;
 import pulad.chb.bbs.BBSManager;
+import pulad.chb.interfaces.BBS;
 
 public class WriteProcessor {
 

@@ -28,8 +28,8 @@ import javafx.scene.control.Tab;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.DataFormat;
 import javafx.scene.web.WebView;
-import pulad.chb.bbs.BBS;
 import pulad.chb.bbs.BBSManager;
+import pulad.chb.config.Config;
 import pulad.chb.constant.ChainIdentifier;
 import pulad.chb.dto.AboneBodyDto;
 import pulad.chb.dto.AboneIDDto;
@@ -37,6 +37,7 @@ import pulad.chb.dto.AboneIPDto;
 import pulad.chb.dto.AboneNameDto;
 import pulad.chb.dto.AboneWacchoiDto;
 import pulad.chb.dto.NGFileDto;
+import pulad.chb.interfaces.BBS;
 import pulad.chb.read.thread.LinkHistManager;
 import pulad.chb.read.thread.LocalURLStreamHandler;
 
@@ -441,14 +442,14 @@ public class ThreadViewRightClickEventListener implements EventListener {
 	}
 
 	protected File getAll(String url) {
-		return App.rootFolder.resolve("chb.txt").toFile();
+		return Config.getRootFolder().resolve("chb.txt").toFile();
 	}
 
 	protected File getBBS(String url) {
 		BBS bbsObject = BBSManager.getBBSFromUrl(url);
 		String bbsDir = bbsObject.getBBSDirectoryName();
 
-		return App.bbsFolder.resolve(bbsDir).resolve("chb.txt").toFile();
+		return Config.getBBSFolder().resolve(bbsDir).resolve("chb.txt").toFile();
 	}
 
 	protected File getBoard(String url) {
@@ -456,7 +457,7 @@ public class ThreadViewRightClickEventListener implements EventListener {
 		String bbs = bbsObject.getLogDirectoryName();
 		String board = bbsObject.getBoardFromThreadUrl(url);
 
-		return App.logFolder.resolve(bbs).resolve(board).resolve("chb.txt").toFile();
+		return Config.getLogFolder().resolve(bbs).resolve(board).resolve("chb.txt").toFile();
 	}
 
 	protected File getThread(String url) {
@@ -465,7 +466,7 @@ public class ThreadViewRightClickEventListener implements EventListener {
 		String board = bbsObject.getBoardFromThreadUrl(url);
 		String threadNGFileName = bbsObject.getThreadFromThreadUrl(url) + ".chb.txt";
 
-		return App.logFolder.resolve(bbs).resolve(board).resolve(threadNGFileName).toFile();
+		return Config.getLogFolder().resolve(bbs).resolve(board).resolve(threadNGFileName).toFile();
 	}
 
 	private static class CopyAction implements EventHandler<ActionEvent> {
@@ -728,7 +729,7 @@ public class ThreadViewRightClickEventListener implements EventListener {
 		@Override
 		public void handle(ActionEvent event) {
 			try {
-				Runtime.getRuntime().exec(App.editorCommand.replaceAll("\\$LINK", Matcher.quoteReplacement(file.getPath())));
+				Runtime.getRuntime().exec(Config.editorCommand.replaceAll("\\$LINK", Matcher.quoteReplacement(file.getPath())));
 			} catch (IOException e) {
 				App.logger.error("OpenAboneFileAction失敗", e);
 			}

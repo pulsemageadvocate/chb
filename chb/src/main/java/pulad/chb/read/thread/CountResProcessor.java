@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 import pulad.chb.dto.ResDto;
+import pulad.chb.interfaces.ResProcessor;
 import pulad.chb.util.NotShitarabaIdPredicate;
 
 public class CountResProcessor implements ResProcessor {

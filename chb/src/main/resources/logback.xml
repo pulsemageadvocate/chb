@@ -7,7 +7,7 @@
 		</encoder>
 	</appender>
 	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-		<file>${LOG_PATH}/chb.log</file>
+		<file>${LOG_PATH:-.}/chb.log</file>
 		<append>false</append>
 		<encoder>
 			<pattern>%d{HH:mm:ss.SSS} [%thread] %level - %msg%n</pattern>

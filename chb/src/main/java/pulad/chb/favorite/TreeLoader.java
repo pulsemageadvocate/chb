@@ -10,6 +10,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import pulad.chb.App;
+import pulad.chb.constant.TreeItemType;
 import pulad.chb.dto.TreeItemDto;
 
 public abstract class TreeLoader {

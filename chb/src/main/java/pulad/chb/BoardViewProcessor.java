@@ -28,12 +28,13 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TableView.TableViewSelectionModel;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
-import pulad.chb.bbs.BBS;
 import pulad.chb.bbs.BBSManager;
 import pulad.chb.board.BoardManager;
+import pulad.chb.config.Config;
 import pulad.chb.dto.BoardDto;
 import pulad.chb.dto.BoardLoadTaskResponseDto;
 import pulad.chb.dto.ThreadDto;
+import pulad.chb.interfaces.BBS;
 import pulad.chb.read.board.BoardLoadTask;
 import pulad.chb.util.ResCountComparator;
 
@@ -204,7 +205,7 @@ public class BoardViewProcessor {
 						String bbs = bbsObject.getLogDirectoryName();
 						String board = bbsObject.getBoardFromBoardUrl(boardUrl);
 						String datName = dto.getDatName();
-						Path boardPath = App.logFolder.resolve(bbs).resolve(board);
+						Path boardPath = Config.getLogFolder().resolve(bbs).resolve(board);
 						try {
 							Files.deleteIfExists(boardPath.resolve(datName));
 						} catch (IOException e) {

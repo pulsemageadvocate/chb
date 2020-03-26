@@ -5,10 +5,11 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
-import pulad.chb.bbs.BBS;
 import pulad.chb.bbs.BBSManager;
+import pulad.chb.config.Config;
+import pulad.chb.constant.TreeItemType;
 import pulad.chb.dto.TreeItemDto;
-import pulad.chb.favorite.TreeItemType;
+import pulad.chb.interfaces.BBS;
 import pulad.chb.read.bbsmenu.BBSMenuTreeLoader;
 import pulad.chb.util.FileUtil;
 
@@ -23,8 +24,12 @@ public class BBSMenuTreeProcessor {
 		tab.setClosable(false);
 
 		BBS bbsObject = BBSManager.getBBSFromLogDirectoryName("2ch_");
+		if (bbsObject == null) {
+			// 5ch拡張が無い
+			return;
+		}
 		String bbs = bbsObject.getBBSDirectoryName();
-		TreeView<TreeItemDto> tree = new BBSMenuTreeLoader(app).load(tab, FileUtil.realCapitalPath(App.bbsFolder.resolve(bbs).resolve("bbstree.txt")));
+		TreeView<TreeItemDto> tree = new BBSMenuTreeLoader(app).load(tab, FileUtil.realCapitalPath(Config.getBBSFolder().resolve(bbs).resolve("bbstree.txt")));
 		if (tree.getRoot() == null) {
 			// 読み込めない場合は初期化
 			TreeItemDto dto = new TreeItemDto();

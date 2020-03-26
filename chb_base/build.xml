@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_all_jar" name="Create Runnable Jar for Project chb with libraries in sub-folder">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <!--define folder properties-->
+    <property name="dir.result" value="R:/V2C"/>
+    <property name="dir.chb" value="../chb"/>
+    <property name="dir.5ch" value="../chb_ch"/>
+    <property name="dir.shitaraba" value="../chb_shitaraba"/>
+    <property name="dir.base" value="../chb_base"/>
+    <property name="dir.launcher" value="../launcher"/>
+    <target name="create_run_jar">
+        <jar destfile="${dir.chb}/target/chb.jar">
+            <fileset dir="${dir.chb}/target/classes"/>
+        </jar>
+    </target>
+    <target name="create_5ch_jar">
+        <jar destfile="${dir.5ch}/target/chb_ch.jar">
+            <fileset dir="${dir.5ch}/target/classes"/>
+        </jar>
+    </target>
+    <target name="create_shitaraba_jar">
+        <jar destfile="${dir.shitaraba}/target/chb_shitaraba.jar">
+            <fileset dir="${dir.shitaraba}/target/classes"/>
+        </jar>
+    </target>
+    <target name="create_base_jar">
+        <jar destfile="${dir.base}/target/chb_base.jar">
+            <fileset dir="${dir.base}/target/classes"/>
+        </jar>
+    </target>
+    <target name="create_launcher_jar">
+        <jar destfile="${dir.launcher}/target/launcher.jar">
+            <manifest>
+                <attribute name="Main-Class" value="pulad.chb.launcher.Launcher"/>
+            </manifest>
+            <fileset dir="${dir.launcher}/target/classes"/>
+        </jar>
+    </target>
+	<target name="create_all_jar" depends="create_base_jar,create_run_jar,create_5ch_jar,create_shitaraba_jar,create_launcher_jar">
+		<copy file="${dir.chb}/target/chb.jar" todir="${dir.result}" overwrite="yes" />
+		<copy file="${dir.5ch}/target/chb_ch.jar" todir="${dir.result}" overwrite="yes" />
+		<copy file="${dir.shitaraba}/target/chb_shitaraba.jar" todir="${dir.result}" overwrite="yes" />
+		<copy file="${dir.base}/target/chb_base.jar" todir="${dir.result}" overwrite="yes" />
+		<copy file="${dir.launcher}/target/launcher.jar" todir="${dir.result}" overwrite="yes" />
+	</target>
+</project>

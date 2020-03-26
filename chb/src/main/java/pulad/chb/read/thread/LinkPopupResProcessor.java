@@ -11,6 +11,7 @@ import java.util.function.Predicate;
 import org.thymeleaf.util.StringUtils;
 
 import pulad.chb.dto.ResDto;
+import pulad.chb.interfaces.ResProcessor;
 import pulad.chb.util.NumberUtil;
 
 /**

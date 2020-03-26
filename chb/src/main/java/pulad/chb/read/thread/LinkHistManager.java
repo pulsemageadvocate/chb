@@ -14,6 +14,7 @@ import org.thymeleaf.util.ObjectUtils;
 import org.thymeleaf.util.StringUtils;
 
 import pulad.chb.App;
+import pulad.chb.config.Config;
 import pulad.chb.dto.DownloadDto;
 import pulad.chb.util.ImageUtil;
 
@@ -37,7 +38,7 @@ public class LinkHistManager {
 			return "classpath:notfound.gif";
 		}
 		StringBuilder sb = new StringBuilder();
-		sb.append(App.imageFolder.resolve(dto.record[10].substring(0, 1)).resolve(dto.record[10]).toString());
+		sb.append(Config.getImageFolder().resolve(dto.record[10].substring(0, 1)).resolve(dto.record[10]).toString());
 		sb.setLength(sb.length() - 1);
 		sb.append(ImageUtil.getFileExt(dto.record[4]));
 		return sb.toString();
@@ -62,11 +63,11 @@ public class LinkHistManager {
 		ConcurrentHashMap<String, LinkHistDto> linkhist0;
 		BufferedReader br = null;
 		try {
-			File linkhistfile = App.linkhistFile.toFile();
+			File linkhistfile = Config.getLinkhistFile().toFile();
 			long fileSize = linkhistfile.length();
 			linkhist0 = new ConcurrentHashMap<>((int)(fileSize / 150L));
 
-			br = new BufferedReader(new FileReader(App.linkhistFile.toFile(), Charset.forName("Shift-jis")));
+			br = new BufferedReader(new FileReader(linkhistfile, Charset.forName("Shift-jis")));
 			String str = null;
 			while ((str = br.readLine()) != null) {
 				String[] token = str.split(",", 11);
@@ -152,7 +153,7 @@ public class LinkHistManager {
 			BufferedWriter bw = null;
 			try {
 				bw = new BufferedWriter(new FileWriter(
-						App.linkhistFile.toFile(),
+						Config.getLinkhistFile().toFile(),
 						Charset.forName("Shift-jis"),
 						true));
 				bw.write(String.join(",", dto.record));

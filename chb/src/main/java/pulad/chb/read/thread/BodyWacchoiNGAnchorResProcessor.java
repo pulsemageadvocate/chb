@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import pulad.chb.dto.ResDto;
+import pulad.chb.interfaces.ResProcessor;
 
 public class BodyWacchoiNGAnchorResProcessor implements ResProcessor {
 	private static final String anchor1 = "<a aboneable=\"wacchoiLower\">";

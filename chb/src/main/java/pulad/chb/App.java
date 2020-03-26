@@ -4,11 +4,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.FileLock;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +29,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -49,6 +44,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import pulad.chb.bbs.BBSManager;
 import pulad.chb.config.Config;
 import pulad.chb.dto.ConfigFileDto;
 import pulad.chb.favorite.FavoriteManager;
@@ -60,17 +56,6 @@ import pulad.chb.util.NumberUtil;
  */
 public class App extends Application {
 	public static Logger logger = LoggerFactory.getLogger(App.class);
-	public static Path rootFolder;
-	public static Path bbsFolder;
-	public static Path logFolder;
-	public static Path scriptFolder;
-	public static Path imageFolder;
-	public static Path styleFolder;
-	public static Path linkhistFile;
-	public static Path configFile;
-	public static String ua = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36";
-	public static String editorCommand = "C:\\Programs\\sakura\\sakura.exe $LINK";
-	public static String styleCss;
 	private static FileOutputStream lockFile;
 
 	/**
@@ -114,25 +99,11 @@ public class App extends Application {
 			Platform.exit();
 			return -1;
 		}
-
-		rootFolder = Paths.get(args[0]);
-		bbsFolder = Paths.get(args[0], "BBS");
-		logFolder = Paths.get(args[0], "log");
-		scriptFolder = Paths.get(args[0], "script");
-		imageFolder = Paths.get(args[0], "image");
-		styleFolder = Paths.get(args[0], "style");
-		linkhistFile = Paths.get(args[0], "linkhist.txt");
-		configFile = Paths.get(args[0], "chb_config.txt");
-		try {
-			styleCss = App.styleFolder.resolve("style.css").toUri().toURL().toExternalForm();
-		} catch (MalformedURLException e) {
-			App.logger.error("style.css失敗", e);
-			Platform.exit();
-			return -1;
-		}
+		Config.init(args[0], App.class);
+		BBSManager.init();
 
 		try {
-			lockFile = new FileOutputStream(rootFolder.resolve("chb_lock").toFile());
+			lockFile = new FileOutputStream(Config.getRootFolder().resolve("chb_lock").toFile());
 			FileLock lock = lockFile.getChannel().tryLock();
 			if (lock == null) {
 				// 多重起動
@@ -160,7 +131,7 @@ public class App extends Application {
 		App.app = this;
 		this.stage = stage;
 		URL.setURLStreamHandlerFactory(new LocalURLStreamHandler.Factory());
-		CookieStore.initialize(App.rootFolder.resolve("chb_cookie.txt").toFile());
+		CookieStore.initialize(Config.getRootFolder().resolve("chb_cookie.txt").toFile());
 		CookieHandler.setDefault(new CookieManager(CookieStore.get(), null));
 
 //		final Menu menu1 = new Menu("ファイル(F)");
@@ -250,7 +221,7 @@ public class App extends Application {
 		rootPane.setCenter(threadTabPane);
 
 		Scene scene = new Scene(rootPane, 1280, 480);
-		scene.getStylesheets().add(styleCss);
+		scene.getStylesheets().add(Config.styleCss);
 		// Ctrl+wでタブを閉じる
 		scene.getAccelerators().put(new KeyCodeCombination(KeyCode.W, KeyCombination.CONTROL_DOWN), () -> {
 			try {
@@ -289,7 +260,6 @@ public class App extends Application {
 					configFileDto.setY((int)stage.getY());
 					configFileDto.setWidth((int)stage.getWidth());
 					configFileDto.setHeight((int)stage.getHeight());
-					configFileDto.setEditor(editorCommand);
 					Config.write(configFileDto);
 
 					CookieStore.get().save();
@@ -313,10 +283,6 @@ public class App extends Application {
 			}
 			if (configFileDto.getMaximized() != null) {
 				stage.setMaximized(configFileDto.getMaximized());
-			}
-			editorCommand = configFileDto.getEditor();
-			if (editorCommand == null) {
-				editorCommand = "C:\\Programs\\sakura\\sakura.exe $LINK";
 			}
 		} catch (Exception e) {
 		}

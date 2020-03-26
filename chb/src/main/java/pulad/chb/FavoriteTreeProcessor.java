@@ -12,11 +12,12 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
-import pulad.chb.bbs.BBS;
 import pulad.chb.bbs.BBSManager;
+import pulad.chb.config.Config;
+import pulad.chb.constant.TreeItemType;
 import pulad.chb.dto.TreeItemDto;
 import pulad.chb.favorite.FavoriteTreeLoader;
-import pulad.chb.favorite.TreeItemType;
+import pulad.chb.interfaces.BBS;
 import pulad.chb.util.FileUtil;
 
 public class FavoriteTreeProcessor {
@@ -24,7 +25,7 @@ public class FavoriteTreeProcessor {
 	public static void open(Tab tab, App app) {
 		tab.setClosable(false);
 
-		TreeView<TreeItemDto> tree = new FavoriteTreeLoader(app).load(tab, FileUtil.realCapitalPath(App.rootFolder.resolve("favorite.txt")));
+		TreeView<TreeItemDto> tree = new FavoriteTreeLoader(app).load(tab, FileUtil.realCapitalPath(Config.getRootFolder().resolve("favorite.txt")));
 
 		TreeItem<TreeItemDto> item = tree.getRoot();
 		if (item == null) {
@@ -63,13 +64,20 @@ public class FavoriteTreeProcessor {
 					TreeItemDto dto = selectedItem.getValue();
 					switch (dto.getType()) {
 					case Board:
+						// 対応していないURLは処理しない
 						String boardUrl = dto.getBoardUrl();
-						app.openBoard(boardUrl);
+						BBS bbsObject = BBSManager.getBBSFromUrl(boardUrl);
+						if (bbsObject != null) {
+							app.openBoard(boardUrl);
+						}
 						break;
 					case Thread:
+						// 対応していないURLは処理しない
 						boardUrl = dto.getBoardUrl();
-						BBS bbsObject = BBSManager.getBBSFromUrl(boardUrl);
-						app.openThread(bbsObject.getThreadUrlFromBoardUrlAndDatFileName(boardUrl, dto.getDatFileName()));
+						bbsObject = BBSManager.getBBSFromUrl(boardUrl);
+						if (bbsObject != null) {
+							app.openThread(bbsObject.getThreadUrlFromBoardUrlAndDatFileName(boardUrl, dto.getDatFileName()));
+						}
 						break;
 					default:
 						break;
@@ -98,7 +106,7 @@ public class FavoriteTreeProcessor {
 				menuItem = new MenuItem("favorite.txt編集");
 				menuItem.setOnAction(x -> {
 					try {
-						Runtime.getRuntime().exec(App.editorCommand.replaceAll("\\$LINK", Matcher.quoteReplacement(FileUtil.realCapital(App.rootFolder.resolve("favorite.txt").toString()))));
+						Runtime.getRuntime().exec(Config.editorCommand.replaceAll("\\$LINK", Matcher.quoteReplacement(FileUtil.realCapital(Config.getRootFolder().resolve("favorite.txt").toString()))));
 					} catch (IOException e) {
 						App.logger.error("favorite.txt編集失敗", e);
 					}

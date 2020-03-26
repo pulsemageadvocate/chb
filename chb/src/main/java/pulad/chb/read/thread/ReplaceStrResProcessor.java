@@ -17,8 +17,9 @@ import java.util.regex.Pattern;
 
 import org.thymeleaf.util.StringUtils;
 
-import pulad.chb.App;
+import pulad.chb.config.Config;
 import pulad.chb.dto.ResDto;
+import pulad.chb.interfaces.ResProcessor;
 
 /**
  * ReplaceStr.txtの処理。DATを変更しない。あぼーん処理より後。
@@ -33,7 +34,7 @@ public class ReplaceStrResProcessor implements ResProcessor {
 		final Pattern regBody = Pattern.compile("^(?![;'])(?!//)\\<(?<type>[er]x2?)?\\>(?<target>[^\\t]+)\\t(?<replace>[^\\t]*)(\\t(?<category>[^\\t]*)(\\t(\\<(?<n>[0-5])\\>)?(?<url>[^\\t]*))?)?");
 		List<Replace> replaceList0 = new ArrayList<>();
 
-		Path path = App.rootFolder.resolve("ReplaceStr.txt");
+		Path path = Config.getRootFolder().resolve("ReplaceStr.txt");
 		if (Files.exists(path)) {
 			BufferedReader br = null;
 			try {

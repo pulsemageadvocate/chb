@@ -11,6 +11,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Popup;
 import javafx.stage.Window;
+import pulad.chb.config.Config;
 
 /**
  * 画像ポップアップ。
@@ -25,7 +26,7 @@ public class ImageViewProcessor {
 
 		Popup popup = new Popup();
 		Scene scene = popup.getScene();
-		scene.getStylesheets().add(App.styleCss);
+		scene.getStylesheets().add(Config.styleCss);
 
 		ImageView imageView = new ImageView(image);
 		// 縮小時は中央に縮小、拡大時は右下へ伸びるのを右下へ統一する。

@@ -1,52 +1,90 @@
 package pulad.chb.read.thread;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
+import java.io.StringReader;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.Scriptable;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
+import javafx.concurrent.Task;
 import pulad.chb.App;
+import pulad.chb.bbs.BBSManager;
+import pulad.chb.board.BoardManager;
+import pulad.chb.config.Config;
+import pulad.chb.constant.AboneLevel;
 import pulad.chb.dto.BoardDto;
 import pulad.chb.dto.ResDto;
+import pulad.chb.dto.ThreadDto;
+import pulad.chb.dto.ThreadLoadTaskResponseDto;
 import pulad.chb.dto.ThreadResponseDto;
+import pulad.chb.interfaces.BBS;
+import pulad.chb.interfaces.ResProcessor;
+import pulad.chb.interfaces.ThreadLoader;
 import pulad.chb.util.DateTimeUtil;
-import pulad.chb.util.FileUtil;
 import pulad.chb.util.NumberUtil;
 
-public class ThreadLoadTask extends AbstractThreadLoadTask {
-	private final Pattern regWacchoi = Pattern.compile("^(?<name>.*)</b>\\((?<wacchoi>[^\\-\\[\\]\\)]+(?<wacchoiLower>\\-[^ \\[\\]\\)]{4})[^\\-\\[\\]\\)]*)( \\[(?<ip>[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)?(?<ipTrailing>.*)\\])?\\)<b>", Pattern.CASE_INSENSITIVE);
-	private final Pattern regTime = Pattern.compile("^(?<time>[0-9]{4}/[0-9]{2}/[0-9]{2}\\(.\\) [0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?)( ID:(?<id>[0-9A-Za-z/\\+=]+))?( (?<trailing>[0-9A-Za-z/\\+=]))?", Pattern.CASE_INSENSITIVE);
+public class ThreadLoadTask extends Task<ThreadLoadTaskResponseDto> {
+	protected static final String templateFileName = "ThreadTemplate";
+	protected static final String errorTemplateFileName = "ErrorTemplate";
 
-	public ThreadLoadTask(String url) {
-		super(url);
+	private ThreadLoader threadLoader;
+	private List<ResProcessor> resProcessors;
+	private final TemplateEngine templateEngine;
+	protected final String urlStr;
+	protected final boolean remote;
+	protected final Set<Integer> resFilter;
+	protected final BBS bbsObject;
+	protected final String bbs;
+	protected final String board;
+	protected final String datFileName;
+
+	public ThreadLoadTask(ThreadLoader threadLoader, String url) {
+		this(threadLoader, url, true, null);
 	}
 
-	public ThreadLoadTask(String url, boolean remote) {
-		super(url, remote);
+	public ThreadLoadTask(ThreadLoader threadLoader, String url, boolean remote) {
+		this(threadLoader, url, remote, null);
 	}
 
-	public ThreadLoadTask(String url, boolean remote, Collection<Integer> resFilter) {
-		super(url, remote, resFilter);
+	public ThreadLoadTask(ThreadLoader threadLoader, String url, boolean remote, Collection<Integer> resFilter) {
+		this.threadLoader = threadLoader;
+		this.urlStr = url;
+		this.remote = remote;
+		this.resFilter = (resFilter == null) ? null : new TreeSet<Integer>(resFilter);
+		this.resProcessors = createResProcessors();
+
+		this.bbsObject = BBSManager.getBBSFromUrl(urlStr);
+		this.bbs = bbsObject.getLogDirectoryName();
+		this.board = bbsObject.getBoardFromThreadUrl(urlStr);
+		this.datFileName = bbsObject.getDatFileNameFromThreadUrl(urlStr);
+
+		ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
+		resolver.setCharacterEncoding("UTF-8");
+		// キャッシュはデフォルトで有効、時間無制限。
+		resolver.setTemplateMode(TemplateMode.HTML);
+		resolver.setPrefix("templates/");
+		resolver.setSuffix(".html");
+		this.templateEngine = new TemplateEngine();
+		this.templateEngine.setTemplateResolver(resolver);
 	}
 
-	@Override
-	protected List<ResProcessor> createResProcessors() {
+	private List<ResProcessor> createResProcessors() {
 		List<ResProcessor> resProcessors = new LinkedList<>();
 		resProcessors.add(new ReplaceStrResProcessor());
 		resProcessors.add(new RemoveAnchorResProcessor());
@@ -60,244 +98,161 @@ public class ThreadLoadTask extends AbstractThreadLoadTask {
 	}
 
 	@Override
-	protected void readDat(BoardDto boardDto, TreeMap<Integer, ResDto> res, BufferedReader br) throws IOException {
-		String noNameName = boardDto.getSetting().getOrDefault("BBS_NONAME_NAME", "");
+	protected ThreadLoadTaskResponseDto call() {
+		ThreadLoadTaskResponseDto threadLoadTaskResponseDto = new ThreadLoadTaskResponseDto();
 
 		try {
-			boolean hasId = false;
-			boolean hasWacchoi = false;
-			boolean hasIp = false;
-			int number = res.size() + 1;
-			String str = null;
-			while ((str = br.readLine()) != null) {
-				if (str.length() == 0) {
-					continue;
-				}
-				String[] token = str.split("<>", 5);
-				ResDto dto = new ResDto();
-				dto.setSource(str);
-				dto.setNumber(number);
-				switch (token.length) {
-				case 0:
-					continue;
-				case 1:
-					dto.setName(token[0]);
-					dto.setMail("ここ壊れてます");
-					dto.setTimeIdAux("ここ壊れてます");
-					dto.setBody("ここ壊れてます");
-					dto.setTitle("ここ壊れてます");
-					break;
-				case 2:
-					dto.setName(token[0]);
-					dto.setMail(token[1]);
-					dto.setTimeIdAux("ここ壊れてます");
-					dto.setBody("ここ壊れてます");
-					dto.setTitle("ここ壊れてます");
-					break;
-				case 3:
-					dto.setName(token[0]);
-					dto.setMail(token[1]);
-					dto.setTimeIdAux(token[2]);
-					dto.setBody("ここ壊れてます");
-					dto.setTitle("ここ壊れてます");
-					break;
-				case 4:
-					dto.setName(token[0]);
-					dto.setMail(token[1]);
-					dto.setTimeIdAux(token[2]);
-					dto.setBody(token[3]);
-					dto.setTitle("ここ壊れてます");
-					break;
-				default:
-					dto.setName(token[0]);
-					dto.setMail(token[1]);
-					dto.setTimeIdAux(token[2]);
-					dto.setBody(token[3]);
-					dto.setTitle(token[4]);
-					break;
-				}
-				res.put(NumberUtil.integerCache(number++), dto);
+			long now = DateTimeUtil.localDateTimeToHttpLong(LocalDateTime.now());
 
-				// 名無し、ﾜｯﾁｮｲ、ip、上級国民
-				Matcher matcher = regWacchoi.matcher(dto.getName());
-				if (matcher.find()) {
-					String processedName = matcher.group("name");
-					if (processedName != null && !processedName.isEmpty()) {
-						dto.setName(processedName);
-						dto.setAnonymous(processedName.trim().startsWith(noNameName));
-					}
-					String wacchoi = matcher.group("wacchoi");
-					if (wacchoi != null && !wacchoi.isEmpty()) {
-						hasWacchoi = true;
-						dto.setWacchoi(wacchoi);
-					}
-					String wacchoiLower = matcher.group("wacchoiLower");
-					if (wacchoiLower != null && !wacchoiLower.isEmpty()) {
-						dto.setWacchoiLower(wacchoiLower);
-					}
-					String ip = matcher.group("ip");
-					if (ip != null && !ip.isEmpty()) {
-						hasIp = true;
-						dto.setIp(ip);
-					}
-					String ipTrailing = matcher.group("ipTrailing");
-					if (ipTrailing != null && !ipTrailing.isEmpty()) {
-						dto.setIpTrailing(ipTrailing);
-					}
-				} else {
-					dto.setAnonymous(dto.getName().trim().startsWith(noNameName));
-				}
+			// dat読み込み
+			BoardDto boardDto = BoardManager.get(bbsObject.getBoardUrlFromThreadUrl(urlStr), remote);
 
-				// 時刻、ID、末尾
-				matcher = regTime.matcher(dto.getTimeIdAux());
-				if (matcher.find()) {
-					String time = matcher.group("time");
-					if (time != null && !time.isEmpty()) {
-						dto.setTime(time);
-						try {
-							LocalDateTime date = DateTimeUtil.parseResTime(time);
-							dto.setTimeLong(DateTimeUtil.localDateTimeToHttpLong(date));
-						} catch (DateTimeParseException e) {
-						}
-					}
-					String id = matcher.group("id");
-					if (id != null && !id.isEmpty()) {
-						hasId = true;
-						dto.setId(id);
-						dto.setTrailing(id.substring(id.length() - 1));
-					} else {
-						String trailing = matcher.group("trailing");
-						if (trailing != null && !trailing.isEmpty()) {
-							dto.setTrailing(trailing);
-						}
-					}
-				} else {
-					dto.setTime(dto.getTimeIdAux());
+			TreeMap<Integer, ResDto> res = new TreeMap<>();
+			readDat(boardDto, res);
+			int lastResCount = res.isEmpty() ? 0 : res.lastKey();
+			int newResCount = 0;
+
+			// read.cgi/rawmode.cgiから取得
+			if (remote) {
+				ThreadResponseDto threadResponseDto = threadLoader.request(res, now);
+				if (threadResponseDto.getData() != null) {
+					int lastRes = res.isEmpty() ? 0 : res.lastKey();
+
+					readDat(boardDto, res, threadResponseDto.getData());
+					newResCount = res.lastKey() - lastResCount;
+					writeDat(res, lastRes, threadResponseDto);
+				} else if (threadResponseDto.getResponseCode() != 200) {
+					// エラー時
+					threadLoadTaskResponseDto.setErrorMessage(threadResponseDto.getResponseMessage());
 				}
 			}
 
-			// ﾜｯﾁｮｲ消しなど
-			for (ResDto dto : res.values()) {
-				if (hasIp && (dto.getIp() == null)) {
-					dto.setIp("");
-				}
-				if (hasWacchoi) {
-					if (dto.getWacchoi() == null) {
-						dto.setWacchoi("");
-					}
-					if (dto.getWacchoiLower() == null) {
-						dto.setWacchoiLower("");
-					}
-				}
-				if (hasId && (dto.getId() == null)) {
-					dto.setId("");
-				}
+			// 加工
+			for (ResProcessor processor : resProcessors) {
+				processor.process(urlStr, res, remote, now);
 			}
-		} finally {
-			if (br != null) {
-				try {
-					br.close();
-				} catch (IOException e) {
-				}
-				br = null;
+
+			// resFilter適用
+			// 加工の後にしないとレス数等がカウントできない
+			if (resFilter != null) {
+				TreeMap<Integer, ResDto> filtered = res.entrySet().stream()
+						.filter(x -> resFilter.contains(x.getKey()))
+						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (x, y) -> x, TreeMap::new));
+				res.clear();
+				res = filtered;
 			}
+
+			// html生成
+			org.thymeleaf.context.Context context = new org.thymeleaf.context.Context(Locale.JAPANESE);
+			// 件名を入れる
+			context.setVariable("title", res.isEmpty() ? "不明" : res.firstEntry().getValue().getTitle().trim() + (remote ? ("(" + newResCount + ")") : ""));
+			context.setVariable("resMap", res);
+			context.setVariable("lastResCount", NumberUtil.integerCache(lastResCount));
+			context.setVariable("newResCount", NumberUtil.integerCache(remote ? newResCount : -1));
+			context.setVariable("filtered", Boolean.valueOf(resFilter != null));
+			// enum定数 SpELでないからT()が使えない
+			context.setVariable("ABONE_LEVEL_NONE", AboneLevel.NONE);
+			context.setVariable("ABONE_LEVEL_ABONE", AboneLevel.ABONE);
+			context.setVariable("ABONE_LEVEL_INVISIBLE", AboneLevel.INVISIBLE);
+			threadLoadTaskResponseDto.setHtml(templateEngine.process(templateFileName, context));
+
+			return threadLoadTaskResponseDto;
+		} catch (Exception e) {
+			return errorProcess(e);
 		}
 	}
 
-	@Override
-	protected ThreadResponseDto request(TreeMap<Integer, ResDto> res) throws IOException {
-		ThreadResponseDto dto = new ThreadResponseDto();
-		dto.setUrl(urlStr);
-		dto.setCheckTime(now);
-		dto.setAccessTime(now);
+	private ThreadLoadTaskResponseDto errorProcess(Exception e) {
+		App.logger.error("AbstractThreadLoadTask失敗", e);
+		ThreadLoadTaskResponseDto threadLoadTaskResponseDto = new ThreadLoadTaskResponseDto();
+		threadLoadTaskResponseDto.setErrorMessage(e.getMessage());
 
-		HttpURLConnection connection = null;
-		InputStream is = null;
-		byte[] data = null;
-		int actualLength = 0;
+		// html生成
+		org.thymeleaf.context.Context context = new org.thymeleaf.context.Context(Locale.JAPANESE);
+		context.setVariable("exception", e);
+		threadLoadTaskResponseDto.setHtml(templateEngine.process(errorTemplateFileName, context));
+
+		return threadLoadTaskResponseDto;
+	}
+
+	/**
+	 * DATファイルからレスを取得してListに追加する。
+	 * @param boardDto
+	 * @param res
+	 */
+	private void readDat(BoardDto boardDto, TreeMap<Integer, ResDto> res) {
+		BBS bbsObject = BBSManager.getBBSFromLogDirectoryName(bbs);
 		try {
-			String urlLast = null;
-			if (res.size() > 0) {
-				urlLast = urlStr + res.size() + '-';
-			} else {
-				urlLast = urlStr;
+			threadLoader.readDat(boardDto, res, new BufferedReader(new FileReader(Config.getLogFolder().resolve(bbs).resolve(board).resolve(datFileName).toString(), bbsObject.getCharset())));
+		} catch (Exception e) {
+			// 読めない場合は再取得
+		}
+	}
+
+	/**
+	 * readcgi.js処理済みの文字列からレスを取得してListに追加する。
+	 * @param boardDto
+	 * @param res
+	 * @param source
+	 */
+	private void readDat(BoardDto boardDto, TreeMap<Integer, ResDto> res, String source) throws IOException {
+		threadLoader.readDat(boardDto, res, new BufferedReader(new StringReader(source)));
+	}
+
+	/**
+	 * 新着レスをDATファイルに書き込む。
+	 * threadst.txtを更新する。
+	 * @param res
+	 * @param startIndex
+	 * @param threadResponseDto
+	 */
+	private void writeDat(TreeMap<Integer, ResDto> res, int lastRes, ThreadResponseDto threadResponseDto) throws IOException {
+		File file = Config.getLogFolder().resolve(bbs).resolve(board).resolve(datFileName).toFile();
+		BufferedWriter bw = null;
+		try {
+			bw = new BufferedWriter(new FileWriter(
+					file,
+					bbsObject.getCharset(),
+					true));
+			for (ResDto resDto : res.tailMap(NumberUtil.integerCache(lastRes), false).values()) {
+				bw.write(resDto.getSource());
+				bw.write("\n");
 			}
-			URL url = new URL(urlLast);
-			connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("GET");
-			connection.setReadTimeout(30000);
-			connection.connect();
-			dto.setResponseCode(connection.getResponseCode());
-			dto.setResponseMessage(connection.getResponseMessage());
-			String contentType = connection.getContentType();
-			dto.setContentType(contentType);
-			long lengthLong = connection.getContentLengthLong();
-			dto.setContentLength(lengthLong);
-			dto.setExpiration(connection.getExpiration());
-			dto.setDate(connection.getDate());
-			dto.setLastModified(connection.getLastModified());
-			dto.setLocation(connection.getHeaderField("Location"));
-			dto.setHeader(new HashMap<String, List<String>>(connection.getHeaderFields()));
-			
-			if (lengthLong > 1048576L) {
-				throw new IOException("ダウンロードサイズ制限: " + lengthLong + "bytes " + url);
-			}
-			int length = (lengthLong < 0L) ? 1048576 : ((int) lengthLong);
-			is = connection.getInputStream();
-			data = new byte[(int) length];
-			int readLength = 0;
-			while ((length > actualLength) && ((readLength = is.readNBytes(data, actualLength, length - actualLength)) > 0)) {
-				actualLength += readLength;
-			}
-		} catch (IOException e) {
-			if (connection == null) {
-				dto.setResponseCode(-1);
-				dto.setResponseMessage(e.getClass().getName() + ": " + e.getMessage());
-			} else {
-				try {
-					dto.setResponseCode(connection.getResponseCode());
-					dto.setResponseMessage("HTTP " + connection.getResponseCode() + " " + connection.getResponseMessage());
-				} catch (IOException e1) {
-					dto.setResponseCode(-1);
-					dto.setResponseMessage(e.getClass().getName() + ": " + e.getMessage());
-				}
-			}
-			App.logger.error("request失敗", e);
-			return dto;
+			bw.flush();
 		} finally {
-			if (is != null) {
+			if (bw != null) {
 				try {
-					is.close();
+					bw.close();
 				} catch (IOException e) {
 				}
-				is = null;
-			}
-			if (connection != null) {
-				connection.disconnect();
-				connection = null;
+				bw = null;
 			}
 		}
-		if (actualLength <= 0) {
-			return dto;
-		}
-		String readHtml = new String(data, bbsObject.getCharset());
 
-		// readcgi.js
-		String readcgijs = Files.readString(FileUtil.realCapitalPath(App.scriptFolder.resolve("readcgi.js")), Charset.forName("UTF-8"));
-
-		try {
-			org.mozilla.javascript.Context cx = org.mozilla.javascript.Context.enter();
-			Scriptable scope = cx.initStandardObjects();
-			cx.evaluateString(scope, readcgijs, "readcgi.js", 1, null);
-			Object htmlToDat = scope.get("htmlToDat", scope);
-			if (!(htmlToDat instanceof Function)) {
-				throw new IOException("readcgi.jsが異常");
-			}
-			Object result = ((Function) htmlToDat).call(cx, scope, scope, new Object[]{urlStr, readHtml, res.size()});
-			dto.setData((result == null) ? null : Context.toString(result));
-			return dto;
-		} finally {
-			Context.exit();
+		// threadst.txt
+		String boardUrl = bbsObject.getBoardUrlFromThreadUrl(urlStr);
+		BoardDto boardDto = BoardManager.get(boardUrl);
+		if (boardDto == null) {
+			return;
 		}
+		ThreadDto threadDto = boardDto.getLogThread().get(datFileName);
+		if (threadDto == null) {
+			threadDto = new ThreadDto();
+			threadDto.setBoardUrl(boardUrl);
+			threadDto.setDatName(datFileName);
+			boardDto.getLogThread().put(datFileName, threadDto);
+		}
+		Map.Entry<Integer, ResDto> first = res.firstEntry();
+		Map.Entry<Integer, ResDto> last = res.lastEntry();
+		threadDto.setLogCount(last.getKey());
+		threadDto.settLastGet(DateTimeUtil.httpLongToLocalDateTime(threadResponseDto.getDate()));
+		threadDto.setResCount(last.getKey());
+		threadDto.setnLastNRes(lastRes);
+		threadDto.setBuildTime(DateTimeUtil.httpLongToLocalDateTime(first.getValue().getTimeLong()));
+		threadDto.settLast(DateTimeUtil.httpLongToLocalDateTime(last.getValue().getTimeLong()));
+		threadDto.setnLogSize(file.length());
+		threadDto.setDate(DateTimeUtil.httpLongToLocalDateTime(threadResponseDto.getDate()));
+		threadDto.setTitle(first.getValue().getTitle());
+		BoardManager.updateThreadst(boardDto);
 	}
 }

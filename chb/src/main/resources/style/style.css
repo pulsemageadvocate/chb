@@ -1,0 +1,33 @@
+* {
+	-fx-font-family: "メイリオ", "ＭＳ Ｐゴシック", "MS PGothic", "游ゴシック", sans-serif;
+	-fx-font-size: 16px;
+}
+
+.toggle:selected {
+	-fx-background-color: yellow;
+}
+
+/* boardView */
+.boardView_hasLog {
+	-fx-pref-width: 1.5em;
+}
+.boardView_number {
+}
+.boardView_title {
+	-fx-pref-width: 50em;
+}
+.boardView_resCount {
+}
+.boardView_newCount {
+}
+.boardView_logCount {
+}
+.boardView_buildTime {
+	-fx-pref-width: 10em;
+}
+.numberColumn {
+	-fx-pref-width: 4em;
+}
+.rightColumn {
+	-fx-alignment: CENTER-RIGHT;
+}

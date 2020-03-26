@@ -25,9 +25,11 @@ import javafx.scene.web.WebView;
 import javafx.stage.Popup;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-import pulad.chb.bbs.BBS;
 import pulad.chb.bbs.BBSManager;
+import pulad.chb.config.Config;
 import pulad.chb.dto.ThreadLoadTaskResponseDto;
+import pulad.chb.interfaces.BBS;
+import pulad.chb.read.thread.ThreadLoadTask;
 
 /**
  * スレッドのID等からポップアップするレス一覧。
@@ -46,7 +48,7 @@ public class PopupThreadViewProcessor {
 			List<Integer> resFilter) {
 		Popup popup = new Popup();
 		Scene scene = popup.getScene();
-		scene.getStylesheets().add(App.styleCss);
+		scene.getStylesheets().add(Config.styleCss);
 
 		WebView threadView = new WebView();
 		AnchorPane rootPane = new AnchorPane(threadView);
@@ -82,7 +84,7 @@ public class PopupThreadViewProcessor {
 		@Override
 		protected Task<ThreadLoadTaskResponseDto> createTask() {
 			BBS bbsObject = BBSManager.getBBSFromUrl(url);
-			Task<ThreadLoadTaskResponseDto> task = bbsObject.createThreadLoadTask(url, false, resFilter);
+			Task<ThreadLoadTaskResponseDto> task = new ThreadLoadTask(bbsObject.createThreadLoader(url), url, false, resFilter);
 			// なぜかこれを呼ぶとServiceのOnSucceededも呼ばれるようになる
 			task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 				@Override

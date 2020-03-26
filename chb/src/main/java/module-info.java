@@ -1,3 +1,5 @@
+import pulad.chb.interfaces.BBS;
+
 module pulad.chb {
 	requires transitive javafx.base;
     requires transitive javafx.controls;
@@ -12,14 +14,13 @@ module pulad.chb {
 	requires unbescape;
 	requires transitive slf4j.api;
 	requires jdk.xml.dom;
+    requires transitive pulad.chb.base;
+    opens style;
     opens templates;
     exports pulad.chb;
-    exports pulad.chb.bbs;
-    exports pulad.chb.dto;
-    exports pulad.chb.constant;
-    exports pulad.chb.util;
     exports pulad.chb.favorite to pulad.chb;
     exports pulad.chb.read.board;
     exports pulad.chb.read.thread;
     exports pulad.chb.write;
+    uses BBS;
 }

@@ -1,7 +1,7 @@
 package pulad.chb.read.bbsmenu;
 
 import pulad.chb.App;
-import pulad.chb.favorite.TreeItemType;
+import pulad.chb.constant.TreeItemType;
 import pulad.chb.favorite.TreeLoader;
 
 public class BBSMenuTreeLoader extends TreeLoader {

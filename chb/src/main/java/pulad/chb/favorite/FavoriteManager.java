@@ -12,14 +12,15 @@ import java.util.List;
 import org.thymeleaf.util.StringUtils;
 
 import pulad.chb.App;
-import pulad.chb.bbs.BBS;
 import pulad.chb.bbs.BBSManager;
+import pulad.chb.config.Config;
+import pulad.chb.interfaces.BBS;
 
 public class FavoriteManager {
 
 	public static void addFavorite(String url) {
 		synchronized (FavoriteManager.class) {
-			Path path = App.rootFolder.resolve("favorite.txt");
+			Path path = Config.getRootFolder().resolve("favorite.txt");
 			List<String> lines;
 
 			try {

@@ -12,8 +12,9 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 
 import pulad.chb.App;
-import pulad.chb.DownloadProcessor;
+import pulad.chb.config.Config;
 import pulad.chb.dto.DownloadDto;
+import pulad.chb.util.DownloadProcessor;
 import pulad.chb.util.ImageUtil;
 import pulad.chb.util.V2CSHA1Value;
 
@@ -74,7 +75,7 @@ public class LocalURLStreamHandler extends URLStreamHandler {
 						sha1FileName = sha1FileName + fileExt;
 
 						try {
-							Files.write(App.imageFolder.resolve(sha1FileName.substring(0, 1)).resolve(sha1FileName), data, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
+							Files.write(Config.getImageFolder().resolve(sha1FileName.substring(0, 1)).resolve(sha1FileName), data, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
 						} catch (FileAlreadyExistsException e) {
 							// URLが別でも内容のハッシュが同じならありうる
 						} catch (IOException e) {

@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import pulad.chb.dto.ResDto;
+import pulad.chb.interfaces.ResProcessor;
 
 /**
  * 画像を抽出する

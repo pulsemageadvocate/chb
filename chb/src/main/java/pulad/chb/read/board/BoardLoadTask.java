@@ -13,15 +13,16 @@ import java.util.regex.Pattern;
 
 import javafx.concurrent.Task;
 import pulad.chb.App;
-import pulad.chb.DownloadProcessor;
-import pulad.chb.bbs.BBS;
 import pulad.chb.bbs.BBSManager;
 import pulad.chb.board.BoardManager;
+import pulad.chb.config.Config;
 import pulad.chb.dto.BoardDto;
 import pulad.chb.dto.BoardLoadTaskResponseDto;
 import pulad.chb.dto.DownloadDto;
 import pulad.chb.dto.ThreadDto;
+import pulad.chb.interfaces.BBS;
 import pulad.chb.util.DateTimeUtil;
+import pulad.chb.util.DownloadProcessor;
 import pulad.chb.util.FileUtil;
 
 public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
@@ -49,7 +50,7 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 		BBS bbsObject = BBSManager.getBBSFromUrl(urlStr);
 		String bbs = bbsObject.getLogDirectoryName();
 		String board = bbsObject.getBoardFromBoardUrl(urlStr);
-		Path subjectFilePath = FileUtil.realCapitalPath(App.logFolder.resolve(bbs).resolve(board).resolve("subject.txt"));
+		Path subjectFilePath = FileUtil.realCapitalPath(Config.getLogFolder().resolve(bbs).resolve(board).resolve("subject.txt"));
 
 		// subject.txtダウンロード
 		if (this.remote) {
