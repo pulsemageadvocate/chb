@@ -58,7 +58,7 @@ public class LocalURLStreamHandler extends URLStreamHandler {
 				if (LinkHistManager.lock(urlStr)) {
 					DownloadDto downloadDto = DownloadProcessor.downloadBytes(
 							urlStr,
-							1048576 * 4,
+							1048576 * 2, //gifでcrashする件の一時的な対策
 							x -> (ImageUtil.getFileExt(x.getContentType()) != null));
 					byte[] data = downloadDto.getData();
 					String contentType = downloadDto.getContentType();
