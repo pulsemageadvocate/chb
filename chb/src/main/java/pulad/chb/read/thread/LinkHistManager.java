@@ -35,7 +35,7 @@ public class LinkHistManager {
 
 		// キャッシュ無し（失敗履歴有り）
 		if (dto.record[10].length() <= 0) {
-			return "classpath:notfound.gif";
+			return "classpath:image/notfound.gif";
 		}
 		StringBuilder sb = new StringBuilder();
 		sb.append(Config.getImageFolder().resolve(dto.record[10].substring(0, 1)).resolve(dto.record[10]).toString());

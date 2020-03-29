@@ -10,6 +10,8 @@ import java.net.URLStreamHandlerFactory;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import pulad.chb.App;
 import pulad.chb.config.Config;
@@ -19,12 +21,14 @@ import pulad.chb.util.ImageUtil;
 import pulad.chb.util.V2CSHA1Value;
 
 public class LocalURLStreamHandler extends URLStreamHandler {
+	private static final Pattern regImage = Pattern.compile("^image:[A-Za-z0-9._\\-]+$");
 
 	// TODO:変更可能にする
 	public static final String PROTOCOL = "imgcache";
 	public static final String PROTOCOL_SECURE = PROTOCOL + "s";
 	public static final String PROTOCOL_LOCAL = "imglocal";
 	public static final String PROTOCOL_LOCAL_SECURE = PROTOCOL_LOCAL + "s";
+	public static final String PROTOCOL_IMAGE = "image";
 
 	public static class Factory implements URLStreamHandlerFactory {
 		@Override
@@ -32,7 +36,8 @@ public class LocalURLStreamHandler extends URLStreamHandler {
 			return (PROTOCOL.equals(protocol) ||
 					PROTOCOL_SECURE.equals(protocol) ||
 					PROTOCOL_LOCAL.equals(protocol) ||
-					PROTOCOL_LOCAL_SECURE.equals(protocol)) ? new LocalURLStreamHandler() : null;
+					PROTOCOL_LOCAL_SECURE.equals(protocol) ||
+					PROTOCOL_IMAGE.equals(protocol)) ? new LocalURLStreamHandler() : null;
 		}
 	}
 
@@ -48,7 +53,7 @@ public class LocalURLStreamHandler extends URLStreamHandler {
 	@Override
 	protected URLConnection openConnection(URL u) throws IOException {
 		String urlStr = u.toExternalForm();
-		if (App.offline || urlStr.startsWith(PROTOCOL_LOCAL)) {
+		if (App.offline || urlStr.startsWith(PROTOCOL_LOCAL) || urlStr.startsWith(PROTOCOL_IMAGE)) {
 			return new LocalURLConnection(u);
 		}
 		urlStr = urlStr.replaceFirst(PROTOCOL, "http");
@@ -58,7 +63,7 @@ public class LocalURLStreamHandler extends URLStreamHandler {
 				if (LinkHistManager.lock(urlStr)) {
 					DownloadDto downloadDto = DownloadProcessor.downloadBytes(
 							urlStr,
-							1048576 * 2, //gifでcrashする件の一時的な対策
+							1048576 * 4,
 							x -> (ImageUtil.getFileExt(x.getContentType()) != null));
 					byte[] data = downloadDto.getData();
 					String contentType = downloadDto.getContentType();
@@ -119,6 +124,14 @@ public class LocalURLStreamHandler extends URLStreamHandler {
 
 		@Override
 		public InputStream getInputStream() throws IOException {
+			if (url.startsWith("image:")) {
+				// パストラバーサル脆弱性を検証する
+				Matcher matcher = regImage.matcher(url);
+				if (!matcher.matches()) {
+					throw new IOException("みつかりません");
+				}
+				return getClass().getClassLoader().getResourceAsStream("image/" + url.substring(6));
+			}
 			String cachePath = LinkHistManager.getCacheFileName(url);
 			if (cachePath == null) {
 				throw new IOException("みつかりません");

@@ -3,6 +3,7 @@ package pulad.chb;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.thymeleaf.util.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -158,7 +159,9 @@ public class PopupThreadViewProcessor {
 							Element img = (Element) imgList.item(i);
 							((EventTarget) img).addEventListener("load", imgLoadEventListener, false);
 							((EventTarget) img).addEventListener("error", imgLoadEventListener, false);
-							img.setAttribute("src", img.getAttribute("data-src"));
+							// gifをサムネイルに表示しない
+							String replaceSrc = img.getAttribute("data-view");
+							img.setAttribute("src", StringUtils.isEmpty(replaceSrc) ? img.getAttribute("data-src") : replaceSrc);
 						}
 
 						//popup.getScene().setOnMouseExited(x -> {popup.hide();});

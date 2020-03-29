@@ -234,7 +234,9 @@ public class ThreadViewProcessor {
 							Element img = (Element) imgList.item(i);
 							((EventTarget) img).addEventListener("load", imgLoadEventListener, false);
 							((EventTarget) img).addEventListener("error", imgLoadEventListener, false);
-							img.setAttribute("src", img.getAttribute("data-src"));
+							// gifをサムネイルに表示しない
+							String replaceSrc = img.getAttribute("data-view");
+							img.setAttribute("src", StringUtils.isEmpty(replaceSrc) ? img.getAttribute("data-src") : replaceSrc);
 						}
 					}
 				}
@@ -387,7 +389,7 @@ public class ThreadViewProcessor {
 				if (attributes == null) {
 					return true;
 				}
-				Node srcNode = attributes.getNamedItem("src");
+				Node srcNode = attributes.getNamedItem("data-src");
 				if (srcNode == null) {
 					return true;
 				}

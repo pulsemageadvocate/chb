@@ -132,7 +132,7 @@ a {
 		<DIV class="resmsg"><SPAN class="sa2"><span th:utext="${res.body}"></span></SPAN></DIV>
 		<DIV class="resimg" th:unless="${#lists.isEmpty(res.images)}">
 			<span th:each="image, iterImage : ${res.images}">
-				<img th:data-src="${image}" />
+				<img th:data-view="${image.endsWith('.gif')} ? 'image:gif.png' : ''" th:data-src="${image}" />
 			</span>
 		</DIV>
 	</DIV>

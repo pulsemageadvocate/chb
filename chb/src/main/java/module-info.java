@@ -15,6 +15,7 @@ module pulad.chb {
 	requires transitive slf4j.api;
 	requires jdk.xml.dom;
     requires transitive pulad.chb.base;
+    opens image;
     opens style;
     opens templates;
     exports pulad.chb;
