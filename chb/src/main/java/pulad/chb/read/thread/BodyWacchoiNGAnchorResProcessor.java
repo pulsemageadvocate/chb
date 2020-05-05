@@ -16,7 +16,7 @@ public class BodyWacchoiNGAnchorResProcessor implements ResProcessor {
 
 	@Override
 	public void process(String url, TreeMap<Integer, ResDto> res, boolean remote, long now) {
-		for (ResDto dto : res.values()) {
+		res.values().parallelStream().forEach(dto -> {
 			Matcher matcherBody = regBody.matcher(dto.getBody());
 			StringBuilder sb = new StringBuilder();
 			while (matcherBody.find()) {
@@ -24,6 +24,6 @@ public class BodyWacchoiNGAnchorResProcessor implements ResProcessor {
 			}
 			matcherBody.appendTail(sb);
 			dto.setBody(sb.toString());
-		}
+		});
 	}
 }

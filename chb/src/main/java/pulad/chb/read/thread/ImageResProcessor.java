@@ -23,7 +23,7 @@ public class ImageResProcessor implements ResProcessor {
 
 	@Override
 	public void process(String url, TreeMap<Integer, ResDto> res, boolean remote, long now) {
-		for (ResDto dto : res.values()) {
+		res.values().parallelStream().forEach(dto -> {
 			List<String> images = dto.getImages();
 			if (images == null) {
 				images = new ArrayList<>();
@@ -42,7 +42,7 @@ public class ImageResProcessor implements ResProcessor {
 			while (matcher.find()) {
 				images.add(unsanitize(LocalURLStreamHandler.PROTOCOL + matcher.group(1)));
 			}
-		}
+		});
 	}
 
 	/**

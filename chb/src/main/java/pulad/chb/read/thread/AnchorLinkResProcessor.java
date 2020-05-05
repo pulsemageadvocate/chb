@@ -29,7 +29,7 @@ public class AnchorLinkResProcessor implements ResProcessor {
 
 	@Override
 	public void process(String url, TreeMap<Integer, ResDto> res, boolean remote, long now) {
-		for (ResDto dto : res.values()) {
+		res.values().parallelStream().forEach(dto -> {
 			Matcher matcherBody = regBody.matcher(dto.getBody());
 			StringBuilder sb = new StringBuilder();
 			while (matcherBody.find()) {
@@ -80,11 +80,11 @@ public class AnchorLinkResProcessor implements ResProcessor {
 			}
 			matcherBody.appendTail(sb);
 			dto.setBody(sb.toString());
-		}
+		});
 		// 参照元ポップアップ用にカンマ区切り
-		for (ResDto dto : res.values()) {
+		res.values().parallelStream().forEach(dto -> {
 			dto.setReferredLink(createLinkString(NumberUtil.integerCache(dto.getNumber()), dto.getReferredSet()));
-		}
+		});
 	}
 
 	private void addLinkRefer(Set<Integer> linkReferSet, int from, int to) {
