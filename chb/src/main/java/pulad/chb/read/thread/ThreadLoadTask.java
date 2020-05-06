@@ -94,6 +94,7 @@ public class ThreadLoadTask extends Task<ThreadLoadTaskResponseDto> {
 		resProcessors.add(new LinkPopupResProcessor());
 		resProcessors.add(new AboneResProcessor());
 		resProcessors.add(new BodyWacchoiNGAnchorResProcessor());
+		resProcessors.add(new ReplaceNumericalCharacterReferenceResProcessor());
 		return resProcessors;
 	}
 

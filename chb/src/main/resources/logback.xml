@@ -17,6 +17,10 @@
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="FILE" />
 	</logger>
+	<logger name="pulad.chb.read.thread.ReplaceNumericalCharacterReferenceResProcessor" level="debug" additivity="false">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="FILE" />
+	</logger>
 	<root level="warn">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="FILE" />
