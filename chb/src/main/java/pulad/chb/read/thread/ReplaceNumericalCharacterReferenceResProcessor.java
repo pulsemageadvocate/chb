@@ -28,10 +28,10 @@ public class ReplaceNumericalCharacterReferenceResProcessor implements ResProces
 			Matcher matcher = reg10.matcher(body);
 			while (matcher.find()) {
 				int i = Integer.parseInt(matcher.group("i"), 10);
-				if (i >= 65536) {
+				//if (i >= 65536) {
 					matcher.appendReplacement(sb, "&amp;");
 					logger.debug("{} -> {}", new String(new int[]{i}, 0, 1), "&#" + i + ";");
-				}
+				//}
 			}
 			matcher.appendTail(sb);
 			body = sb.toString();
@@ -40,10 +40,10 @@ public class ReplaceNumericalCharacterReferenceResProcessor implements ResProces
 			matcher = reg16.matcher(body);
 			while (matcher.find()) {
 				int i = Integer.parseInt(matcher.group("i"), 16);
-				if (i >= 65536) {
+				//if (i >= 65536) {
 					matcher.appendReplacement(sb, "&amp;");
 					logger.debug("{} -> {}", new String(new int[]{i}, 0, 1), "&#x" + Integer.toHexString(i) + ";");
-				}
+				//}
 			}
 			matcher.appendTail(sb);
 			dto.setBody(sb.toString());
