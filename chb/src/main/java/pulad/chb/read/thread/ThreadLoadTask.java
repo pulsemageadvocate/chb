@@ -48,6 +48,7 @@ public class ThreadLoadTask extends Task<ThreadLoadTaskResponseDto> {
 	private final TemplateEngine templateEngine;
 	protected final String urlStr;
 	protected final boolean remote;
+	protected final boolean replaceEmoji;
 	protected final Set<Integer> resFilter;
 	protected final BBS bbsObject;
 	protected final String bbs;
@@ -55,17 +56,22 @@ public class ThreadLoadTask extends Task<ThreadLoadTaskResponseDto> {
 	protected final String datFileName;
 
 	public ThreadLoadTask(ThreadLoader threadLoader, String url) {
-		this(threadLoader, url, true, null);
+		this(threadLoader, url, true, true, null);
 	}
 
 	public ThreadLoadTask(ThreadLoader threadLoader, String url, boolean remote) {
-		this(threadLoader, url, remote, null);
+		this(threadLoader, url, remote, true, null);
 	}
 
-	public ThreadLoadTask(ThreadLoader threadLoader, String url, boolean remote, Collection<Integer> resFilter) {
+	public ThreadLoadTask(ThreadLoader threadLoader, String url, boolean remote, boolean replaceEmoji) {
+		this(threadLoader, url, remote, replaceEmoji, null);
+	}
+
+	public ThreadLoadTask(ThreadLoader threadLoader, String url, boolean remote, boolean replaceEmoji, Collection<Integer> resFilter) {
 		this.threadLoader = threadLoader;
 		this.urlStr = url;
 		this.remote = remote;
+		this.replaceEmoji = replaceEmoji;
 		this.resFilter = (resFilter == null) ? null : new TreeSet<Integer>(resFilter);
 		this.resProcessors = createResProcessors();
 
@@ -94,7 +100,9 @@ public class ThreadLoadTask extends Task<ThreadLoadTaskResponseDto> {
 		resProcessors.add(new LinkPopupResProcessor());
 		resProcessors.add(new AboneResProcessor());
 		resProcessors.add(new BodyWacchoiNGAnchorResProcessor());
-		resProcessors.add(new ReplaceNumericalCharacterReferenceResProcessor());
+		if (replaceEmoji) {
+			resProcessors.add(new ReplaceNumericalCharacterReferenceResProcessor());
+		}
 		return resProcessors;
 	}
 

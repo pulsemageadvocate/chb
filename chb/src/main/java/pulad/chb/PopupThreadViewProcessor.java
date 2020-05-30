@@ -66,7 +66,7 @@ public class PopupThreadViewProcessor {
 		popup.setAutoHide(true);
 		popup.show(owner);
 
-		ThreadLoadService service = new ThreadLoadService(url, resFilter);
+		ThreadLoadService service = new ThreadLoadService(url, App.replaceEmoji, resFilter);
 		service.setOnSucceeded(new ThreadLoadSucceededEventHandler(popup, threadView, clickEventListener, rightClickEventListener.duplicate(threadView)));
 		service.start();
 
@@ -75,17 +75,19 @@ public class PopupThreadViewProcessor {
 
 	private static class ThreadLoadService extends Service<ThreadLoadTaskResponseDto> {
 		private String url;
+		private Boolean replaceEmoji;
 		private List<Integer> resFilter;
 
-		public ThreadLoadService(String url, List<Integer> resFilter) {
+		public ThreadLoadService(String url, Boolean replaceEmoji, List<Integer> resFilter) {
 			this.url = url;
+			this.replaceEmoji = replaceEmoji;
 			this.resFilter = resFilter;
 		}
 
 		@Override
 		protected Task<ThreadLoadTaskResponseDto> createTask() {
 			BBS bbsObject = BBSManager.getBBSFromUrl(url);
-			Task<ThreadLoadTaskResponseDto> task = new ThreadLoadTask(bbsObject.createThreadLoader(url), url, false, resFilter);
+			Task<ThreadLoadTaskResponseDto> task = new ThreadLoadTask(bbsObject.createThreadLoader(url), url, false, replaceEmoji, resFilter);
 			// なぜかこれを呼ぶとServiceのOnSucceededも呼ばれるようになる
 			task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 				@Override

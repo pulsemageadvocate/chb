@@ -40,6 +40,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
@@ -79,6 +80,7 @@ public class App extends Application {
 	private static App app = null;
 	private Stage stage = null;
 	public static volatile boolean offline = false;
+	public static volatile boolean replaceEmoji = true;
 
 	private TextField urlField = null;
 	private TextField searchField = null;
@@ -147,6 +149,16 @@ public class App extends Application {
 			offline = !offline;
 			offlineButton.setSelected(offline);
 		});
+		ToggleButton emojiButton = new ToggleButton();
+		emojiButton.setText("&#12;");
+		emojiButton.getStyleClass().add("toggle");
+		emojiButton.setOnAction(event -> {
+			replaceEmoji = !replaceEmoji;
+			emojiButton.setSelected(replaceEmoji);
+		});
+		emojiButton.setSelected(replaceEmoji);
+		HBox buttonBox = new HBox(offlineButton, emojiButton);
+
 		urlField = new TextField();
 		urlField.setMaxWidth(Double.MAX_VALUE);
 		searchField = new TextField();
@@ -154,7 +166,7 @@ public class App extends Application {
 		searchField.setMinWidth(200d);
 		searchField.setMaxWidth(200d);
 		BorderPane toolbar = new BorderPane();
-		toolbar.setLeft(offlineButton);
+		toolbar.setLeft(buttonBox);
 		toolbar.setCenter(urlField);
 		toolbar.setRight(searchField);
 		urlField.setOnAction(event -> {

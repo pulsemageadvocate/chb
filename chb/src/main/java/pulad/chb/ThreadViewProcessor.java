@@ -73,7 +73,7 @@ public class ThreadViewProcessor {
 		getWebView(tab);
 
 		// ここでremoteにオフラインボタンの状態を加味する。
-		ThreadLoadService service = new ThreadLoadService(url, !App.offline && remote);
+		ThreadLoadService service = new ThreadLoadService(url, !App.offline && remote, App.replaceEmoji);
 		service.setOnSucceeded(new ThreadLoadSucceededEventHandler(tab, url, !App.offline && remote, scrollY));
 		service.start();
 	}
@@ -89,7 +89,7 @@ public class ThreadViewProcessor {
 
 		// ここでremoteにオフラインボタンの状態を加味する。
 		int scrollY = (int) threadView.getEngine().executeScript("document.body.scrollTop");
-		ThreadLoadService service = new ThreadLoadService(url, !App.offline && remote);
+		ThreadLoadService service = new ThreadLoadService(url, !App.offline && remote, App.replaceEmoji);
 		service.setOnSucceeded(new ThreadLoadSucceededEventHandler(tab, url, !App.offline && remote, scrollY));
 		service.start();
 	}
@@ -140,16 +140,18 @@ public class ThreadViewProcessor {
 	private static class ThreadLoadService extends Service<ThreadLoadTaskResponseDto> {
 		private String url;
 		private boolean remote;
+		private boolean replaceEmoji;
 
-		public ThreadLoadService(String url, boolean remote) {
+		public ThreadLoadService(String url, boolean remote, boolean replaceEmoji) {
 			this.url = url;
 			this.remote = remote;
+			this.replaceEmoji = replaceEmoji;
 		}
 
 		@Override
 		protected Task<ThreadLoadTaskResponseDto> createTask() {
 			BBS bbsObject = BBSManager.getBBSFromUrl(url);
-			Task<ThreadLoadTaskResponseDto> task = new ThreadLoadTask(bbsObject.createThreadLoader(url), url, remote);
+			Task<ThreadLoadTaskResponseDto> task = new ThreadLoadTask(bbsObject.createThreadLoader(url), url, remote, replaceEmoji);
 			// なぜかこれを呼ぶとServiceのOnSucceededも呼ばれるようになる
 			task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 				@Override
