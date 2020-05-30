@@ -30,6 +30,7 @@ public class FavoriteTreeProcessor {
 		TreeItem<TreeItemDto> item = tree.getRoot();
 		if (item == null) {
 			// 読み込めない場合は初期化
+			App.logger.warn("favorite.txtが読み込めないので初期化");
 			TreeItemDto dto = new TreeItemDto();
 			dto.setType(TreeItemType.Folder);
 			dto.setText("お気に入り");
@@ -110,6 +111,11 @@ public class FavoriteTreeProcessor {
 					} catch (IOException e) {
 						App.logger.error("favorite.txt編集失敗", e);
 					}
+				});
+				menuItemList.add(menuItem);
+				menuItem = new MenuItem("再読込");
+				menuItem.setOnAction(x -> {
+					App.getInstance().reloadFavorite();
 				});
 				menuItemList.add(menuItem);
 				menu = new ContextMenu(menuItemList.toArray(new MenuItem[menuItemList.size()]));
