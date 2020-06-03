@@ -80,7 +80,7 @@ public class App extends Application {
 	private static App app = null;
 	private Stage stage = null;
 	public static volatile boolean offline = false;
-	public static volatile boolean replaceEmoji = true;
+	public static volatile boolean replaceEmoji = false;
 
 	private TextField urlField = null;
 	private TextField searchField = null;
@@ -156,7 +156,6 @@ public class App extends Application {
 			replaceEmoji = !replaceEmoji;
 			emojiButton.setSelected(replaceEmoji);
 		});
-		emojiButton.setSelected(replaceEmoji);
 		HBox buttonBox = new HBox(offlineButton, emojiButton);
 
 		urlField = new TextField();
