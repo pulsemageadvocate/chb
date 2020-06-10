@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.unbescape.html.HtmlEscape;
+
 import javafx.concurrent.Task;
 import pulad.chb.App;
 import pulad.chb.bbs.BBSManager;
@@ -31,14 +33,20 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 	private List<ThreadProcessor> threadProcessors;
 	protected final String urlStr;
 	protected final boolean remote;
+	protected final boolean replaceEmoji;
 
 	public BoardLoadTask(String url) {
-		this(url, true);
+		this(url, true, true);
 	}
 
 	public BoardLoadTask(String url, boolean remote) {
+		this(url, remote, true);
+	}
+
+	public BoardLoadTask(String url, boolean remote, boolean replaceEmoji) {
 		this.urlStr = url;
 		this.remote = remote;
+		this.replaceEmoji = replaceEmoji;
 		threadProcessors = new LinkedList<>();
 		threadProcessors.add(new IrregalBuildTimeThreadProcessor());
 	}
@@ -90,7 +98,12 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 					dto.setNumber(number);
 					dto.setResCount(Integer.parseInt(matcher.group("res")));
 					dto.setBuildTime(DateTimeUtil.httpLongToLocalDateTime(Long.parseLong(matcher.group("thread")) * 1000L));
-					dto.setTitle(matcher.group("title"));
+					// そのままだと数値文字参照が表示されるので解除
+					String title = matcher.group("title");
+					if (!replaceEmoji) {
+						title = HtmlEscape.escapeHtml5Xml(HtmlEscape.unescapeHtml(title));
+					}
+					dto.setTitle(title);
 
 					ThreadDto log = logThread.get(dat);
 					if (log != null) {

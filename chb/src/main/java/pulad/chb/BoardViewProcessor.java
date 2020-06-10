@@ -236,7 +236,7 @@ public class BoardViewProcessor {
 		});
 
 		// ここでremoteにオフラインボタンの状態を加味する。
-		BoardLoadService service = new BoardLoadService(url, !App.offline && remote);
+		BoardLoadService service = new BoardLoadService(url, !App.offline && remote, App.replaceEmoji);
 		service.setOnSucceeded(new BoardLoadSucceededEventHandler(tab));
 		service.start();
 	}
@@ -250,7 +250,7 @@ public class BoardViewProcessor {
 	 */
 	public static void reload(Tab tab, App app, String url, boolean remote) {
 		// ここでremoteにオフラインボタンの状態を加味する。
-		BoardLoadService service = new BoardLoadService(url, !App.offline && remote);
+		BoardLoadService service = new BoardLoadService(url, !App.offline && remote, App.replaceEmoji);
 		service.setOnSucceeded(new BoardLoadSucceededEventHandler(tab));
 		service.start();
 	}
@@ -258,15 +258,17 @@ public class BoardViewProcessor {
 	private static class BoardLoadService extends Service<BoardLoadTaskResponseDto> {
 		private String url;
 		private boolean remote;
+		private boolean replaceEmoji;
 
-		public BoardLoadService(String url, boolean remote) {
+		public BoardLoadService(String url, boolean remote, boolean replaceEmoji) {
 			this.url = url;
 			this.remote = remote;
+			this.replaceEmoji = replaceEmoji;
 		}
 
 		@Override
 		protected Task<BoardLoadTaskResponseDto> createTask() {
-			BoardLoadTask task = new BoardLoadTask(url, remote);
+			BoardLoadTask task = new BoardLoadTask(url, remote, replaceEmoji);
 			// なぜかこれを呼ぶとServiceのOnSucceededも呼ばれるようになる
 			task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 				@Override
