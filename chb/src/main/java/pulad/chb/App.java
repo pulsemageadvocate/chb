@@ -51,6 +51,7 @@ import pulad.chb.dto.ConfigFileDto;
 import pulad.chb.favorite.FavoriteManager;
 import pulad.chb.read.thread.LocalURLStreamHandler;
 import pulad.chb.util.NumberUtil;
+import pulad.chb.util.UrlUtil;
 
 /**
  * JavaFX App
@@ -339,10 +340,12 @@ public class App extends Application {
 
 	/**
 	 * 板タブを表示する。開始時はスレッドタブペイン作成後に呼び出し可能。
-	 * @param url
+	 * @param urlStr
 	 * @param remote
 	 */
-	public void openBoard(String url, boolean remote) {
+	public void openBoard(String urlStr, boolean remote) {
+		// URL欄に表示するため雑にhttpをhttpsにする
+		final String url = UrlUtil.toHttps(urlStr);
 		Tab tab = getTab(url);
 		if (tab == null) {
 			tab = new Tab("読み込み中");
@@ -377,9 +380,12 @@ public class App extends Application {
 
 	/**
 	 * スレッドタブを表示する。開始時はスレッドタブペイン作成後に呼び出し可能。
-	 * @param url
+	 * @param urlStr
+	 * @param remote
 	 */
-	public void openThread(String url, boolean remote) {
+	public void openThread(String urlStr, boolean remote) {
+		// URL欄に表示するため雑にhttpをhttpsにする
+		final String url = UrlUtil.toHttps(urlStr);
 		Tab tab = getTab(url);
 		if (tab == null) {
 			tab = new Tab("読み込み中");

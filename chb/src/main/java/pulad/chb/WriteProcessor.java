@@ -5,6 +5,7 @@ import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import pulad.chb.bbs.BBSManager;
+import pulad.chb.dto.ThreadWriteTaskResponseDto;
 import pulad.chb.interfaces.BBS;
 
 public class WriteProcessor {
@@ -15,7 +16,7 @@ public class WriteProcessor {
 		service.start();
 	}
 
-	private static class WriteService extends Service<Boolean> {
+	private static class WriteService extends Service<ThreadWriteTaskResponseDto> {
 		private String url;
 		private String name;
 		private String mail;
@@ -29,7 +30,7 @@ public class WriteProcessor {
 		}
 
 		@Override
-		protected Task<Boolean> createTask() {
+		protected Task<ThreadWriteTaskResponseDto> createTask() {
 			BBS bbsObject = BBSManager.getBBSFromUrl(url);
 			return bbsObject.createWriteTask(url, name, mail, body);
 		}

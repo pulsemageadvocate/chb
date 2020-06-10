@@ -16,6 +16,7 @@ import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pulad.chb.config.Config;
 import pulad.chb.dto.DownloadDto;
 
 public class DownloadProcessor {
@@ -135,6 +136,7 @@ public class DownloadProcessor {
 			URL url = new URL(urlStr);
 			connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
+			connection.setRequestProperty("User-Agent", Config.ua);
 			connection.setConnectTimeout(timeout);
 			connection.setReadTimeout(timeout);
 			connection.setInstanceFollowRedirects(true);

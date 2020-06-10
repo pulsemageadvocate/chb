@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javafx.concurrent.Task;
+import pulad.chb.dto.ThreadWriteTaskResponseDto;
 import pulad.chb.interfaces.BBS;
 import pulad.chb.interfaces.ThreadLoader;
 
@@ -92,6 +93,11 @@ public class Shitaraba implements BBS {
 	}
 
 	@Override
+	public String getThreadWriteUrlFromThreadUrl(String threadUrl) {
+		throw new UnsupportedOperationException("実装されていません。");
+	}
+
+	@Override
 	public Charset getCharset() {
 		return Charset.forName("EUC-JP");
 	}
@@ -116,7 +122,7 @@ public class Shitaraba implements BBS {
 	}
 
 	@Override
-	public Task<Boolean> createWriteTask(String url, String name, String mail, String body) {
+	public Task<ThreadWriteTaskResponseDto> createWriteTask(String url, String name, String mail, String body) {
 		throw new UnsupportedOperationException("実装されていません。");
 	}
 }

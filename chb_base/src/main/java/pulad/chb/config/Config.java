@@ -32,9 +32,6 @@ public class Config {
 	private static Path configFile;
 	private static File file;
 	private static ObjectMapper mapper;
-	/**
-	 * 未使用
-	 */
 	public static String ua = "chb/0.0.1-SNAPSHOT";
 	public static String editorCommand = "C:\\Programs\\sakura\\sakura.exe $LINK";
 	public static String styleCss;

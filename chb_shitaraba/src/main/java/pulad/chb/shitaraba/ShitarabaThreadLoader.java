@@ -12,13 +12,14 @@ import pulad.chb.interfaces.BBS;
 import pulad.chb.interfaces.ThreadLoader;
 import pulad.chb.util.DownloadProcessor;
 import pulad.chb.util.NumberUtil;
+import pulad.chb.util.UrlUtil;
 
 public class ShitarabaThreadLoader implements ThreadLoader {
 	protected final String urlStr;
 	protected final BBS bbsObject;
 
 	public ShitarabaThreadLoader(String url) {
-		this.urlStr = url;
+		this.urlStr = UrlUtil.toHttps(url);
 		this.bbsObject = new Shitaraba();
 	}
 
