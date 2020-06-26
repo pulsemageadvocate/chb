@@ -159,6 +159,7 @@ public class ThreadLoadTask extends Task<ThreadLoadTaskResponseDto> {
 			context.setVariable("lastResCount", NumberUtil.integerCache(lastResCount));
 			context.setVariable("newResCount", NumberUtil.integerCache(remote ? newResCount : -1));
 			context.setVariable("filtered", Boolean.valueOf(resFilter != null));
+			context.setVariable("errorMessage", threadLoadTaskResponseDto.getErrorMessage());
 			// enum定数 SpELでないからT()が使えない
 			context.setVariable("ABONE_LEVEL_NONE", AboneLevel.NONE);
 			context.setVariable("ABONE_LEVEL_ABONE", AboneLevel.ABONE);

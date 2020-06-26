@@ -199,6 +199,11 @@ a {
 			新着： <span th:text="${newResCount}">123</span>
 		</DIV>
 	</DIV>
+	<DIV th:if="(${number} == ${lastResCount}) and (! ${#strings.isEmpty(errorMessage)})">
+		<DIV class="resdiv0" th:text="${errorMessage}">
+			404 Not Found
+		</DIV>
+	</DIV>
 </th:block>
 </body>
 </html>
