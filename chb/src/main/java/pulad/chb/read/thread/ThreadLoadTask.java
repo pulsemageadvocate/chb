@@ -259,7 +259,14 @@ public class ThreadLoadTask extends Task<ThreadLoadTaskResponseDto> {
 		threadDto.setResCount(last.getKey());
 		threadDto.setnLastNRes(lastRes);
 		threadDto.setBuildTime(DateTimeUtil.httpLongToLocalDateTime(first.getValue().getTimeLong()));
-		threadDto.settLast(DateTimeUtil.httpLongToLocalDateTime(last.getValue().getTimeLong()));
+		// 最終書き込みを検索するがover1000を回避する
+		Map.Entry<Integer, ResDto> tLastEntry = last;
+		long tLast = 0L;
+		while (tLast <= 0L && tLastEntry != null) {
+			tLast = tLastEntry.getValue().getTimeLong();
+			tLastEntry = res.lowerEntry(tLastEntry.getKey());
+		}
+		threadDto.settLast(DateTimeUtil.httpLongToLocalDateTime(tLast));
 		threadDto.setnLogSize(file.length());
 		threadDto.setDate(DateTimeUtil.httpLongToLocalDateTime(threadResponseDto.getDate()));
 		threadDto.setTitle(first.getValue().getTitle());
