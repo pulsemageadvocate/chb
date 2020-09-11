@@ -20,6 +20,11 @@ public class ThreadDto implements Serializable {
 	 */
 	private String datName;
 	private int number;
+	/**
+	 * STATE
+	 * 1=スレッド終了？
+	 * 8=過去ログ化？
+	 */
 	private int state;
 	/**
 	 * NRESGET
