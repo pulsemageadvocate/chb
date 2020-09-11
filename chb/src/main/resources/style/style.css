@@ -25,6 +25,9 @@
 .boardView_buildTime {
 	-fx-pref-width: 10em;
 }
+.boardView_lastRes {
+	-fx-pref-width: 10em;
+}
 .numberColumn {
 	-fx-pref-width: 4em;
 }

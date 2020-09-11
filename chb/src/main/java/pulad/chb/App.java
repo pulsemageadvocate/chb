@@ -70,6 +70,10 @@ public class App extends Application {
 	 */
 	public static final String TAB_PROPERTY_URL = "url";
 	/**
+	 * TabのProperty値の過去ログ。
+	 */
+	public static final String TAB_PROPERTY_PAST = "past";
+	/**
 	 * TabのProperty値のステータスバーに表示する文字。
 	 */
 	public static final String TAB_PROPERTY_STATUS = "status";
@@ -82,6 +86,7 @@ public class App extends Application {
 	private Stage stage = null;
 	public static volatile boolean offline = false;
 	public static volatile boolean replaceEmoji = false;
+	public static volatile boolean pastLog = false;
 
 	private TextField urlField = null;
 	private TextField searchField = null;
@@ -157,7 +162,14 @@ public class App extends Application {
 			replaceEmoji = !replaceEmoji;
 			emojiButton.setSelected(replaceEmoji);
 		});
-		HBox buttonBox = new HBox(offlineButton, emojiButton);
+		ToggleButton pastButton = new ToggleButton();
+		pastButton.setText("過去ログ");
+		pastButton.getStyleClass().add("toggle");
+		pastButton.setOnAction(event -> {
+			pastLog = !pastLog;
+			pastButton.setSelected(pastLog);
+		});
+		HBox buttonBox = new HBox(offlineButton, emojiButton, pastButton);
 
 		urlField = new TextField();
 		urlField.setMaxWidth(Double.MAX_VALUE);
@@ -344,12 +356,14 @@ public class App extends Application {
 	 * @param remote
 	 */
 	public void openBoard(String urlStr, boolean remote) {
+		boolean pastLog = App.pastLog;
 		// URL欄に表示するため雑にhttpをhttpsにする
 		final String url = UrlUtil.toHttps(urlStr);
-		Tab tab = getTab(url);
+		Tab tab = getTab(url, pastLog);
 		if (tab == null) {
 			tab = new Tab("読み込み中");
 			tab.getProperties().put(TAB_PROPERTY_URL, url);
+			tab.getProperties().put(TAB_PROPERTY_PAST, pastLog);
 			tab.getProperties().put(TAB_PROPERTY_STATUS, url);
 			tab.setOnSelectionChanged(new TabEvent(urlField));
 
@@ -361,11 +375,11 @@ public class App extends Application {
 			menu.setAutoHide(true);
 			tab.setContextMenu(menu);
 
-			BoardViewProcessor.open(tab, this, url, remote);
+			BoardViewProcessor.open(tab, this, url, remote, pastLog);
 			threadTabPane.getTabs().add(tab);
 		} else {
 			tab.getProperties().remove(TAB_PROPERTY_STATUS_ERROR);
-			BoardViewProcessor.reload(tab, this, url, remote);
+			BoardViewProcessor.reload(tab, this, url, remote, pastLog);
 		}
 		threadTabPane.getSelectionModel().select(tab);
 	}
@@ -386,7 +400,7 @@ public class App extends Application {
 	public void openThread(String urlStr, boolean remote) {
 		// URL欄に表示するため雑にhttpをhttpsにする
 		final String url = UrlUtil.toHttps(urlStr);
-		Tab tab = getTab(url);
+		Tab tab = getTab(url, false); // スレッドは過去ログは暫定的にfalseとする
 		if (tab == null) {
 			tab = new Tab("読み込み中");
 			tab.getProperties().put(TAB_PROPERTY_URL, url);
@@ -469,9 +483,10 @@ public class App extends Application {
 		}
 	}
 
-	private Tab getTab(String url) {
+	private Tab getTab(String url, boolean pastLog) {
 		FilteredList<Tab> list = threadTabPane.getTabs()
-				.filtered(x -> url.equals(x.getProperties().getOrDefault(TAB_PROPERTY_URL, null)));
+				.filtered(x -> url.equals(x.getProperties().getOrDefault(TAB_PROPERTY_URL, null)) &&
+						pastLog == ((Boolean) x.getProperties().getOrDefault(TAB_PROPERTY_PAST, Boolean.FALSE)).booleanValue());
 		return list.isEmpty() ? null : list.get(0);
 	}
 

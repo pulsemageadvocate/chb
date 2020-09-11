@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -52,19 +53,10 @@ public class BoardViewProcessor {
 	 * @param tab
 	 * @param app
 	 * @param url
-	 */
-	public static void open(Tab tab, App app, String url) {
-		open(tab, app, url, true);
-	}
-
-	/**
-	 * 板を開く。
-	 * @param tab
-	 * @param app
-	 * @param url
 	 * @param remote ネットワークに接続するか。ここではオフラインボタンの状態を含まない。
+	 * @param pastLog 過去ログ表示
 	 */
-	public static void open(Tab tab, App app, String url, boolean remote) {
+	public static void open(Tab tab, App app, String url, boolean remote, boolean pastLog) {
 		TableView<ThreadDto> tableView = new TableView<>();
 		tableView.getStyleClass().add("boardView");
 //		TableColumn<ThreadDto, Integer> hasLogColumn = new TableColumn<>("!");
@@ -140,7 +132,26 @@ public class BoardViewProcessor {
 			}
 		});
 		tableView.getColumns().add(buildTimeColumn);
-		tableView.getSortOrder().add(newCountColumn);
+
+		if (pastLog) {
+			TableColumn<ThreadDto, String> lastResColumn = new TableColumn<>("最終レス");
+			lastResColumn.getStyleClass().addAll("boardView_lastRes");
+			lastResColumn.setCellValueFactory(new Callback<CellDataFeatures<ThreadDto, String>, ObservableValue<String>>() {
+				@Override
+				public ObservableValue<String> call(CellDataFeatures<ThreadDto, String> p) {
+					LocalDateTime d = p.getValue().gettLast();
+					if (d == null) {
+						d = p.getValue().getBuildTime();
+					}
+					return new ReadOnlyObjectWrapper<String>((d == null) ? "" : d.format(dateTimeFormatter));
+				}
+			});
+			lastResColumn.setComparator(Comparator.nullsLast(Comparator.reverseOrder()));
+			tableView.getColumns().add(lastResColumn);
+			tableView.getSortOrder().add(lastResColumn);
+		} else {
+			tableView.getSortOrder().add(newCountColumn);
+		}
 
 		tab.setContent(tableView);
 		// 検索テキスト入力時
@@ -236,7 +247,7 @@ public class BoardViewProcessor {
 		});
 
 		// ここでremoteにオフラインボタンの状態を加味する。
-		BoardLoadService service = new BoardLoadService(url, !App.offline && remote, App.replaceEmoji);
+		BoardLoadService service = new BoardLoadService(url, !App.offline && remote, App.replaceEmoji, pastLog);
 		service.setOnSucceeded(new BoardLoadSucceededEventHandler(tab));
 		service.start();
 	}
@@ -247,10 +258,11 @@ public class BoardViewProcessor {
 	 * @param app
 	 * @param url
 	 * @param remote ネットワークに接続するか。ここではオフラインボタンの状態を含まない。
+	 * @param pastLog 過去ログ表示
 	 */
-	public static void reload(Tab tab, App app, String url, boolean remote) {
+	public static void reload(Tab tab, App app, String url, boolean remote, boolean pastLog) {
 		// ここでremoteにオフラインボタンの状態を加味する。
-		BoardLoadService service = new BoardLoadService(url, !App.offline && remote, App.replaceEmoji);
+		BoardLoadService service = new BoardLoadService(url, !App.offline && remote, App.replaceEmoji, pastLog);
 		service.setOnSucceeded(new BoardLoadSucceededEventHandler(tab));
 		service.start();
 	}
@@ -259,16 +271,18 @@ public class BoardViewProcessor {
 		private String url;
 		private boolean remote;
 		private boolean replaceEmoji;
+		private boolean pastLog;
 
-		public BoardLoadService(String url, boolean remote, boolean replaceEmoji) {
+		public BoardLoadService(String url, boolean remote, boolean replaceEmoji, boolean pastLog) {
 			this.url = url;
 			this.remote = remote;
 			this.replaceEmoji = replaceEmoji;
+			this.pastLog = pastLog;
 		}
 
 		@Override
 		protected Task<BoardLoadTaskResponseDto> createTask() {
-			BoardLoadTask task = new BoardLoadTask(url, remote, replaceEmoji);
+			BoardLoadTask task = new BoardLoadTask(url, remote, replaceEmoji, pastLog);
 			// なぜかこれを呼ぶとServiceのOnSucceededも呼ばれるようになる
 			task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 				@Override
@@ -303,7 +317,8 @@ public class BoardViewProcessor {
 			thread.addAll(boardDto.getThread());
 			tableView.sort();
 
-			tab.setText(boardDto.getTitleOrig());
+			boolean pastLog = (Boolean) tab.getProperties().getOrDefault(App.TAB_PROPERTY_PAST, Boolean.FALSE);
+			tab.setText((pastLog ? "(過去)" : "") + boardDto.getTitleOrig());
 			tableView.requestFocus();
 		}
 	}

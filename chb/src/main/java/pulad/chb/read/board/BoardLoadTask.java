@@ -34,19 +34,25 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 	protected final String urlStr;
 	protected final boolean remote;
 	protected final boolean replaceEmoji;
+	protected final boolean pastLog;
 
 	public BoardLoadTask(String url) {
-		this(url, true, true);
+		this(url, true, true, false);
 	}
 
 	public BoardLoadTask(String url, boolean remote) {
-		this(url, remote, true);
+		this(url, remote, true, false);
 	}
 
 	public BoardLoadTask(String url, boolean remote, boolean replaceEmoji) {
+		this(url, remote, replaceEmoji, false);
+	}
+
+	public BoardLoadTask(String url, boolean remote, boolean replaceEmoji, boolean pastLog) {
 		this.urlStr = url;
 		this.remote = remote;
 		this.replaceEmoji = replaceEmoji;
+		this.pastLog = pastLog;
 		threadProcessors = new LinkedList<>();
 		threadProcessors.add(new IrregalBuildTimeThreadProcessor());
 	}
@@ -61,7 +67,7 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 		Path subjectFilePath = FileUtil.realCapitalPath(Config.getLogFolder().resolve(bbs).resolve(board).resolve("subject.txt"));
 
 		// subject.txtダウンロード
-		if (this.remote) {
+		if (this.remote && !this.pastLog) {
 			try {
 				DownloadDto downloadDto = DownloadProcessor.download(urlStr + "subject.txt", subjectFilePath, 1048576, 120000);
 				if (downloadDto.getResponseCode() <= 0) {
@@ -78,58 +84,78 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 		ConcurrentHashMap<String, ThreadDto> logThread = boardDto.getLogThread();
 		ArrayList<ThreadDto> thread = new ArrayList<>(1024);
 		boolean updateThreadst = false;
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(new FileReader(subjectFilePath.toString(), bbsObject.getCharset()));
-			String str = null;
-			int number = 0;
-			while ((str = br.readLine()) != null) {
-				// 中断確認
-				if (isCancelled()) {
-					break;
-				}
-				number++;
-				Matcher matcher = regSubject.matcher(str);
-				if (matcher.find()) {
-					String dat = matcher.group("dat");
-					ThreadDto dto = new ThreadDto();
-					dto.setBoardUrl(urlStr);
-					dto.setDatName(dat);
-					dto.setNumber(number);
-					dto.setResCount(Integer.parseInt(matcher.group("res")));
-					dto.setBuildTime(DateTimeUtil.httpLongToLocalDateTime(Long.parseLong(matcher.group("thread")) * 1000L));
-					// そのままだと数値文字参照が表示されるので解除
-					String title = matcher.group("title");
-					if (!replaceEmoji) {
-						title = HtmlEscape.escapeHtml5Xml(HtmlEscape.unescapeHtml(title));
-					}
-					dto.setTitle(title);
-
-					ThreadDto log = logThread.get(dat);
-					if (log != null) {
-						dto.setLogCount(log.getLogCount());
-						log.setResCount(dto.getResCount());
-						updateThreadst = true;
-					}
-
-					thread.add(dto);
-				}
+		// 過去ログ
+		if (this.pastLog) {
+			int number = 1;
+			for (ThreadDto log : logThread.values()) {
+				ThreadDto dto = new ThreadDto();
+				dto.setBoardUrl(urlStr);
+				dto.setDatName(log.getDatName());
+				dto.setNumber(number++);
+				dto.setResCount(log.getResCount());
+				dto.setBuildTime(log.getBuildTime());
+				dto.setTitle(log.getTitle());
+				dto.setLogCount(log.getLogCount());
+				dto.setResCount(log.getResCount());
+				dto.settLast(log.gettLast());
+				thread.add(dto);
 			}
-		} catch (Exception e) {
-			boardLoadTaskResponseDto.setErrorMessage(e.getClass().getName() + ": " + e.getMessage());
-			ThreadDto dto = new ThreadDto();
-			dto.setTitle(e.toString());
-			thread.add(dto);
-		} finally {
-			if (br != null) {
-				try {
-					br.close();
-				} catch (IOException e) {
-					App.logger.error("BoardLoadTask失敗", e);
+		} else {
+			BufferedReader br = null;
+			try {
+				br = new BufferedReader(new FileReader(subjectFilePath.toString(), bbsObject.getCharset()));
+				String str = null;
+				int number = 0;
+				while ((str = br.readLine()) != null) {
+					// 中断確認
+					if (isCancelled()) {
+						break;
+					}
+					number++;
+					Matcher matcher = regSubject.matcher(str);
+					if (matcher.find()) {
+						String dat = matcher.group("dat");
+						ThreadDto dto = new ThreadDto();
+						dto.setBoardUrl(urlStr);
+						dto.setDatName(dat);
+						dto.setNumber(number);
+						dto.setResCount(Integer.parseInt(matcher.group("res")));
+						dto.setBuildTime(DateTimeUtil.httpLongToLocalDateTime(Long.parseLong(matcher.group("thread")) * 1000L));
+						// そのままだと数値文字参照が表示されるので解除
+						String title = matcher.group("title");
+						if (!replaceEmoji) {
+							title = HtmlEscape.escapeHtml5Xml(HtmlEscape.unescapeHtml(title));
+						}
+						dto.setTitle(title);
+
+						ThreadDto log = logThread.get(dat);
+						if (log != null) {
+							dto.setLogCount(log.getLogCount());
+							log.setResCount(dto.getResCount());
+							dto.settLast(log.gettLast());
+							updateThreadst = true;
+						}
+
+						thread.add(dto);
+					}
 				}
-				br = null;
+			} catch (Exception e) {
+				boardLoadTaskResponseDto.setErrorMessage(e.getClass().getName() + ": " + e.getMessage());
+				ThreadDto dto = new ThreadDto();
+				dto.setTitle(e.toString());
+				thread.add(dto);
+			} finally {
+				if (br != null) {
+					try {
+						br.close();
+					} catch (IOException e) {
+						App.logger.error("BoardLoadTask失敗", e);
+					}
+					br = null;
+				}
 			}
 		}
+
 		if (updateThreadst) {
 			BoardManager.updateThreadst(boardDto);
 		}
