@@ -53,12 +53,12 @@ public class BBSMenuTreeProcessor {
 					switch (dto.getType()) {
 					case Board:
 						String boardUrl = dto.getBoardUrl();
-						app.openBoard(boardUrl);
+						app.openUrl(boardUrl);
 						break;
 					case Thread:
 						boardUrl = dto.getBoardUrl();
 						BBS bbsObject = BBSManager.getBBSFromUrl(boardUrl);
-						app.openThread(bbsObject.getThreadUrlFromBoardUrlAndDatFileName(boardUrl, dto.getDatFileName()));
+						app.openUrl(bbsObject.getThreadUrlFromBoardUrlAndDatFileName(boardUrl, dto.getDatFileName()));
 						break;
 					default:
 						break;

@@ -12,7 +12,7 @@ import pulad.chb.interfaces.ThreadLoader;
 
 public class Shitaraba implements BBS {
 	private static final Pattern regShitaraba = Pattern.compile("^(?<root>https?://jbbs\\.shitaraba\\.(net|com)/)");
-	private static final Pattern regShitarabaBoard = Pattern.compile("^(?<root>https?://jbbs\\.shitaraba\\.(net|com)/)(?<board>[^/]+)/(?<num>[0-9]+)/");
+	private static final Pattern regShitarabaBoard = Pattern.compile("^(?<root>https?://jbbs\\.shitaraba\\.(net|com)/)(?!bbs/)(?<board>[^/]+)/(?<num>[0-9]+)/");
 	private static final Pattern regShitarabaThread = Pattern.compile("^(?<root>https?://jbbs\\.shitaraba\\.(net|com)/)bbs/read\\.cgi/(?<board>[^/]+)/(?<num>[0-9]+)/(?<thread>[0-9]+)/");
 
 	@Override
@@ -28,6 +28,16 @@ public class Shitaraba implements BBS {
 	@Override
 	public boolean isUrl(String url) {
 		return regShitaraba.matcher(url).find();
+	}
+
+	@Override
+	public boolean isBoardUrl(String url) {
+		return regShitarabaBoard.matcher(url).find();
+	}
+
+	@Override
+	public boolean isThreadUrl(String url) {
+		return regShitarabaThread.matcher(url).find();
 	}
 
 	@Override

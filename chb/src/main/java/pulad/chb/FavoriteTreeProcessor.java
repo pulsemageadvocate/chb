@@ -16,6 +16,7 @@ import pulad.chb.bbs.BBSManager;
 import pulad.chb.config.Config;
 import pulad.chb.constant.TreeItemType;
 import pulad.chb.dto.TreeItemDto;
+import pulad.chb.favorite.FavoriteManager;
 import pulad.chb.favorite.FavoriteTreeLoader;
 import pulad.chb.interfaces.BBS;
 import pulad.chb.util.FileUtil;
@@ -69,7 +70,7 @@ public class FavoriteTreeProcessor {
 						String boardUrl = dto.getBoardUrl();
 						BBS bbsObject = BBSManager.getBBSFromUrl(boardUrl);
 						if (bbsObject != null) {
-							app.openBoard(boardUrl);
+							app.openUrl(boardUrl);
 						}
 						break;
 					case Thread:
@@ -77,7 +78,7 @@ public class FavoriteTreeProcessor {
 						boardUrl = dto.getBoardUrl();
 						bbsObject = BBSManager.getBBSFromUrl(boardUrl);
 						if (bbsObject != null) {
-							app.openThread(bbsObject.getThreadUrlFromBoardUrlAndDatFileName(boardUrl, dto.getDatFileName()));
+							app.openUrl(bbsObject.getThreadUrlFromBoardUrlAndDatFileName(boardUrl, dto.getDatFileName()));
 						}
 						break;
 					default:
@@ -86,24 +87,18 @@ public class FavoriteTreeProcessor {
 				}
 				break;
 			case SECONDARY:
-				TreeItem<TreeItemDto> selectedItem = tree.getSelectionModel().getSelectedItem();
-				if (selectedItem == null) {
+				int selectedIndex = tree.getSelectionModel().getSelectedIndex();
+				if (selectedIndex < 0) {
 					return;
 				}
-				TreeItemDto dto = selectedItem.getValue();
 				List<MenuItem> menuItemList = new ArrayList<MenuItem>();
 				MenuItem menuItem;
 				ContextMenu menu;
-				switch (dto.getType()) {
-				case Board:
-				case Thread:
-					menuItem = new MenuItem("削除（未実装）");
-					menuItem.setOnAction(x -> {});
-					menuItemList.add(menuItem);
-					break;
-				default:
-					break;
-				}
+				menuItem = new MenuItem("削除");
+				menuItem.setOnAction(x -> {
+					FavoriteManager.delete(tree, selectedIndex);
+				});
+				menuItemList.add(menuItem);
 				menuItem = new MenuItem("favorite.txt編集");
 				menuItem.setOnAction(x -> {
 					try {

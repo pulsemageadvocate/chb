@@ -36,6 +36,7 @@ import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.control.TabPane.TabDragPolicy;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -48,7 +49,9 @@ import javafx.stage.WindowEvent;
 import pulad.chb.bbs.BBSManager;
 import pulad.chb.config.Config;
 import pulad.chb.dto.ConfigFileDto;
+import pulad.chb.dto.TreeItemDto;
 import pulad.chb.favorite.FavoriteManager;
+import pulad.chb.interfaces.BBS;
 import pulad.chb.read.thread.LocalURLStreamHandler;
 import pulad.chb.util.NumberUtil;
 import pulad.chb.util.UrlUtil;
@@ -182,7 +185,7 @@ public class App extends Application {
 		toolbar.setCenter(urlField);
 		toolbar.setRight(searchField);
 		urlField.setOnAction(event -> {
-			openThread(((TextField) event.getSource()).getText());
+			openUrl(((TextField) event.getSource()).getText());
 		});
 		searchField.setOnAction(event -> {
 			String word = searchField.getText();
@@ -325,6 +328,11 @@ public class App extends Application {
 		FavoriteTreeProcessor.open(favoriteTab, this);
 	}
 
+	@SuppressWarnings("unchecked")
+	public TreeView<TreeItemDto> getFavoriteTree() {
+		return (TreeView<TreeItemDto>) this.favoriteTab.getContent();
+	}
+
 	public Stage getStage() {
 		return stage;
 	}
@@ -343,85 +351,77 @@ public class App extends Application {
 	}
 
 	/**
-	 * 板タブを表示する。開始時はスレッドタブペイン作成後に呼び出し可能。
-	 * @param url
+	 * タブを表示する。開始時はスレッドタブペイン作成後に呼び出し可能。
+	 * @param urlStr
 	 */
-	public void openBoard(String url) {
-		openBoard(url, true);
+	public void openUrl(String urlStr) {
+		openUrl(urlStr, true);
 	}
 
 	/**
-	 * 板タブを表示する。開始時はスレッドタブペイン作成後に呼び出し可能。
+	 * タブを表示する。開始時はスレッドタブペイン作成後に呼び出し可能。
 	 * @param urlStr
 	 * @param remote
 	 */
-	public void openBoard(String urlStr, boolean remote) {
-		boolean pastLog = App.pastLog;
+	public void openUrl(String urlStr, boolean remote) {
 		// URL欄に表示するため雑にhttpをhttpsにする
 		final String url = UrlUtil.toHttps(urlStr);
-		Tab tab = getTab(url, pastLog);
-		if (tab == null) {
-			tab = new Tab("読み込み中");
-			tab.getProperties().put(TAB_PROPERTY_URL, url);
-			tab.getProperties().put(TAB_PROPERTY_PAST, pastLog);
-			tab.getProperties().put(TAB_PROPERTY_STATUS, url);
-			tab.setOnSelectionChanged(new TabEvent(urlField));
-
-			MenuItem item = new MenuItem("お気に入りに追加");
-			item.setOnAction(event2 -> {
-				FavoriteManager.addFavorite(url);
-			});
-			ContextMenu menu = new ContextMenu(item);
-			menu.setAutoHide(true);
-			tab.setContextMenu(menu);
-
-			BoardViewProcessor.open(tab, this, url, remote, pastLog);
-			threadTabPane.getTabs().add(tab);
-		} else {
-			tab.getProperties().remove(TAB_PROPERTY_STATUS_ERROR);
-			BoardViewProcessor.reload(tab, this, url, remote, pastLog);
+		BBS bbsObject = BBSManager.getBBSFromUrl(url);
+		if (bbsObject == null) {
+			App.logger.error("対応していないURL: {}", url);
+			return;
 		}
-		threadTabPane.getSelectionModel().select(tab);
-	}
+		if (bbsObject.isBoardUrl(url)) {
+			boolean pastLog = App.pastLog;
+			Tab tab = getTab(url, pastLog);
+			if (tab == null) {
+				tab = new Tab("読み込み中");
+				tab.getProperties().put(TAB_PROPERTY_URL, url);
+				tab.getProperties().put(TAB_PROPERTY_PAST, pastLog);
+				tab.getProperties().put(TAB_PROPERTY_STATUS, url);
+				tab.setOnSelectionChanged(new TabEvent(urlField));
 
-	/**
-	 * スレッドタブを表示する。開始時はスレッドタブペイン作成後に呼び出し可能。
-	 * @param url
-	 */
-	public void openThread(String url) {
-		openThread(url, true);
-	}
+				MenuItem item = new MenuItem("お気に入りに追加");
+				item.setOnAction(event2 -> {
+					FavoriteManager.addFavorite(getFavoriteTree(), url);
+				});
+				ContextMenu menu = new ContextMenu(item);
+				menu.setAutoHide(true);
+				tab.setContextMenu(menu);
 
-	/**
-	 * スレッドタブを表示する。開始時はスレッドタブペイン作成後に呼び出し可能。
-	 * @param urlStr
-	 * @param remote
-	 */
-	public void openThread(String urlStr, boolean remote) {
-		// URL欄に表示するため雑にhttpをhttpsにする
-		final String url = UrlUtil.toHttps(urlStr);
-		Tab tab = getTab(url, false); // スレッドは過去ログは暫定的にfalseとする
-		if (tab == null) {
-			tab = new Tab("読み込み中");
-			tab.getProperties().put(TAB_PROPERTY_URL, url);
-			tab.getProperties().put(TAB_PROPERTY_STATUS, url);
-			tab.setOnSelectionChanged(new TabEvent(urlField));
+				BoardViewProcessor.open(tab, this, url, remote, pastLog);
+				threadTabPane.getTabs().add(tab);
+			} else {
+				tab.getProperties().remove(TAB_PROPERTY_STATUS_ERROR);
+				BoardViewProcessor.reload(tab, this, url, remote, pastLog);
+			}
+			threadTabPane.getSelectionModel().select(tab);
+		} else if (bbsObject.isThreadUrl(url)) {
+			Tab tab = getTab(url, false); // スレッドは過去ログは暫定的にfalseとする
+			if (tab == null) {
+				tab = new Tab("読み込み中");
+				tab.getProperties().put(TAB_PROPERTY_URL, url);
+				tab.getProperties().put(TAB_PROPERTY_STATUS, url);
+				tab.setOnSelectionChanged(new TabEvent(urlField));
 
-			MenuItem item = new MenuItem("お気に入りに追加");
-			item.setOnAction(event2 -> {
-				FavoriteManager.addFavorite(url);
-			});
-			ContextMenu menu = new ContextMenu(item);
-			menu.setAutoHide(true);
-			tab.setContextMenu(menu);
+				MenuItem item = new MenuItem("お気に入りに追加");
+				item.setOnAction(event2 -> {
+					FavoriteManager.addFavorite(getFavoriteTree(), url);
+				});
+				ContextMenu menu = new ContextMenu(item);
+				menu.setAutoHide(true);
+				tab.setContextMenu(menu);
 
-			ThreadViewProcessor.open(tab, url, remote);
-			threadTabPane.getTabs().add(tab);
+				ThreadViewProcessor.open(tab, url, remote);
+				threadTabPane.getTabs().add(tab);
+			} else {
+				tab.getProperties().remove(TAB_PROPERTY_STATUS_ERROR);
+				ThreadViewProcessor.reload(tab, url, remote);
+			}
+			threadTabPane.getSelectionModel().select(tab);
 		} else {
-			tab.getProperties().remove(TAB_PROPERTY_STATUS_ERROR);
-			ThreadViewProcessor.reload(tab, url, remote);
+			return;
 		}
-		threadTabPane.getSelectionModel().select(tab);
 	}
 
 	/**

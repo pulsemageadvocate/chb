@@ -198,7 +198,7 @@ public class BoardViewProcessor {
 						}
 
 						BBS bbsObject = BBSManager.getBBSFromUrl(dto.getBoardUrl());
-						app.openThread(bbsObject.getThreadUrlFromBoardUrlAndDatFileName(dto.getBoardUrl(), dto.getDatName()));
+						app.openUrl(bbsObject.getThreadUrlFromBoardUrlAndDatFileName(dto.getBoardUrl(), dto.getDatName()));
 					}
 					break;
 				case SECONDARY:
