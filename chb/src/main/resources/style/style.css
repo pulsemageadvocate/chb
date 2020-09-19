@@ -34,3 +34,14 @@
 .rightColumn {
 	-fx-alignment: CENTER-RIGHT;
 }
+
+/* treeView */
+.treeView_favorite {
+	-fx-border-color: #ffffff #ffffff #ffffff #ffffff;
+}
+.treeView_insertTop {
+	-fx-border-color: #c0c000 #ffffff #ffffff #ffffff;
+}
+.treeView_insertBottom {
+	-fx-border-color: #ffffff #ffffff #c0c000 #ffffff;
+}
