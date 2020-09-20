@@ -64,6 +64,8 @@ public class DownloadProcessor {
 			return dto;
 		}
 		try {
+			// ディレクトリを作成する
+			Files.createDirectories(filePath.getParent());
 			Files.write(filePath, data, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 		} catch (IOException e) {
 			logger.error("download失敗", e);

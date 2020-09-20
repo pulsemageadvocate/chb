@@ -7,6 +7,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -217,9 +219,12 @@ public class ThreadLoadTask extends Task<ThreadLoadTaskResponseDto> {
 	 * @param threadResponseDto
 	 */
 	private void writeDat(TreeMap<Integer, ResDto> res, int lastRes, ThreadResponseDto threadResponseDto) throws IOException {
-		File file = Config.getLogFolder().resolve(bbs).resolve(board).resolve(datFileName).toFile();
+		Path path = Config.getLogFolder().resolve(bbs).resolve(board);
+		File file = path.resolve(datFileName).toFile();
 		BufferedWriter bw = null;
 		try {
+			// ディレクトリを作成する
+			Files.createDirectories(path);
 			bw = new BufferedWriter(new FileWriter(
 					file,
 					bbsObject.getCharset(),
