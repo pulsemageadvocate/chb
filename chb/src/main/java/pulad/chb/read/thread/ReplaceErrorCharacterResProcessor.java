@@ -14,13 +14,9 @@ import pulad.chb.interfaces.ResProcessor;
  */
 public class ReplaceErrorCharacterResProcessor implements ResProcessor {
 	// 絵文字結合
-//	private final Pattern regToNumerical10 = Pattern.compile("&(?=#(?<i>820[45]);)", Pattern.CASE_INSENSITIVE);
-//	private final Pattern regToNumerical16 = Pattern.compile("&(?=#x(?<i>200[cd]);)", Pattern.CASE_INSENSITIVE);
 	// &lrm;
-//	private final Pattern regToLRM = Pattern.compile("&(?=(#x200e|#8206|lrm);)", Pattern.CASE_INSENSITIVE);
 	// &rlm;
-//	private final Pattern regToRLM = Pattern.compile("&(?=(#x200f|#8207|rlm);)", Pattern.CASE_INSENSITIVE);
-	private final Pattern reg = Pattern.compile("&(?=(#820[4-7]|#x200[c-f]|lrm|rlm);)", Pattern.CASE_INSENSITIVE);
+	private final Pattern reg = Pattern.compile("&(?=(#820[4-7]|#x200[c-f]|zwnj|zwj|lrm|rlm);)", Pattern.CASE_INSENSITIVE);
 
 	@Override
 	public void process(String url, TreeMap<Integer, ResDto> res, boolean remote, long now) {
