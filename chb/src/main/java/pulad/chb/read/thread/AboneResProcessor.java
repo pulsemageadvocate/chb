@@ -119,11 +119,9 @@ public class AboneResProcessor implements ResProcessor {
 					if (oldLevel == AboneLevel.NONE) {
 						// 新規あぼ～んなので原因表示
 						dto.setAboneLabel(abone.label);
-						dto.setChainAboneSource(abone.source);
 					} else if (abone.source <= 0) {
 						// あぼ～ん済みかつ連鎖あぼ～んではないので原因追記
 						dto.setAboneLabel(dto.getAboneLabel() + "＋" + abone.label);
-						dto.setChainAboneSource(abone.source);
 					}
 					// あぼ～ん済みかつ連鎖あぼ～んの場合は追記しない
 

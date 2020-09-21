@@ -167,10 +167,6 @@ public class ResDto implements Serializable {
 	 */
 	private String aboneLabel;
 	/**
-	 * 連鎖あぼ～んの場合の連鎖元レス番
-	 */
-	private int chainAboneSource;
-	/**
 	 * 参照元表示のための参照元。
 	 */
 	private Set<Integer> referredSet;
@@ -397,12 +393,6 @@ public class ResDto implements Serializable {
 	}
 	public void setAboneLabel(String aboneLabel) {
 		this.aboneLabel = aboneLabel;
-	}
-	public int getChainAboneSource() {
-		return chainAboneSource;
-	}
-	public void setChainAboneSource(int chainAboneSource) {
-		this.chainAboneSource = chainAboneSource;
 	}
 	public Set<Integer> getReferredSet() {
 		return referredSet;
