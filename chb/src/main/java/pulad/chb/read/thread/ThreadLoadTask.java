@@ -105,6 +105,7 @@ public class ThreadLoadTask extends Task<ThreadLoadTaskResponseDto> {
 		if (replaceEmoji) {
 			resProcessors.add(new ReplaceNumericalCharacterReferenceResProcessor());
 		}
+		resProcessors.add(new ReplaceErrorCharacterResProcessor());
 		return resProcessors;
 	}
 
