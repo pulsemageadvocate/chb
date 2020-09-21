@@ -79,14 +79,15 @@ a {
 		</DIV>
 	</DIV>
 <th:block th:each="res, iter : ${resMap.values()}" th:with="number=(${res.number} lt 1) ? ${iter.count} : ${res.number}" class="res">
-	<DIV th:if="${filtered} or ${res.abone} == ${ABONE_LEVEL_NONE}" th:data-timeLong="${res.timeLong}">
+	<DIV th:if="${filtered} or ${res.abone} == ${ABONE_LEVEL_WHITE} or ${res.abone} == ${ABONE_LEVEL_NONE}" th:data-timeLong="${res.timeLong}">
 		<DIV class="resdiv0">
 			<SPAN class="sa7">│<a th:name="'R' + ${number}" th:text="${number}" th:chain="${#sets.isEmpty(res.referredSet)} ? '' : ${res.referredLink}">1</a><!--
 				--><th:block th:unless="${#sets.isEmpty(res.referredSet)}">+<span th:text="${#sets.size(res.referredSet)}">3</span></th:block>
-				名前：
+				<span th:if="${res.abone} == ${ABONE_LEVEL_NONE}">名前：</span>
 			</SPAN>
 			<SPAN class="sa14">
-				<span th:if="${res.abone} != ${ABONE_LEVEL_NONE}">あぼ～ん：<span th:text="${res.aboneLabel}"></span></span>
+				<span th:if="${res.abone} == ${ABONE_LEVEL_ABONE} or ${res.abone} == ${ABONE_LEVEL_INVISIBLE}">あぼ～ん：<span th:text="${res.aboneLabel}"></span></span>
+				<span th:if="${res.abone} == ${ABONE_LEVEL_WHITE}">ホワイトリスト：<span th:text="${res.aboneLabel}"></span></span>
 				<span th:if="${res.anonymous}" th:utext="${res.name}">名無しさん＠お腹いっぱい。</span>
 				<a th:unless="${res.anonymous}" th:utext="${res.name}" th:chain="${res.nameLink}" aboneable="name">名前</a>
 			</SPAN>

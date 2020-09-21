@@ -175,28 +175,41 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			itemList.add(item);
 			itemList.add(new SeparatorMenuItem());
 			item = new MenuItem("あぼ～ん スレッド");
-			item.setOnAction(new AddAboneNameAction(tab, url, getThread(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneNameAction(tab, url, getThread(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん 板");
-			item.setOnAction(new AddAboneNameAction(tab, url, getBoard(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneNameAction(tab, url, getBoard(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん BBS");
-			item.setOnAction(new AddAboneNameAction(tab, url, getBBS(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneNameAction(tab, url, getBBS(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん 全部");
-			item.setOnAction(new AddAboneNameAction(tab, url, getAll(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneNameAction(tab, url, getAll(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん スレッド");
-			item.setOnAction(new AddAboneNameAction(tab, url, getThread(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneNameAction(tab, url, getThread(url), word, false, true, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん 板");
-			item.setOnAction(new AddAboneNameAction(tab, url, getBoard(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneNameAction(tab, url, getBoard(url), word, false, true, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん BBS");
-			item.setOnAction(new AddAboneNameAction(tab, url, getBBS(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneNameAction(tab, url, getBBS(url), word, false, true, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん 全部");
-			item.setOnAction(new AddAboneNameAction(tab, url, getAll(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneNameAction(tab, url, getAll(url), word, false, true, word, timeLong, scrollY));
+			itemList.add(item);
+			itemList.add(new SeparatorMenuItem());
+			item = new MenuItem("ホワイトリスト スレッド");
+			item.setOnAction(new AddAboneNameAction(tab, url, getThread(url), word, true, false, word, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト 板");
+			item.setOnAction(new AddAboneNameAction(tab, url, getBoard(url), word, true, false, word, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト BBS");
+			item.setOnAction(new AddAboneNameAction(tab, url, getBBS(url), word, true, false, word, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト 全部");
+			item.setOnAction(new AddAboneNameAction(tab, url, getAll(url), word, true, false, word, timeLong, scrollY));
 			itemList.add(item);
 			ContextMenu menu = new ContextMenu(itemList.toArray(new MenuItem[itemList.size()]));
 			menu.setAutoHide(true);
@@ -211,28 +224,41 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			itemList.add(item);
 			itemList.add(new SeparatorMenuItem());
 			 item = new MenuItem("あぼ～ん スレッド");
-			item.setOnAction(new AddAboneWacchoiAction(tab, url, getThread(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getThread(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん 板");
-			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBoard(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBoard(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん BBS");
-			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBBS(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBBS(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん 全部");
-			item.setOnAction(new AddAboneWacchoiAction(tab, url, getAll(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getAll(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん スレッド");
-			item.setOnAction(new AddAboneWacchoiAction(tab, url, getThread(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getThread(url), word, false, true, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん 板");
-			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBoard(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBoard(url), word, false, true, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん BBS");
-			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBBS(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBBS(url), word, false, true, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん 全部");
-			item.setOnAction(new AddAboneWacchoiAction(tab, url, getAll(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getAll(url), word, false, true, word, timeLong, scrollY));
+			itemList.add(item);
+			itemList.add(new SeparatorMenuItem());
+			item = new MenuItem("ホワイトリスト スレッド");
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getThread(url), word, true, false, word, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト 板");
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBoard(url), word, true, false, word, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト BBS");
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBBS(url), word, true, false, word, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト 全部");
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getAll(url), word, true, false, word, timeLong, scrollY));
 			itemList.add(item);
 			ContextMenu menu = new ContextMenu(itemList.toArray(new MenuItem[itemList.size()]));
 			menu.setAutoHide(true);
@@ -253,28 +279,41 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			itemList.add(item);
 			itemList.add(new SeparatorMenuItem());
 			item = new MenuItem("あぼ～ん スレッド");
-			item.setOnAction(new AddAboneWacchoiAction(tab, url, getThread(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getThread(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん 板");
-			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBoard(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBoard(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん BBS");
-			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBBS(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBBS(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん 全部");
-			item.setOnAction(new AddAboneWacchoiAction(tab, url, getAll(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getAll(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん スレッド");
-			item.setOnAction(new AddAboneWacchoiAction(tab, url, getThread(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getThread(url), word, false, true, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん 板");
-			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBoard(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBoard(url), word, false, true, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん BBS");
-			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBBS(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBBS(url), word, false, true, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん 全部");
-			item.setOnAction(new AddAboneWacchoiAction(tab, url, getAll(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getAll(url), word, false, true, word, timeLong, scrollY));
+			itemList.add(item);
+			itemList.add(new SeparatorMenuItem());
+			item = new MenuItem("ホワイトリスト スレッド");
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getThread(url), word, true, false, word, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト 板");
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBoard(url), word, true, false, word, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト BBS");
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getBBS(url), word, true, false, word, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト 全部");
+			item.setOnAction(new AddAboneWacchoiAction(tab, url, getAll(url), word, true, false, word, timeLong, scrollY));
 			itemList.add(item);
 			ContextMenu menu = new ContextMenu(itemList.toArray(new MenuItem[itemList.size()]));
 			menu.setAutoHide(true);
@@ -289,28 +328,41 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			itemList.add(item);
 			itemList.add(new SeparatorMenuItem());
 			item = new MenuItem("あぼ～ん スレッド");
-			item.setOnAction(new AddAboneIPAction(tab, url, getThread(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneIPAction(tab, url, getThread(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん 板");
-			item.setOnAction(new AddAboneIPAction(tab, url, getBoard(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneIPAction(tab, url, getBoard(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん BBS");
-			item.setOnAction(new AddAboneIPAction(tab, url, getBBS(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneIPAction(tab, url, getBBS(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん 全部");
-			item.setOnAction(new AddAboneIPAction(tab, url, getAll(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneIPAction(tab, url, getAll(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん スレッド");
-			item.setOnAction(new AddAboneIPAction(tab, url, getThread(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneIPAction(tab, url, getThread(url), word, false, true, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん 板");
-			item.setOnAction(new AddAboneIPAction(tab, url, getBoard(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneIPAction(tab, url, getBoard(url), word, false, true, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん BBS");
-			item.setOnAction(new AddAboneIPAction(tab, url, getBBS(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneIPAction(tab, url, getBBS(url), word, false, true, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん 全部");
-			item.setOnAction(new AddAboneIPAction(tab, url, getAll(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneIPAction(tab, url, getAll(url), word, false, true, word, timeLong, scrollY));
+			itemList.add(item);
+			itemList.add(new SeparatorMenuItem());
+			item = new MenuItem("ホワイトリスト スレッド");
+			item.setOnAction(new AddAboneIPAction(tab, url, getThread(url), word, true, false, word, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト 板");
+			item.setOnAction(new AddAboneIPAction(tab, url, getBoard(url), word, true, false, word, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト BBS");
+			item.setOnAction(new AddAboneIPAction(tab, url, getBBS(url), word, true, false, word, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト 全部");
+			item.setOnAction(new AddAboneIPAction(tab, url, getAll(url), word, true, false, word, timeLong, scrollY));
 			itemList.add(item);
 			ContextMenu menu = new ContextMenu(itemList.toArray(new MenuItem[itemList.size()]));
 			menu.setAutoHide(true);
@@ -325,28 +377,41 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			itemList.add(item);
 			itemList.add(new SeparatorMenuItem());
 			item = new MenuItem("あぼ～ん スレッド");
-			item.setOnAction(new AddAboneIDAction(tab, url, getThread(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneIDAction(tab, url, getThread(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん 板");
-			item.setOnAction(new AddAboneIDAction(tab, url, getBoard(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneIDAction(tab, url, getBoard(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん BBS");
-			item.setOnAction(new AddAboneIDAction(tab, url, getBBS(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneIDAction(tab, url, getBBS(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("あぼ～ん 全部");
-			item.setOnAction(new AddAboneIDAction(tab, url, getAll(url), word, false, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneIDAction(tab, url, getAll(url), word, false, false, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん スレッド");
-			item.setOnAction(new AddAboneIDAction(tab, url, getThread(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneIDAction(tab, url, getThread(url), word, false, true, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん 板");
-			item.setOnAction(new AddAboneIDAction(tab, url, getBoard(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneIDAction(tab, url, getBoard(url), word, false, true, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん BBS");
-			item.setOnAction(new AddAboneIDAction(tab, url, getBBS(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneIDAction(tab, url, getBBS(url), word, false, true, word, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("透明あぼ～ん 全部");
-			item.setOnAction(new AddAboneIDAction(tab, url, getAll(url), word, true, word, timeLong, scrollY));
+			item.setOnAction(new AddAboneIDAction(tab, url, getAll(url), word, false, true, word, timeLong, scrollY));
+			itemList.add(item);
+			itemList.add(new SeparatorMenuItem());
+			item = new MenuItem("ホワイトリスト スレッド");
+			item.setOnAction(new AddAboneIDAction(tab, url, getThread(url), word, true, false, word, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト 板");
+			item.setOnAction(new AddAboneIDAction(tab, url, getBoard(url), word, true, false, word, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト BBS");
+			item.setOnAction(new AddAboneIDAction(tab, url, getBBS(url), word, true, false, word, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト 全部");
+			item.setOnAction(new AddAboneIDAction(tab, url, getAll(url), word, true, false, word, timeLong, scrollY));
 			itemList.add(item);
 			ContextMenu menu = new ContextMenu(itemList.toArray(new MenuItem[itemList.size()]));
 			menu.setAutoHide(true);
@@ -412,28 +477,41 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			itemList.add(item);
 			itemList.add(new SeparatorMenuItem());
 			item = new MenuItem("本文あぼ～ん スレッド");
-			item.setOnAction(new AddAboneBodyAction(tab, url, getThread(url), selection, false, selection, timeLong, scrollY));
+			item.setOnAction(new AddAboneBodyAction(tab, url, getThread(url), selection, false, false, selection, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("本文あぼ～ん 板");
-			item.setOnAction(new AddAboneBodyAction(tab, url, getBoard(url), selection, false, selection, timeLong, scrollY));
+			item.setOnAction(new AddAboneBodyAction(tab, url, getBoard(url), selection, false, false, selection, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("本文あぼ～ん BBS");
-			item.setOnAction(new AddAboneBodyAction(tab, url, getBBS(url), selection, false, selection, timeLong, scrollY));
+			item.setOnAction(new AddAboneBodyAction(tab, url, getBBS(url), selection, false, false, selection, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("本文あぼ～ん 全部");
-			item.setOnAction(new AddAboneBodyAction(tab, url, getAll(url), selection, false, selection, timeLong, scrollY));
+			item.setOnAction(new AddAboneBodyAction(tab, url, getAll(url), selection, false, false, selection, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("本文透明あぼ～ん スレッド");
-			item.setOnAction(new AddAboneBodyAction(tab, url, getThread(url), selection, true, selection, timeLong, scrollY));
+			item.setOnAction(new AddAboneBodyAction(tab, url, getThread(url), selection, false, true, selection, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("本文透明あぼ～ん 板");
-			item.setOnAction(new AddAboneBodyAction(tab, url, getBoard(url), selection, true, selection, timeLong, scrollY));
+			item.setOnAction(new AddAboneBodyAction(tab, url, getBoard(url), selection, false, true, selection, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("本文透明あぼ～ん BBS");
-			item.setOnAction(new AddAboneBodyAction(tab, url, getBBS(url), selection, true, selection, timeLong, scrollY));
+			item.setOnAction(new AddAboneBodyAction(tab, url, getBBS(url), selection, false, true, selection, timeLong, scrollY));
 			itemList.add(item);
 			item = new MenuItem("本文透明あぼ～ん 全部");
-			item.setOnAction(new AddAboneBodyAction(tab, url, getAll(url), selection, true, selection, timeLong, scrollY));
+			item.setOnAction(new AddAboneBodyAction(tab, url, getAll(url), selection, false, true, selection, timeLong, scrollY));
+			itemList.add(item);
+			itemList.add(new SeparatorMenuItem());
+			item = new MenuItem("ホワイトリスト スレッド");
+			item.setOnAction(new AddAboneBodyAction(tab, url, getThread(url), selection, true, false, selection, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト 板");
+			item.setOnAction(new AddAboneBodyAction(tab, url, getBoard(url), selection, true, false, selection, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト BBS");
+			item.setOnAction(new AddAboneBodyAction(tab, url, getBBS(url), selection, true, false, selection, timeLong, scrollY));
+			itemList.add(item);
+			item = new MenuItem("ホワイトリスト 全部");
+			item.setOnAction(new AddAboneBodyAction(tab, url, getAll(url), selection, true, false, selection, timeLong, scrollY));
 			itemList.add(item);
 			ContextMenu menu = new ContextMenu(itemList.toArray(new MenuItem[itemList.size()]));
 			menu.setAutoHide(true);
@@ -499,16 +577,18 @@ public class ThreadViewRightClickEventListener implements EventListener {
 		protected String url;
 		protected File file;
 		protected String word;
+		protected boolean white;
 		protected boolean invisible;
 		protected String label;
 		protected long createDate;
 		protected int scrollY;
 
-		protected AddAboneAction(Tab tab, String url, File file, String word, boolean invisible, String label, long createDate, int scrollY) {
+		protected AddAboneAction(Tab tab, String url, File file, String word, boolean white, boolean invisible, String label, long createDate, int scrollY) {
 			this.tab = tab;
 			this.url = url;
 			this.file = file;
 			this.word = word;
+			this.white = white;
 			this.invisible = invisible;
 			this.label = label;
 			this.createDate = createDate;
@@ -541,8 +621,8 @@ public class ThreadViewRightClickEventListener implements EventListener {
 
 	private static class AddAboneNameAction extends AddAboneAction {
 
-		private AddAboneNameAction(Tab tab, String url, File file, String word, boolean invisible, String label, long createDate, int scrollY) {
-			super(tab, url, file, word, invisible, label, createDate, scrollY);
+		private AddAboneNameAction(Tab tab, String url, File file, String word, boolean white, boolean invisible, String label, long createDate, int scrollY) {
+			super(tab, url, file, word, white, invisible, label, createDate, scrollY);
 		}
 
 		@Override
@@ -564,6 +644,7 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			AboneNameDto name = new AboneNameDto();
 			name.setWord(word);
 			name.setRegex(false);
+			name.setWhite(white);
 			name.setInvisible(invisible);
 			name.setLabel(label);
 			name.setChainIdentifier(ChainIdentifier.ID);
@@ -577,8 +658,8 @@ public class ThreadViewRightClickEventListener implements EventListener {
 
 	private static class AddAboneWacchoiAction extends AddAboneAction {
 
-		private AddAboneWacchoiAction(Tab tab, String url, File file, String word, boolean invisible, String label, long createDate, int scrollY) {
-			super(tab, url, file, word, invisible, label, createDate, scrollY);
+		private AddAboneWacchoiAction(Tab tab, String url, File file, String word, boolean white, boolean invisible, String label, long createDate, int scrollY) {
+			super(tab, url, file, word, white, invisible, label, createDate, scrollY);
 		}
 
 		@Override
@@ -600,6 +681,7 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			AboneWacchoiDto wacchoi = new AboneWacchoiDto();
 			wacchoi.setWord(word);
 			wacchoi.setRegex(false);
+			wacchoi.setWhite(white);
 			wacchoi.setInvisible(invisible);
 			wacchoi.setLabel(label);
 			wacchoi.setChainIdentifier(ChainIdentifier.ID);
@@ -613,8 +695,8 @@ public class ThreadViewRightClickEventListener implements EventListener {
 
 	private static class AddAboneIDAction extends AddAboneAction {
 
-		private AddAboneIDAction(Tab tab, String url, File file, String word, boolean invisible, String label, long createDate, int scrollY) {
-			super(tab, url, file, word, invisible, label, createDate, scrollY);
+		private AddAboneIDAction(Tab tab, String url, File file, String word, boolean white, boolean invisible, String label, long createDate, int scrollY) {
+			super(tab, url, file, word, white, invisible, label, createDate, scrollY);
 		}
 
 		@Override
@@ -636,6 +718,7 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			AboneIDDto id = new AboneIDDto();
 			id.setWord(word);
 			id.setRegex(false);
+			id.setWhite(white);
 			id.setInvisible(invisible);
 			id.setLabel(label);
 			id.setChainIdentifier(ChainIdentifier.NONE);
@@ -649,8 +732,8 @@ public class ThreadViewRightClickEventListener implements EventListener {
 
 	private static class AddAboneIPAction extends AddAboneAction {
 
-		private AddAboneIPAction(Tab tab, String url, File file, String word, boolean invisible, String label, long createDate, int scrollY) {
-			super(tab, url, file, word, invisible, label, createDate, scrollY);
+		private AddAboneIPAction(Tab tab, String url, File file, String word, boolean white, boolean invisible, String label, long createDate, int scrollY) {
+			super(tab, url, file, word, white, invisible, label, createDate, scrollY);
 		}
 
 		@Override
@@ -672,6 +755,7 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			AboneIPDto ip = new AboneIPDto();
 			ip.setWord(word);
 			ip.setRegex(false);
+			ip.setWhite(white);
 			ip.setInvisible(invisible);
 			ip.setLabel(label);
 			ip.setChainIdentifier(ChainIdentifier.ID);
@@ -685,8 +769,8 @@ public class ThreadViewRightClickEventListener implements EventListener {
 
 	private static class AddAboneBodyAction extends AddAboneAction {
 
-		private AddAboneBodyAction(Tab tab, String url, File file, String word, boolean invisible, String label, long createDate, int scrollY) {
-			super(tab, url, file, word, invisible, label, createDate, scrollY);
+		private AddAboneBodyAction(Tab tab, String url, File file, String word, boolean white, boolean invisible, String label, long createDate, int scrollY) {
+			super(tab, url, file, word, white, invisible, label, createDate, scrollY);
 		}
 
 		@Override
@@ -708,6 +792,7 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			AboneBodyDto body = new AboneBodyDto();
 			body.setWord(word);
 			body.setRegex(false);
+			body.setWhite(white);
 			body.setInvisible(invisible);
 			body.setLabel(label);
 			body.setChainIdentifier(ChainIdentifier.ID);

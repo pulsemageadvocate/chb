@@ -164,6 +164,7 @@ public class ThreadLoadTask extends Task<ThreadLoadTaskResponseDto> {
 			context.setVariable("filtered", Boolean.valueOf(resFilter != null));
 			context.setVariable("errorMessage", threadLoadTaskResponseDto.getErrorMessage());
 			// enum定数 SpELでないからT()が使えない
+			context.setVariable("ABONE_LEVEL_WHITE", AboneLevel.WHITE);
 			context.setVariable("ABONE_LEVEL_NONE", AboneLevel.NONE);
 			context.setVariable("ABONE_LEVEL_ABONE", AboneLevel.ABONE);
 			context.setVariable("ABONE_LEVEL_INVISIBLE", AboneLevel.INVISIBLE);

@@ -52,18 +52,46 @@ public class AboneResProcessor implements ResProcessor {
 		String board = bbsObject.getBoardFromThreadUrl(url);
 		String threadNGFileName = bbsObject.getThreadFromThreadUrl(url) + ".chb.txt";
 
+		List<Abone> whiteList = new ArrayList<>();
 		List<Abone> aboneList = new ArrayList<>();
 		// 全体
-		readAboneFile(aboneList, Config.getRootFolder().resolve("chb.txt").toFile());
+		readAboneFile(whiteList, aboneList, Config.getRootFolder().resolve("chb.txt").toFile());
 		// BBS
-		readAboneFile(aboneList, Config.getBBSFolder().resolve(bbsDir).resolve("chb.txt").toFile());
+		readAboneFile(whiteList, aboneList, Config.getBBSFolder().resolve(bbsDir).resolve("chb.txt").toFile());
 		// Board
-		readAboneFile(aboneList, Config.getLogFolder().resolve(bbs).resolve(board).resolve("chb.txt").toFile());
+		readAboneFile(whiteList, aboneList, Config.getLogFolder().resolve(bbs).resolve(board).resolve("chb.txt").toFile());
 		// Thread
-		readAboneFile(aboneList, Config.getLogFolder().resolve(bbs).resolve(board).resolve(threadNGFileName).toFile());
+		readAboneFile(whiteList, aboneList, Config.getLogFolder().resolve(bbs).resolve(board).resolve(threadNGFileName).toFile());
 
 		HashSet<Integer> aboneIndex = new HashSet<>();
 		for (ResDto dto : res.values()) {
+			// ホワイトリスト
+			// addするのでintで回す
+			for (int i = 0; i < whiteList.size(); i++) {
+				Abone abone = whiteList.get(i);
+
+				// 期限切れチェック
+				long create = abone.aboneDto.getCreateDate();
+				long durationDay = (long) abone.aboneDto.getDurationDay();
+				if (durationDay > 0) {
+					long from = create - durationDay * 86400000L;
+					long to = create + durationDay * 86400000L;
+					if (dto.getTimeLong() < from || to <= dto.getTimeLong()) {
+						continue;
+					}
+				}
+
+				if (abone.predicate.test(dto)) {
+					dto.setAbone(AboneLevel.WHITE);
+					dto.setAboneLabel(abone.label);
+					break;
+				}
+			}
+			if (dto.getAbone() == AboneLevel.WHITE) {
+				continue;
+			}
+
+			// あぼ～ん
 			// addするのでintで回す
 			for (int i = 0; i < aboneList.size(); i++) {
 				Abone abone = aboneList.get(i);
@@ -199,7 +227,7 @@ public class AboneResProcessor implements ResProcessor {
 		}
 	}
 
-	private void readAboneFile(List<Abone> aboneList, File file) {
+	private void readAboneFile(List<Abone> whiteList, List<Abone> aboneList, File file) {
 		try {
 			if (!file.exists()) {
 				return;
@@ -221,7 +249,11 @@ public class AboneResProcessor implements ResProcessor {
 									new RegexAbonePredicate(name.getWord(), ResDto::getName) :
 										new SimpleWordAbonePredicate(name.getWord(), ResDto::getName));
 					abone.label = "名前[" + name.getLabel() + "]";
-					aboneList.add(abone);
+					if (name.isWhite()) {
+						whiteList.add(abone);
+					} else {
+						aboneList.add(abone);
+					}
 				}
 			}
 			if (ngFileDto.getWacchoi() != null) {
@@ -232,7 +264,11 @@ public class AboneResProcessor implements ResProcessor {
 							new RegexAbonePredicate(wacchoi.getWord(), ResDto::getWacchoi) :
 								new SimpleWordAbonePredicate(wacchoi.getWord(), ResDto::getWacchoi);
 					abone.label = "ﾜｯﾁｮｲ[" + wacchoi.getLabel() + "]";
-					aboneList.add(abone);
+					if (wacchoi.isWhite()) {
+						whiteList.add(abone);
+					} else {
+						aboneList.add(abone);
+					}
 				}
 			}
 			if (ngFileDto.getIp() != null) {
@@ -243,7 +279,11 @@ public class AboneResProcessor implements ResProcessor {
 							new RegexAbonePredicate(ip.getWord(), ResDto::getIp) :
 								new SimpleWordAbonePredicate(ip.getWord(), ResDto::getIp);
 					abone.label = "IP[" + ip.getLabel() + "]";
-					aboneList.add(abone);
+					if (ip.isWhite()) {
+						whiteList.add(abone);
+					} else {
+						aboneList.add(abone);
+					}
 				}
 			}
 			if (ngFileDto.getId() != null) {
@@ -254,7 +294,11 @@ public class AboneResProcessor implements ResProcessor {
 							new RegexAbonePredicate(id.getWord(), ResDto::getId) :
 								new SimpleWordAbonePredicate(id.getWord(), ResDto::getId);
 					abone.label = "ID[" + id.getLabel() + "]";
-					aboneList.add(abone);
+					if (id.isWhite()) {
+						whiteList.add(abone);
+					} else {
+						aboneList.add(abone);
+					}
 				}
 			}
 			if (ngFileDto.getBody() != null) {
@@ -265,7 +309,11 @@ public class AboneResProcessor implements ResProcessor {
 							new RegexAbonePredicate(body.getWord(), ResDto::getBody) :
 								new SimpleWordAbonePredicate(body.getWord(), ResDto::getBody);
 					abone.label = "本文[" + body.getLabel() + "]";
-					aboneList.add(abone);
+					if (body.isWhite()) {
+						whiteList.add(abone);
+					} else {
+						aboneList.add(abone);
+					}
 				}
 			}
 		} catch (IOException e) {

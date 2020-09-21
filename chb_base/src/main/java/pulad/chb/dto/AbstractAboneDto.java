@@ -11,6 +11,10 @@ import pulad.chb.constant.ChainIdentifier;
  */
 public abstract class AbstractAboneDto implements Serializable {
 	/**
+	 * ホワイトリスト
+	 */
+	private boolean white;
+	/**
 	 * 透明あぼ～ん
 	 */
 	private boolean invisible;
@@ -34,6 +38,12 @@ public abstract class AbstractAboneDto implements Serializable {
 	 * 有効期限（日）。前後〇日間有効。
 	 */
 	private int durationDay;
+	public boolean isWhite() {
+		return white;
+	}
+	public void setWhite(boolean white) {
+		this.white = white;
+	}
 	public boolean isInvisible() {
 		return invisible;
 	}
