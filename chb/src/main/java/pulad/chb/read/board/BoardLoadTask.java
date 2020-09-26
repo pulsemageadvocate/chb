@@ -124,7 +124,7 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 						// そのままだと数値文字参照が表示されるので解除
 						String title = matcher.group("title");
 						if (!replaceEmoji) {
-							title = HtmlEscape.escapeHtml5Xml(HtmlEscape.unescapeHtml(title));
+							title = HtmlEscape.unescapeHtml(title);
 						}
 						dto.setTitle(title);
 
