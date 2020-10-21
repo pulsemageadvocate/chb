@@ -455,6 +455,21 @@ public class ThreadViewRightClickEventListener implements EventListener {
 				ThreadViewProcessor.open(tab, url, true, scrollY);
 			});
 			itemList.add(item);
+			item = new MenuItem("ログ編集");
+			item.setOnAction(x -> {
+				BBS bbsObject = BBSManager.getBBSFromUrl(url);
+				String bbs = bbsObject.getLogDirectoryName();
+				String board = bbsObject.getBoardFromThreadUrl(url);
+				String logFileName = bbsObject.getDatFileNameFromThreadUrl(url);
+				String log = Config.getLogFolder().resolve(bbs).resolve(board).resolve(logFileName).toFile().getPath();
+				
+				try {
+					Runtime.getRuntime().exec(Config.editorCommand.replaceAll("\\$LINK", Matcher.quoteReplacement(log)));
+				} catch (IOException e) {
+					App.logger.error("ログ編集失敗", e);
+				}
+			});
+			itemList.add(item);
 			item = new MenuItem("chb.txt編集 スレッド");
 			item.setOnAction(new OpenAboneFileAction(getThread(url)));
 			itemList.add(item);
