@@ -7,6 +7,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
@@ -185,6 +187,41 @@ public class LinkHistManager {
 		}
 		linkhist.remove(url);
 		dto.lock.countDown();
+	}
+
+	/**
+	 * エントリを削除する。再読み込み用。
+	 * @param url
+	 */
+	public static void delete(String url) {
+		if (url == null || !url.startsWith("http")) {
+			return;
+		}
+
+		if (linkhist == null) {
+			synchronized (LinkHistManager.class) {
+				if (linkhist == null) {
+					readLinkHistFile();
+				}
+			}
+		}
+
+		LinkHistDto dto = get(url);
+		if (dto == null || dto.lock != null) {
+			return;
+		}
+		linkhist.remove(url);
+
+		if (dto.record[10].length() > 0) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(Config.getImageFolder().resolve(dto.record[10].substring(0, 1)).resolve(dto.record[10]).toString());
+			sb.setLength(sb.length() - 1);
+			sb.append(ImageUtil.getFileExt(dto.record[4]));
+			try {
+				Files.delete(Paths.get(sb.toString()));
+			} catch (IOException e) {
+			}
+		}
 	}
 
 	private static class LinkHistDto {

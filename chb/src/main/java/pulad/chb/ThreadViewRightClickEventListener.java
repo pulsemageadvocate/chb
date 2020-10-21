@@ -119,11 +119,24 @@ public class ThreadViewRightClickEventListener implements EventListener {
 
 		HTMLImageElement img = (HTMLImageElement) target;
 		String src = img.getSrc();
-		String imageFileName = LinkHistManager.getCacheFileName(LocalURLStreamHandler.getSourceUrl(src));
+		String httpsrc = LocalURLStreamHandler.getSourceUrl(src);
+		String imageFileName = LinkHistManager.getCacheFileName(httpsrc);
 		List<MenuItem> itemList = new ArrayList<MenuItem>();
-		MenuItem item = new MenuItem("ファイル名をコピー");
-		item.setOnAction(new CopyAction(imageFileName));
-		itemList.add(item);
+		if (imageFileName == null || imageFileName.startsWith("classpath:")) {
+			// notfound.gif等
+			MenuItem item = new MenuItem("再読み込み");
+			item.setOnAction(e -> {
+				// 動いているかよくわからない
+				LinkHistManager.delete(httpsrc);
+				img.setSrc("");
+				img.setSrc(src);
+			});
+			itemList.add(item);
+		} else {
+			MenuItem item = new MenuItem("ファイル名をコピー");
+			item.setOnAction(new CopyAction(imageFileName));
+			itemList.add(item);
+		}
 		ContextMenu menu = new ContextMenu(itemList.toArray(new MenuItem[itemList.size()]));
 		menu.setAutoHide(true);
 		menu.show(currentThreadView.getScene().getWindow(), event.getScreenX(), event.getScreenY());
