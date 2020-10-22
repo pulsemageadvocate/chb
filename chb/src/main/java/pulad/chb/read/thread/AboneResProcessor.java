@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
@@ -34,8 +33,11 @@ import pulad.chb.interfaces.BBS;
 import pulad.chb.interfaces.ResProcessor;
 import pulad.chb.util.NotShitarabaIdPredicate;
 import pulad.chb.util.NumberUtil;
+import pulad.chb.util.RegexPredicate;
+import pulad.chb.util.SimpleWordPredicate;
 
 public class AboneResProcessor implements ResProcessor {
+	private final Pattern regBodyBRPattern = Pattern.compile("(?i) *\\<br\\> *");
 	private final Predicate<ResDto> notAnonymousPredicate = x -> !x.isAnonymous();
 	private ObjectMapper mapper;
 
@@ -139,7 +141,7 @@ public class AboneResProcessor implements ResProcessor {
 							a.setChainIdentifier(ChainIdentifier.NONE);
 							a.setReferenceChain(0);
 							chainAbone.aboneDto = a;
-							chainAbone.predicate = new NotShitarabaIdPredicate().and(new SimpleWordAbonePredicate(dto.getId(), ResDto::getId));
+							chainAbone.predicate = new NotShitarabaIdPredicate().and(new SimpleWordPredicate<ResDto>(dto.getId(), x -> normalize(x.getId())));
 							chainAbone.label = "連鎖[ID]：" + abone.label;
 							chainAbone.source = dto.getNumber();
 							aboneList.add(chainAbone);
@@ -157,7 +159,7 @@ public class AboneResProcessor implements ResProcessor {
 							a.setChainIdentifier(ChainIdentifier.NONE);
 							a.setReferenceChain(0);
 							chainAbone.aboneDto = a;
-							chainAbone.predicate = new SimpleWordAbonePredicate(dto.getWacchoi(), ResDto::getWacchoi);
+							chainAbone.predicate = new SimpleWordPredicate<ResDto>(dto.getWacchoi(), x -> normalize(x.getWacchoi()));
 							chainAbone.label = "連鎖[ﾜｯﾁｮｲ]：" + abone.label;
 							chainAbone.source = dto.getNumber();
 							aboneList.add(chainAbone);
@@ -175,7 +177,7 @@ public class AboneResProcessor implements ResProcessor {
 							a.setChainIdentifier(ChainIdentifier.NONE);
 							a.setReferenceChain(0);
 							chainAbone.aboneDto = a;
-							chainAbone.predicate = new SimpleWordAbonePredicate(dto.getWacchoiLower(), ResDto::getWacchoiLower);
+							chainAbone.predicate = new SimpleWordPredicate<ResDto>(dto.getWacchoiLower(), x -> normalize(x.getWacchoiLower()));
 							chainAbone.label = "連鎖[ﾜｯﾁｮｲ下4桁]：" + abone.label;
 							chainAbone.source = dto.getNumber();
 							aboneList.add(chainAbone);
@@ -193,7 +195,7 @@ public class AboneResProcessor implements ResProcessor {
 							a.setChainIdentifier(ChainIdentifier.NONE);
 							a.setReferenceChain(0);
 							chainAbone.aboneDto = a;
-							chainAbone.predicate = new SimpleWordAbonePredicate(dto.getIp(), ResDto::getIp);
+							chainAbone.predicate = new SimpleWordPredicate<ResDto>(dto.getIp(), x -> normalize(x.getIp()));
 							chainAbone.label = "連鎖[IP]：" + abone.label;
 							chainAbone.source = dto.getNumber();
 							aboneList.add(chainAbone);
@@ -244,8 +246,8 @@ public class AboneResProcessor implements ResProcessor {
 					abone.aboneDto = name;
 					abone.predicate = notAnonymousPredicate.and(
 							name.isRegex() ?
-									new RegexAbonePredicate(name.getWord(), ResDto::getName) :
-										new SimpleWordAbonePredicate(name.getWord(), ResDto::getName));
+									new RegexPredicate<ResDto>(name.getWord(), x -> normalize(x.getName())) :
+										new SimpleWordPredicate<ResDto>(name.getWord(), x -> normalize(x.getName())));
 					abone.label = "名前[" + name.getLabel() + "]";
 					if (name.isWhite()) {
 						whiteList.add(abone);
@@ -259,8 +261,8 @@ public class AboneResProcessor implements ResProcessor {
 					Abone abone = new Abone();
 					abone.aboneDto = wacchoi;
 					abone.predicate = wacchoi.isRegex() ?
-							new RegexAbonePredicate(wacchoi.getWord(), ResDto::getWacchoi) :
-								new SimpleWordAbonePredicate(wacchoi.getWord(), ResDto::getWacchoi);
+							new RegexPredicate<ResDto>(wacchoi.getWord(), x -> normalize(x.getWacchoi())) :
+								new SimpleWordPredicate<ResDto>(wacchoi.getWord(), x -> normalize(x.getWacchoi()));
 					abone.label = "ﾜｯﾁｮｲ[" + wacchoi.getLabel() + "]";
 					if (wacchoi.isWhite()) {
 						whiteList.add(abone);
@@ -274,8 +276,8 @@ public class AboneResProcessor implements ResProcessor {
 					Abone abone = new Abone();
 					abone.aboneDto = ip;
 					abone.predicate = ip.isRegex() ?
-							new RegexAbonePredicate(ip.getWord(), ResDto::getIp) :
-								new SimpleWordAbonePredicate(ip.getWord(), ResDto::getIp);
+							new RegexPredicate<ResDto>(ip.getWord(), x -> normalize(x.getIp())) :
+								new SimpleWordPredicate<ResDto>(ip.getWord(), x -> normalize(x.getIp()));
 					abone.label = "IP[" + ip.getLabel() + "]";
 					if (ip.isWhite()) {
 						whiteList.add(abone);
@@ -289,8 +291,8 @@ public class AboneResProcessor implements ResProcessor {
 					Abone abone = new Abone();
 					abone.aboneDto = id;
 					abone.predicate = id.isRegex() ?
-							new RegexAbonePredicate(id.getWord(), ResDto::getId) :
-								new SimpleWordAbonePredicate(id.getWord(), ResDto::getId);
+							new RegexPredicate<ResDto>(id.getWord(), x -> normalize(x.getId())) :
+								new SimpleWordPredicate<ResDto>(id.getWord(), x -> normalize(x.getId()));
 					abone.label = "ID[" + id.getLabel() + "]";
 					if (id.isWhite()) {
 						whiteList.add(abone);
@@ -304,8 +306,8 @@ public class AboneResProcessor implements ResProcessor {
 					Abone abone = new Abone();
 					abone.aboneDto = body;
 					abone.predicate = body.isRegex() ?
-							new RegexAbonePredicate(body.getWord(), ResDto::getBody) :
-								new SimpleWordAbonePredicate(body.getWord(), ResDto::getBody);
+							new RegexPredicate<ResDto>(body.getWord(), x -> normalize(x.getBody())) :
+								new SimpleWordPredicate<ResDto>(body.getWord(), x -> normalize(x.getBody()));
 					abone.label = "本文[" + body.getLabel() + "]";
 					if (body.isWhite()) {
 						whiteList.add(abone);
@@ -319,64 +321,29 @@ public class AboneResProcessor implements ResProcessor {
 		}
 	}
 
+	/**
+	 * 本文そのままではスペースや<br>が邪魔なので正規化する。
+	 * 名前欄の数値文字参照も解除する。
+	 * @param source
+	 * @return
+	 */
+	private String normalize(String source) {
+		if (source == null) {
+			return null;
+		}
+		// 数値文字参照
+		String s = HtmlEscape.unescapeHtml(source);
+		// 最初と最後のスペースを削除
+		s = s.trim();
+		// 改行前後のスペースを削除、<br>を\nに置換
+		s = regBodyBRPattern.matcher(s).replaceAll("\n");
+		return s;
+	}
+
 	private static class Abone {
 		AbstractAboneDto aboneDto;
 		Predicate<ResDto> predicate;
 		String label;
 		int source = 0;
-	}
-
-	private static abstract class AbstractAbonePredicate implements Predicate<ResDto> {
-		private static final Pattern regBodyBRPattern = Pattern.compile("(?i) *\\<br\\> *");
-
-		/**
-		 * 本文そのままではスペースや<br>が邪魔なので正規化する。
-		 * 名前欄の数値文字参照も解除する。
-		 * @param source
-		 * @return
-		 */
-		protected String normalize(String source) {
-			// 数値文字参照
-			String s = HtmlEscape.unescapeHtml(source);
-			// 最初と最後のスペースを削除
-			s = s.trim();
-			// 改行前後のスペースを削除、<br>を\nに置換
-			s = regBodyBRPattern.matcher(s).replaceAll("\n");
-			return s;
-		}
-	}
-
-	private static class SimpleWordAbonePredicate extends AbstractAbonePredicate {
-		private String word;
-		private Function<ResDto, String> targetGetter;
-		private SimpleWordAbonePredicate(String word, Function<ResDto, String> targetGetter) {
-			this.word = word;
-			this.targetGetter = targetGetter;
-		}
-		@Override
-		public boolean test(ResDto t) {
-			if (t == null) {
-				return false;
-			}
-			String target = targetGetter.apply(t);
-			return (target != null) && (normalize(target).indexOf(word) >= 0);
-		}
-	}
-
-	private static class RegexAbonePredicate extends AbstractAbonePredicate {
-		private Pattern pattern;
-		private Function<ResDto, String> targetGetter;
-		private RegexAbonePredicate(String regex, Function<ResDto, String> targetGetter) {
-			this.pattern = Pattern.compile(regex);
-			this.targetGetter = targetGetter;
-		}
-		@Override
-		public boolean test(ResDto t) {
-			if (t == null) {
-				return false;
-			}
-			String target = targetGetter.apply(t);
-			return (target != null) && pattern.matcher(normalize(target)).find();
-		}
 	}
 }
