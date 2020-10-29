@@ -249,6 +249,10 @@ public class App extends Application {
 
 		Scene scene = new Scene(rootPane, 1280, 480);
 		scene.getStylesheets().add(Config.styleCss);
+		// Ctrl+fで検索をフォーカスする
+		scene.getAccelerators().put(new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN), () -> {
+			searchField.requestFocus();
+		});
 		// Ctrl+wでタブを閉じる
 		scene.getAccelerators().put(new KeyCodeCombination(KeyCode.W, KeyCombination.CONTROL_DOWN), () -> {
 			try {
