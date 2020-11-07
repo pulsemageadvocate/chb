@@ -21,7 +21,7 @@ public class ReplaceNumericalCharacterReferenceResProcessor implements ResProces
 	private final Pattern reg16 = Pattern.compile("&(?=#x(?<i>[0-9a-f]+);)", Pattern.CASE_INSENSITIVE);
 
 	@Override
-	public void process(String url, TreeMap<Integer, ResDto> res, boolean remote, long now) {
+	public void process(String url, TreeMap<Integer, ResDto> res, long now) {
 		res.values().parallelStream().forEach(dto -> {
 			StringBuilder sb = new StringBuilder();
 			String body = dto.getBody();

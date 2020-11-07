@@ -59,6 +59,7 @@ public class Config {
 				// デフォルトのcssを用意する。
 				styleCss = resourceClass.getResource("/style/style.css").toExternalForm();
 			}
+			logger.debug("styleCss: {}", styleCss);
 		} catch (MalformedURLException e) {
 			logger.error("style.css失敗", e);
 			throw new RuntimeException("style.css失敗", e);

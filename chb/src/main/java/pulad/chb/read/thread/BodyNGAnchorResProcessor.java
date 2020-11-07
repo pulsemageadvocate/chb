@@ -30,7 +30,7 @@ public class BodyNGAnchorResProcessor implements ResProcessor {
 			Pattern.CASE_INSENSITIVE);
 
 	@Override
-	public void process(String url, TreeMap<Integer, ResDto> res, boolean remote, long now) {
+	public void process(String url, TreeMap<Integer, ResDto> res, long now) {
 		process0(res, regWacchoi, ResDto::getWacchoiLower, "wacchoiLower");
 		process0(res, regId, ResDto::getId, "id");
 	}

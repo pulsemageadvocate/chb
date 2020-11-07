@@ -17,7 +17,7 @@ public class RemoveAnchorResProcessor implements ResProcessor {
 	private final Pattern regBody = Pattern.compile("</?(?!br)[^<>]*?>", Pattern.CASE_INSENSITIVE);
 
 	@Override
-	public void process(String url, TreeMap<Integer, ResDto> res, boolean remote, long now) {
+	public void process(String url, TreeMap<Integer, ResDto> res, long now) {
 		res.values().parallelStream().forEach(dto -> {
 			// <br>以外のタグ削除
 			dto.setBody(regBody.splitAsStream(dto.getBody()).collect(Collectors.joining()));

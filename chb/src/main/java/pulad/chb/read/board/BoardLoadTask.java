@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.unbescape.html.HtmlEscape;
 
 import javafx.concurrent.Task;
@@ -28,6 +30,7 @@ import pulad.chb.util.DownloadProcessor;
 import pulad.chb.util.FileUtil;
 
 public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
+	private static final Logger logger = LoggerFactory.getLogger(BoardLoadTask.class);
 	// immutable
 	private final Pattern regSubject = Pattern.compile("^(?<dat>(?<thread>[0-9]*).*?)(\\<\\>|,)(?<title>.*)\\((?<res>[0-9]+)\\)$", Pattern.CASE_INSENSITIVE);
 	private List<ThreadProcessor> threadProcessors;
@@ -59,6 +62,8 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 
 	@Override
 	protected BoardLoadTaskResponseDto call() throws Exception {
+		logger.debug("BoardLoadTask start");
+
 		BoardLoadTaskResponseDto boardLoadTaskResponseDto = new BoardLoadTaskResponseDto();
 
 		BBS bbsObject = BBSManager.getBBSFromUrl(urlStr);
@@ -68,19 +73,24 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 
 		// subject.txtダウンロード
 		if (this.remote && !this.pastLog) {
+			logger.debug("BoardLoadTask subject.txtダウンロード start");
 			try {
-				DownloadDto downloadDto = DownloadProcessor.download(urlStr + "subject.txt", subjectFilePath, 1048576, 120000);
+				DownloadDto downloadDto = DownloadProcessor.download(urlStr + "subject.txt", subjectFilePath, 1048576, 20000);
 				if (downloadDto.getResponseCode() <= 0) {
 					boardLoadTaskResponseDto.setErrorMessage(downloadDto.getResponseMessage());
 				} else if (downloadDto.getResponseCode() != 200) {
 					boardLoadTaskResponseDto.setErrorMessage("HTTP " + downloadDto.getResponseCode() + " " + downloadDto.getResponseMessage());
 				}
+				logger.debug("BoardLoadTask subject.txtダウンロード end");
 			} catch (IOException e) {
+				logger.debug("BoardLoadTask subject.txtダウンロード error", e);
 			}
 		}
 
 		// subject.txt/threadst.txt読み込み
+		logger.debug("BoardLoadTask BoardManager.get() start");
 		BoardDto boardDto = BoardManager.get(urlStr);
+		logger.debug("BoardLoadTask BoardManager.get() end");
 		ConcurrentHashMap<String, ThreadDto> logThread = boardDto.getLogThread();
 		ArrayList<ThreadDto> thread = new ArrayList<>(1024);
 		boolean updateThreadst = false;
@@ -103,6 +113,7 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 		} else {
 			BufferedReader br = null;
 			try {
+				logger.debug("BoardLoadTask subject.txt start");
 				br = new BufferedReader(new FileReader(subjectFilePath.toString(), bbsObject.getCharset()));
 				String str = null;
 				int number = 0;
@@ -139,7 +150,9 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 						thread.add(dto);
 					}
 				}
+				logger.debug("BoardLoadTask subject.txt end");
 			} catch (Exception e) {
+				logger.debug("BoardLoadTask subject.txt error", e);
 				boardLoadTaskResponseDto.setErrorMessage(e.getClass().getName() + ": " + e.getMessage());
 				ThreadDto dto = new ThreadDto();
 				dto.setTitle(e.toString());
@@ -166,6 +179,7 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 		}
 		boardDto.setThread(thread);
 
+		logger.debug("BoardLoadTask end");
 		boardLoadTaskResponseDto.setDto(boardDto);
 		return boardLoadTaskResponseDto;
 	}

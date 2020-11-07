@@ -24,6 +24,7 @@ import pulad.chb.interfaces.ResProcessor;
 /**
  * ReplaceStr.txtの処理。DATを変更しない。あぼーん処理より後。
  * dateにはidとauxが含まれる。{@link ResProcessor}の一番最初に実行すること。
+ * ReplaceStr.txtは最初の1回だけ読み込まれる。変更した場合は再起動が必要。
  * @author pulad
  *
  */
@@ -92,7 +93,7 @@ public class ReplaceStrResProcessor implements ResProcessor {
 	}
 
 	@Override
-	public void process(String url, TreeMap<Integer, ResDto> res, boolean remote, long now) {
+	public void process(String url, TreeMap<Integer, ResDto> res, long now) {
 		res.values().parallelStream().forEach(x -> {
 			for (Replace replace : replaceList) {
 				replace.process(url, x);

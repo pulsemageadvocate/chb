@@ -19,7 +19,7 @@ public class ReplaceErrorCharacterResProcessor implements ResProcessor {
 	private final Pattern reg = Pattern.compile("&(?=(#820[4-7]|#x200[c-f]|zwnj|zwj|lrm|rlm);)", Pattern.CASE_INSENSITIVE);
 
 	@Override
-	public void process(String url, TreeMap<Integer, ResDto> res, boolean remote, long now) {
+	public void process(String url, TreeMap<Integer, ResDto> res, long now) {
 		res.values().parallelStream().forEach(dto -> {
 			StringBuilder sb = new StringBuilder();
 			String body = dto.getBody();

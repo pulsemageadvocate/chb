@@ -28,7 +28,7 @@ public class AnchorLinkResProcessor implements ResProcessor {
 	private final Pattern regIndividual = Pattern.compile(",?(?<from>[1-9][0-9]*)(-(?<to>[1-9][0-9]*))?", Pattern.CASE_INSENSITIVE);
 
 	@Override
-	public void process(String url, TreeMap<Integer, ResDto> res, boolean remote, long now) {
+	public void process(String url, TreeMap<Integer, ResDto> res, long now) {
 		res.values().parallelStream().forEach(dto -> {
 			Matcher matcherBody = regBody.matcher(dto.getBody());
 			StringBuilder sb = new StringBuilder();

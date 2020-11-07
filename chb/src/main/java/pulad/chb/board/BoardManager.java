@@ -1,33 +1,22 @@
 package pulad.chb.board;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.thymeleaf.util.ObjectUtils;
 import org.thymeleaf.util.StringUtils;
 
 import pulad.chb.App;
 import pulad.chb.bbs.BBSManager;
 import pulad.chb.config.Config;
 import pulad.chb.dto.BoardDto;
-import pulad.chb.dto.ThreadDto;
+import pulad.chb.file.Threadst;
 import pulad.chb.interfaces.BBS;
-import pulad.chb.util.DateTimeUtil;
 import pulad.chb.util.DownloadProcessor;
 import pulad.chb.util.FileUtil;
-import pulad.chb.util.NumberUtil;
 
 public class BoardManager {
-	private static final Pattern regSettingValue = Pattern.compile("^(?<key>[^=]+)=(?<value>[^=]+)$");
 	private static ConcurrentHashMap<String, BoardDto> map = new ConcurrentHashMap<>();
 
 	/**
@@ -80,51 +69,29 @@ public class BoardManager {
 			}
 
 			// SETTING.TXT読み込み
-			ConcurrentHashMap<String, String> setting = new ConcurrentHashMap<>();
-			dto.setSetting(setting);
-			dto.setTitleOrig("");
-			dto.setTitle("");
-			BufferedReader br = null;
+			ConcurrentHashMap<String, String> setting;
 			try {
-				br = new BufferedReader(new FileReader(settingFilePath.toString(), bbsObject.getCharset()));
-				String str = null;
-				while ((str = br.readLine()) != null) {
-					Matcher matcher = regSettingValue.matcher(str);
-					if (matcher.find()) {
-						String key = matcher.group("key");
-						String value = matcher.group("value");
-						setting.put(key, value);
-						switch (key) {
-						case "BBS_TITLE_ORIG":
-							dto.setTitleOrig(value);
-							break;
-						case "BBS_TITLE":
-							dto.setTitle(value);
-							break;
-						}
-					}
-				}
+				setting = bbsObject.readSettingTxt(url);
 			} catch (Exception e) {
 				App.logger.error("SETTING.TXT読み込み失敗", e);
-				dto.setTitleOrig("SETTING.TXT読み込み失敗");
-				dto.setTitle("SETTING.TXT読み込み失敗");
-			} finally {
-				if (br != null) {
-					try {
-						br.close();
-					} catch (IOException e) {
-						App.logger.error("SETTING.TXT close失敗", e);
-					}
-					br = null;
-				}
+				setting = new ConcurrentHashMap<String, String>();
+				setting.put("BBS_TITLE_ORIG", "SETTING.TXT読み込み失敗");
+				setting.put("BBS_TITLE", "SETTING.TXT読み込み失敗");
 			}
+			dto.setSetting(setting);
+			dto.setTitleOrig(setting.getOrDefault("BBS_TITLE_ORIG", ""));
+			dto.setTitle(setting.getOrDefault("BBS_TITLE", ""));
 			if (StringUtils.isEmpty(dto.getTitleOrig()) &&
 					!StringUtils.isEmpty(dto.getTitle())) {
 				dto.setTitleOrig(dto.getTitle());
 			}
 
 			// threadst.txt読み込み
-			readThreadst(dto, bbs, board);
+			try {
+				dto.setLogThread(Threadst.read(bbs, board));
+			} catch (Exception e) {
+				App.logger.error("Threadst.read失敗", e);
+			}
 
 			map.put(url, dto);
 			return (BoardDto) dto.clone();
@@ -144,113 +111,10 @@ public class BoardManager {
 			BBS bbsObject = BBSManager.getBBSFromUrl(url);
 			String bbs = bbsObject.getLogDirectoryName();
 			String board = bbsObject.getBoardFromBoardUrl(url);
-			writeThreadst(dto, bbs, board);
-		}
-	}
-
-	private static void readThreadst(BoardDto dto, String bbs, String board) {
-		Path threadstFilePath = FileUtil.realCapitalPath(Config.getLogFolder().resolve(bbs).resolve(board).resolve("threadst.txt"));
-
-		ConcurrentHashMap<String, ThreadDto> thread = new ConcurrentHashMap<>(1024, 0.75f, 1);
-		if (Files.exists(threadstFilePath)) {
-			BufferedReader br = null;
 			try {
-				br = new BufferedReader(new FileReader(threadstFilePath.toString(), Charset.forName("UTF-8")));
-				// ヘッダを捨てる
-				String str = br.readLine();
-				while ((str = br.readLine()) != null) {
-					String[] token = str.split(",", 17);
-					if (token.length == 17) {
-						ThreadDto threadDto = new ThreadDto();
-						threadDto.setBoardUrl(token[0]);
-						threadDto.setDatName(token[1]);
-						threadDto.setNumber(NumberUtil.parseInt(token[2], 0));
-						threadDto.setState(NumberUtil.parseInt(token[3], 0));
-						threadDto.setLogCount(NumberUtil.parseInt(token[4], 0));
-						threadDto.setiNewRes(NumberUtil.parseInt(token[5], 0));
-						threadDto.settLastGet(DateTimeUtil.httpLongToLocalDateTime(NumberUtil.parseLong(token[6], 0L)));
-						threadDto.settLastWrite(DateTimeUtil.httpLongToLocalDateTime(NumberUtil.parseLong(token[7], 0L)));
-						threadDto.setResCount(NumberUtil.parseInt(token[8], 0));
-						threadDto.setnLastNRes(NumberUtil.parseInt(token[9], 0));
-						threadDto.setBuildTime(DateTimeUtil.httpLongToLocalDateTime(NumberUtil.parseLong(token[10], 0L)));
-						threadDto.settLast(DateTimeUtil.httpLongToLocalDateTime(NumberUtil.parseLong(token[11], 0L)));
-						threadDto.setnLogSize(NumberUtil.parseLong(token[12], 0L));
-						threadDto.setDate(DateTimeUtil.httpLongToLocalDateTime(NumberUtil.parseLong(token[13], 0L)));
-						threadDto.setLabel(token[14]);
-						threadDto.setTitle(token[15]);
-						threadDto.setTitleAlias(token[16]);
-						thread.put(token[1], threadDto);
-					}
-				}
+				Threadst.write(dto.getLogThread(), bbs, board);
 			} catch (Exception e) {
-				App.logger.error("readThreadst失敗", e);
-			} finally {
-				if (br != null) {
-					try {
-						br.close();
-					} catch (IOException e) {
-						App.logger.error("readThreadst close失敗", e);
-					}
-					br = null;
-				}
-			}
-		}
-		dto.setLogThread(thread);
-	}
-
-	private static void writeThreadst(BoardDto dto, String bbs, String board) {
-		Path threadstFilePath = FileUtil.realCapitalPath(Config.getLogFolder().resolve(bbs).resolve(board).resolve("threadst.txt"));
-
-		BufferedWriter bw = null;
-		try {
-			bw = new BufferedWriter(new FileWriter(threadstFilePath.toString(), Charset.forName("UTF-8"), false));
-			bw.write("BOARDURL,DATNAME,NUMBER,STATE,NRESGET,INEWRES,TLASTGET,TLASTWRITE,NRES,NLASTNRES,TFIRST,TLAST,NLOGSIZE,DATE,LABEL,TITLE,TITLEALIAS\r\n");
-			for (ThreadDto threadDto : dto.getLogThread().values()) {
-				bw.write(threadDto.getBoardUrl());
-				bw.write(',');
-				bw.write(threadDto.getDatName());
-				bw.write(',');
-				bw.write(NumberUtil.toStringDefaultEmpty(threadDto.getNumber(), 0));
-				bw.write(',');
-				bw.write(NumberUtil.toStringDefaultEmpty(threadDto.getState(), 0));
-				bw.write(',');
-				bw.write(NumberUtil.toStringDefaultEmpty(threadDto.getLogCount(), 0));
-				bw.write(',');
-				bw.write(NumberUtil.toStringDefaultEmpty(threadDto.getiNewRes(), 0));
-				bw.write(',');
-				bw.write(NumberUtil.toStringDefaultEmpty(DateTimeUtil.localDateTimeToHttpLong(threadDto.gettLastGet()), 0L));
-				bw.write(',');
-				bw.write(NumberUtil.toStringDefaultEmpty(DateTimeUtil.localDateTimeToHttpLong(threadDto.gettLastWrite()), 0L));
-				bw.write(',');
-				bw.write(NumberUtil.toStringDefaultEmpty(threadDto.getResCount(), 0));
-				bw.write(',');
-				bw.write(NumberUtil.toStringDefaultEmpty(threadDto.getnLastNRes(), 0));
-				bw.write(',');
-				bw.write(NumberUtil.toStringDefaultEmpty(DateTimeUtil.localDateTimeToHttpLong(threadDto.getBuildTime()), 0L));
-				bw.write(',');
-				bw.write(NumberUtil.toStringDefaultEmpty(DateTimeUtil.localDateTimeToHttpLong(threadDto.gettLast()), 0L));
-				bw.write(',');
-				bw.write(NumberUtil.toStringDefaultEmpty(threadDto.getnLogSize(), 0L));
-				bw.write(',');
-				bw.write(NumberUtil.toStringDefaultEmpty(DateTimeUtil.localDateTimeToHttpLong(threadDto.getDate()), 0L));
-				bw.write(',');
-				bw.write(ObjectUtils.nullSafe(threadDto.getLabel(), ""));
-				bw.write(',');
-				bw.write(ObjectUtils.nullSafe(threadDto.getTitle(), ""));
-				bw.write(',');
-				bw.write(ObjectUtils.nullSafe(threadDto.getTitleAlias(), ""));
-				bw.write("\r\n");
-			}
-			bw.flush();
-		} catch (Exception e) {
-			App.logger.error("writeThreadst失敗", e);
-		} finally {
-			if (bw != null) {
-				try {
-					bw.close();
-				} catch (IOException e) {
-				}
-				bw = null;
+				App.logger.error("Threadst.write失敗", e);
 			}
 		}
 	}

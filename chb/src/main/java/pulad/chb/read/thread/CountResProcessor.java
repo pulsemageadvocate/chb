@@ -13,7 +13,7 @@ public class CountResProcessor implements ResProcessor {
 	private final Predicate<ResDto> notShitarabaId = new NotShitarabaIdPredicate();
 
 	@Override
-	public void process(String url, TreeMap<Integer, ResDto> res, boolean remote, long now) {
+	public void process(String url, TreeMap<Integer, ResDto> res, long now) {
 		HashMap<String, AtomicInteger> nameMap = new HashMap<>(64);
 		HashMap<String, AtomicInteger> wacchoiMap = new HashMap<>(64);
 		HashMap<String, AtomicInteger> wacchoiLowerMap = new HashMap<>(64);

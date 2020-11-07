@@ -3,8 +3,8 @@ package pulad.chb.shitaraba;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
-import pulad.chb.dto.BoardDto;
 import pulad.chb.dto.DownloadDto;
 import pulad.chb.dto.ResDto;
 import pulad.chb.dto.ThreadResponseDto;
@@ -23,10 +23,9 @@ public class ShitarabaThreadLoader implements ThreadLoader {
 		this.bbsObject = new Shitaraba();
 	}
 
-	public void readDat(BoardDto boardDto, TreeMap<Integer, ResDto> res, BufferedReader br) throws IOException {
-		String noNameName = boardDto.getSetting().getOrDefault("BBS_NONAME_NAME", "");
-
+	public void readDat(ConcurrentHashMap<String, String> setting, TreeMap<Integer, ResDto> res, BufferedReader br) throws IOException {
 		try {
+			String noNameName = setting.getOrDefault("BBS_NONAME_NAME", "");
 			StringBuilder sb = new StringBuilder(4096);
 			String str = null;
 			while ((str = br.readLine()) != null) {

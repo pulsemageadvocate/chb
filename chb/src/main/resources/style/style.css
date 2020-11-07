@@ -45,3 +45,11 @@
 .treeView_insertBottom {
 	-fx-border-color: #ffffff #ffffff #c0c000 #ffffff;
 }
+
+/* SearchView */
+.searchView_gridpane {
+	-fx-width: 100%;
+	-fx-padding: 1.25em;
+	-fx-hgap: 1.25em;
+	-fx-vgap: 1.25em;
+}

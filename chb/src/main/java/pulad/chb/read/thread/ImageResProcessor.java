@@ -22,7 +22,7 @@ public class ImageResProcessor implements ResProcessor {
 	private final Pattern regUnsanitize = Pattern.compile("\\&amp;");
 
 	@Override
-	public void process(String url, TreeMap<Integer, ResDto> res, boolean remote, long now) {
+	public void process(String url, TreeMap<Integer, ResDto> res, long now) {
 		res.values().parallelStream().forEach(dto -> {
 			List<String> images = dto.getImages();
 			if (images == null) {

@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -27,6 +29,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -49,6 +52,7 @@ import javafx.stage.WindowEvent;
 import pulad.chb.bbs.BBSManager;
 import pulad.chb.config.Config;
 import pulad.chb.dto.ConfigFileDto;
+import pulad.chb.dto.SearchConditionDto;
 import pulad.chb.dto.TreeItemDto;
 import pulad.chb.favorite.FavoriteManager;
 import pulad.chb.interfaces.BBS;
@@ -84,6 +88,14 @@ public class App extends Application {
 	 * TabのProperty値のステータスバーに表示するエラーメッセージ。
 	 */
 	public static final String TAB_PROPERTY_STATUS_ERROR = "statusError";
+	/**
+	 * 検索条件タブのURL。
+	 */
+	public static final String URL_SEARCH = "chb://search/";
+	/**
+	 * 検索結果タブのURL。
+	 */
+	public static final String URL_SEARCH_RESULT = "chb://searchresult/";
 
 	private static App app = null;
 	private Stage stage = null;
@@ -100,6 +112,7 @@ public class App extends Application {
 	//private ChangeListener<String> statusListener
 	private ConcurrentLinkedQueue<Popup> popupThreadViewList = new ConcurrentLinkedQueue<>();
 	private ConcurrentLinkedQueue<Popup> imageViewList = new ConcurrentLinkedQueue<>();
+	private ExecutorService executor = null;
 
 	public App() {
 		super();
@@ -128,6 +141,7 @@ public class App extends Application {
 		}
 
 		launch();
+		System.exit(0);
 		return 0;
 	}
 
@@ -172,7 +186,12 @@ public class App extends Application {
 			pastLog = !pastLog;
 			pastButton.setSelected(pastLog);
 		});
-		HBox buttonBox = new HBox(offlineButton, emojiButton, pastButton);
+		Button searchButton = new Button();
+		searchButton.setText("ログ検索");
+		searchButton.setOnAction(event -> {
+			openSearch();
+		});
+		HBox buttonBox = new HBox(offlineButton, emojiButton, pastButton, searchButton);
 
 		urlField = new TextField();
 		urlField.setMaxWidth(Double.MAX_VALUE);
@@ -317,11 +336,28 @@ public class App extends Application {
 			}
 		} catch (Exception e) {
 		}
+
+//		stage.setOnCloseRequest(event -> {
+//			if (executor != null) {
+//				executor.shutdownNow();
+//				executor = null;
+//			}
+//		});
+		executor = Executors.newFixedThreadPool(16);
+
 		stage.show();
 
 		//openThread("http://egg.5ch.net/test/read.cgi/applism/1550654600/1472290387.dat", false);
 		//openThread("http://jbbs.shitaraba.net/bbs/read.cgi/netgame/16124/1563530027/", false);
 		//openImage("https://i.imgur.com/xCBGM3q.jpg");
+	}
+
+	@Override
+	public void stop() throws Exception {
+		if (executor != null) {
+			executor.shutdownNow();
+			executor = null;
+		}
 	}
 
 	public static App getInstance() {
@@ -352,6 +388,10 @@ public class App extends Application {
 			statusBar.setText(ObjectUtils.nullSafe((String) properties.getOrDefault(App.TAB_PROPERTY_STATUS_ERROR, null), "") +
 					" " + (String) properties.getOrDefault(App.TAB_PROPERTY_STATUS, ""));
 		}
+	}
+
+	public ExecutorService getExecutor() {
+		return executor;
 	}
 
 	/**
@@ -429,6 +469,43 @@ public class App extends Application {
 	}
 
 	/**
+	 * 検索タブを開く。
+	 */
+	public void openSearch() {
+		Tab tab = getTab(URL_SEARCH);
+		if (tab == null) {
+			tab = new Tab("ログ検索");
+			tab.getProperties().put(TAB_PROPERTY_URL, URL_SEARCH);
+			tab.getProperties().put(TAB_PROPERTY_STATUS, "ログ検索");
+			tab.setOnSelectionChanged(new TabEvent(urlField));
+
+			SearchViewProcessor.open(tab);
+			threadTabPane.getTabs().add(tab);
+		}
+		threadTabPane.getSelectionModel().select(tab);
+	}
+
+	/**
+	 * 検索結果タブを開く。
+	 * @param dto 検索条件
+	 */
+	public void openSearchResult(SearchConditionDto dto) {
+		Tab tab = getTab(URL_SEARCH_RESULT);
+		if (tab == null) {
+			tab = new Tab("ログ検索結果[" + dto.getText() + "]");
+			tab.getProperties().put(TAB_PROPERTY_URL, URL_SEARCH_RESULT);
+			tab.getProperties().put(TAB_PROPERTY_STATUS, "ログ検索結果[" + dto.getText() + "]");
+			tab.setOnSelectionChanged(new TabEvent(urlField));
+
+			SearchResultViewProcessor.open(tab, dto);
+			threadTabPane.getTabs().add(tab);
+		} else {
+			SearchResultViewProcessor.reload(tab, dto);
+		}
+		threadTabPane.getSelectionModel().select(tab);
+	}
+
+	/**
 	 * レス一覧リンクを表示する。
 	 * @param url
 	 * @param chain カンマ区切りのレス番の一覧。
@@ -442,13 +519,17 @@ public class App extends Application {
 		for (String s : chain.split(",")) {
 			resFilter.add(NumberUtil.integerCache(Integer.parseInt(s)));
 		}
-		popupThreadViewList.add(PopupThreadViewProcessor.open(
+
+		Popup p = PopupThreadViewProcessor.open(
 				getStage(),
 				threadTabPane.getWidth(),
 				clickEventListener,
 				rightClickEventListener,
 				url,
-				resFilter));
+				resFilter);
+		synchronized (popupThreadViewList) {
+			popupThreadViewList.add(p);
+		}
 	}
 
 	public void write(String url, String name, String mail, String body) {
@@ -459,11 +540,16 @@ public class App extends Application {
 	 * レス一覧リンクを閉じる。
 	 */
 	public void closePopupThreads() {
-		Popup popup = null;
-		while ((popup = popupThreadViewList.poll()) != null) {
-			popup.hide();
-			Event.fireEvent(popup, new WindowEvent(popup, WindowEvent.WINDOW_HIDDEN));
-			//Event.fireEvent(popup, new Event(popup, popup, Event.ANY));
+		ArrayList<Popup> popupList;
+		synchronized (popupThreadViewList) {
+			popupList = new ArrayList<>(popupThreadViewList);
+			popupThreadViewList.clear();
+		}
+
+		for (Popup p : popupList) {
+			p.hide();
+			Event.fireEvent(p, new WindowEvent(p, WindowEvent.WINDOW_HIDDEN));
+			//Event.fireEvent(p, new Event(p, p, Event.ANY));
 		}
 	}
 
@@ -474,17 +560,29 @@ public class App extends Application {
 	 * @param url
 	 */
 	public void openImage(String url) {
-		imageViewList.add(ImageViewProcessor.view(getStage(), url));
+		Popup p = ImageViewProcessor.view(getStage(), url);
+		synchronized (imageViewList) {
+			imageViewList.add(p);
+		}
 	}
 
 	/**
 	 * 画像ポップアップをすべて閉じる。
 	 */
 	private void closeImages() {
-		Popup popup = null;
-		while ((popup = imageViewList.poll()) != null) {
-			popup.hide();
+		ArrayList<Popup> popupList;
+		synchronized (imageViewList) {
+			popupList = new ArrayList<>(imageViewList);
+			imageViewList.clear();
 		}
+
+		for (Popup p : popupList) {
+			p.hide();
+		}
+	}
+
+	private Tab getTab(String url) {
+		return getTab(url, false);
 	}
 
 	private Tab getTab(String url, boolean pastLog) {
@@ -494,6 +592,11 @@ public class App extends Application {
 		return list.isEmpty() ? null : list.get(0);
 	}
 
+	/**
+	 * タブがアクティブになった時にURLを表示する。
+	 * @author pulad
+	 *
+	 */
 	private static class TabEvent implements EventHandler<javafx.event.Event> {
 		private TextField urlField;
 

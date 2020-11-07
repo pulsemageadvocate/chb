@@ -20,7 +20,17 @@ public class RegexPredicate<T> implements Predicate<T> {
 	 * @param targetGetter 検索対象の文字列を取得する{@link Function}
 	 */
 	public RegexPredicate(String regex, Function<T, String> targetGetter) {
-		this.pattern = Pattern.compile(regex);
+		this(regex, 0, targetGetter);
+	}
+
+	/**
+	 * コンストラクタ。
+	 * @param regex 正規表現
+	 * @param flag 正規表現のフラグ
+	 * @param targetGetter 検索対象の文字列を取得する{@link Function}
+	 */
+	public RegexPredicate(String regex, int flags, Function<T, String> targetGetter) {
+		this.pattern = Pattern.compile(regex, flags);
 		this.targetGetter = targetGetter;
 	}
 

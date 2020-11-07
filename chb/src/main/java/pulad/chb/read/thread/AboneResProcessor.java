@@ -47,7 +47,7 @@ public class AboneResProcessor implements ResProcessor {
 	}
 
 	@Override
-	public void process(String url, TreeMap<Integer, ResDto> res, boolean remote, long now) {
+	public void process(String url, TreeMap<Integer, ResDto> res, long now) {
 		BBS bbsObject = BBSManager.getBBSFromUrl(url);
 		String bbsDir = bbsObject.getBBSDirectoryName();
 		String bbs = bbsObject.getLogDirectoryName();

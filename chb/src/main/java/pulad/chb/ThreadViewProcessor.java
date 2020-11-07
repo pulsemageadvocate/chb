@@ -21,6 +21,7 @@ import javafx.concurrent.Worker.State;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
@@ -70,7 +71,8 @@ public class ThreadViewProcessor {
 	 * @param scrollY 開いた後でY軸をスクロールする。
 	 */
 	public static void open(Tab tab, String url, boolean remote, int scrollY) {
-		getWebView(tab);
+		WebView threadView = getWebView(tab);
+		threadView.setCursor(Cursor.WAIT);
 
 		// ここでremoteにオフラインボタンの状態を加味する。
 		ThreadLoadService service = new ThreadLoadService(url, !App.offline && remote, App.replaceEmoji);
@@ -86,6 +88,7 @@ public class ThreadViewProcessor {
 	 */
 	public static void reload(Tab tab, String url, boolean remote) {
 		WebView threadView = getWebView(tab);
+		threadView.setCursor(Cursor.WAIT);
 
 		// ここでremoteにオフラインボタンの状態を加味する。
 		int scrollY = (int) threadView.getEngine().executeScript("document.body.scrollTop");
@@ -153,6 +156,7 @@ public class ThreadViewProcessor {
 			BBS bbsObject = BBSManager.getBBSFromUrl(url);
 			Task<ThreadLoadTaskResponseDto> task = new ThreadLoadTask(bbsObject.createThreadLoader(url), url, remote, replaceEmoji);
 			// なぜかこれを呼ぶとServiceのOnSucceededも呼ばれるようになる
+//			task.setOnSucceeded(event -> {});
 			task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 				@Override
 				public void handle(WorkerStateEvent event) {
@@ -177,6 +181,9 @@ public class ThreadViewProcessor {
 
 		@Override
 		public void handle(WorkerStateEvent event) {
+			WebView threadView = (WebView) getWebView(tab);
+			threadView.setCursor(null);
+
 			ThreadLoadTaskResponseDto threadLoadTaskResponseDto = (ThreadLoadTaskResponseDto) event.getSource().getValue();
 			tab.getProperties().put(App.TAB_PROPERTY_STATUS_ERROR, threadLoadTaskResponseDto.getErrorMessage());
 			App.getInstance().notifyChangeStatus();
@@ -185,7 +192,6 @@ public class ThreadViewProcessor {
 				return;
 			}
 
-			WebView threadView = (WebView) getWebView(tab);
 			//threadView.setContextMenuEnabled(false);
 			WebEngine engine = threadView.getEngine();
 			tab.setOnClosed(new CloseEventListener(engine));

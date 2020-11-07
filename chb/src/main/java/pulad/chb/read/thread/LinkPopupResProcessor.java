@@ -22,7 +22,7 @@ import pulad.chb.util.NumberUtil;
 public class LinkPopupResProcessor implements ResProcessor {
 
 	@Override
-	public void process(String url, TreeMap<Integer, ResDto> res, boolean remote, long now) {
+	public void process(String url, TreeMap<Integer, ResDto> res, long now) {
 		// 名前
 		process0(res, ResDto::getName, ((Predicate<ResDto>) ResDto::isAnonymous).negate(), ResDto::setNameLink);
 		// ﾜｯﾁｮｲ
