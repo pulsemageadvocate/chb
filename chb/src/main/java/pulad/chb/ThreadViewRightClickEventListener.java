@@ -158,16 +158,16 @@ public class ThreadViewRightClickEventListener implements EventListener {
 				String hash = Paths.get(imageFileName).getFileName().toString();
 				hash = hash.substring(0, hash.indexOf(".")); // -1の場合は例外
 				itemList.add(new SeparatorMenuItem());
-				item = new MenuItem("(WIP)あぼ～ん スレッド");
+				item = new MenuItem("あぼ～ん スレッド");
 				item.setOnAction(new AddAboneImageAction(tab, url, getThread(url), hash, false, false, httpsrc, timeLong, scrollY));
 				itemList.add(item);
-				item = new MenuItem("(WIP)あぼ～ん 板");
+				item = new MenuItem("あぼ～ん 板");
 				item.setOnAction(new AddAboneImageAction(tab, url, getBoard(url), hash, false, false, httpsrc, timeLong, scrollY));
 				itemList.add(item);
-				item = new MenuItem("(WIP)あぼ～ん BBS");
+				item = new MenuItem("あぼ～ん BBS");
 				item.setOnAction(new AddAboneImageAction(tab, url, getBBS(url), hash, false, false, httpsrc, timeLong, scrollY));
 				itemList.add(item);
-				item = new MenuItem("(WIP)あぼ～ん 全部");
+				item = new MenuItem("あぼ～ん 全部");
 				item.setOnAction(new AddAboneImageAction(tab, url, getAll(url), hash, false, false, httpsrc, timeLong, scrollY));
 				itemList.add(item);
 			} catch (IndexOutOfBoundsException e) {

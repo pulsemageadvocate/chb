@@ -1,5 +1,10 @@
 package pulad.chb;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 import org.thymeleaf.util.StringUtils;
@@ -12,6 +17,10 @@ import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.events.MouseEvent;
+import org.w3c.dom.html.HTMLImageElement;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -33,8 +42,13 @@ import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import pulad.chb.bbs.BBSManager;
+import pulad.chb.config.Config;
+import pulad.chb.dto.AboneImageDto;
+import pulad.chb.dto.NGFileDto;
 import pulad.chb.dto.ThreadLoadTaskResponseDto;
 import pulad.chb.interfaces.BBS;
+import pulad.chb.read.thread.LinkHistManager;
+import pulad.chb.read.thread.LocalURLStreamHandler;
 import pulad.chb.read.thread.ThreadLoadTask;
 
 /**
@@ -237,7 +251,7 @@ public class ThreadViewProcessor {
 						String status = "読み込み完了 img 0/" + length;
 						tab.getProperties().put(App.TAB_PROPERTY_STATUS, status);
 						App.getInstance().notifyChangeStatus();
-						EventListener imgLoadEventListener = new ImgLoadEventListener(tab, engine, length, scrollNew);
+						EventListener imgLoadEventListener = new ImgLoadEventListener(tab, url, engine, length, scrollNew);
 						for (int i = 0; i < length; i++) {
 							Element img = (Element) imgList.item(i);
 							((EventTarget) img).addEventListener("load", imgLoadEventListener, false);
@@ -424,22 +438,85 @@ public class ThreadViewProcessor {
 	 *
 	 */
 	private static class ImgLoadEventListener implements EventListener {
-		private Object o = new Object();
+		private final Object o = new Object();
+		private final ObjectMapper mapper;
 		private Tab tab;
 		private WebEngine engine;
 		private int imgCount;
 		private int imgLoadedCount = 0;
 		private boolean scrollNew;
+		private List<AboneImageDto> whiteList = new ArrayList<>();
+		private List<AboneImageDto> aboneList = new ArrayList<>();
 
-		public ImgLoadEventListener(Tab tab, WebEngine engine, int imgCount, boolean scrollNew) {
+		public ImgLoadEventListener(Tab tab, String url, WebEngine engine, int imgCount, boolean scrollNew) {
 			this.tab = tab;
 			this.engine = engine;
 			this.imgCount = imgCount;
 			this.scrollNew = scrollNew;
+
+			mapper = new ObjectMapper();
+			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+			BBS bbsObject = BBSManager.getBBSFromUrl(url);
+			String bbsDir = bbsObject.getBBSDirectoryName();
+			String bbs = bbsObject.getLogDirectoryName();
+			String board = bbsObject.getBoardFromThreadUrl(url);
+			String threadNGFileName = bbsObject.getThreadFromThreadUrl(url) + ".chb.txt";
+
+			// 全体
+			readAboneFile(whiteList, aboneList, Config.getRootFolder().resolve("chb.txt").toFile());
+			// BBS
+			readAboneFile(whiteList, aboneList, Config.getBBSFolder().resolve(bbsDir).resolve("chb.txt").toFile());
+			// Board
+			readAboneFile(whiteList, aboneList, Config.getLogFolder().resolve(bbs).resolve(board).resolve("chb.txt").toFile());
+			// Thread
+			readAboneFile(whiteList, aboneList, Config.getLogFolder().resolve(bbs).resolve(board).resolve(threadNGFileName).toFile());
+			whiteList = List.copyOf(whiteList);
+			aboneList = List.copyOf(aboneList);
 		}
 
 		@Override
 		public void handleEvent(Event evt) {
+			// 画像あぼ～ん
+			try {
+				HTMLImageElement img = (HTMLImageElement) evt.getTarget();
+				String src = img.getSrc();
+				if (src != null) {
+					String httpsrc = LocalURLStreamHandler.getSourceUrl(src);
+					String imageFileName = LinkHistManager.getCacheFileName(httpsrc);
+					if (imageFileName != null && !imageFileName.startsWith("classpath:")) {
+						String hash = Paths.get(imageFileName).getFileName().toString();
+						hash = hash.substring(0, hash.indexOf(".")); // -1の場合は例外
+
+						boolean white = false;
+						for (int i = 0; i < whiteList.size(); i++) {
+							AboneImageDto aboneDto = whiteList.get(i);
+
+							// TODO:期限切れチェック
+
+							if (hash.equals(aboneDto.getHash())) {
+								white = true;
+								break;
+							}
+						}
+
+						if (!white) {
+							for (int i = 0; i < aboneList.size(); i++) {
+								AboneImageDto aboneDto = aboneList.get(i);
+
+								// TODO:期限切れチェック
+
+								if (hash.equals(aboneDto.getHash())) {
+									img.setSrc("image:abone.png");
+									img.setTitle(aboneDto.getLabel());
+									// あぼ～んの場合は読み込み完了カウントしない
+									return;
+								}
+							}
+						}
+					}
+				}
+			} catch (IndexOutOfBoundsException e) {}
+
 			synchronized (o) {
 				try {
 					String status = "読み込み完了 img " + ++imgLoadedCount + "/" + imgCount;
@@ -451,6 +528,33 @@ public class ThreadViewProcessor {
 				try {
 					engine.executeScript("document.getElementsByName(\"current\")[0].scrollIntoView(true)");
 				} catch (Exception e) {}
+			}
+		}
+
+		private void readAboneFile(List<AboneImageDto> whiteList, List<AboneImageDto> aboneList, File file) {
+			try {
+				if (!file.exists()) {
+					return;
+				}
+				if (file.length() == 0) {
+					file.delete();
+					return;
+				}
+				NGFileDto ngFileDto = mapper.readValue(file, NGFileDto.class);
+				if (ngFileDto == null) {
+					return;
+				}
+				if (ngFileDto.getImage() != null) {
+					for (AboneImageDto image : ngFileDto.getImage()) {
+						if (image.isWhite()) {
+							whiteList.add(image);
+						} else {
+							aboneList.add(image);
+						}
+					}
+				}
+			} catch (IOException e) {
+				App.logger.error("readAboneFile失敗", e);
 			}
 		}
 	}
