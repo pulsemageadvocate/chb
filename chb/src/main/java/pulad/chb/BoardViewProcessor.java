@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,6 +19,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DataFormat;
 import javafx.scene.input.MouseEvent;
 import pulad.chb.bbs.BBSManager;
 import pulad.chb.board.BoardManager;
@@ -82,7 +85,17 @@ public class BoardViewProcessor extends AbstractBoardViewProcessor {
 					}
 
 					List<MenuItem> itemList = new ArrayList<MenuItem>();
-					MenuItem item = new MenuItem("ログを削除");
+					MenuItem item = new MenuItem("板名とURLをコピー");
+					item.setOnAction(x -> {
+						BBS bbsObject = BBSManager.getBBSFromUrl(dto.getBoardUrl());
+						String text = dto.getTitle().trim() + System.lineSeparator() +
+								bbsObject.getThreadUrlFromBoardUrlAndDatFileName(dto.getBoardUrl(), dto.getDatName());
+						HashMap<DataFormat, Object> content = new HashMap<>();
+						content.put(DataFormat.PLAIN_TEXT, text);
+						Clipboard.getSystemClipboard().setContent(content);
+					});
+					itemList.add(item);
+					item = new MenuItem("ログを削除");
 					item.setOnAction(x -> {
 						String boardUrl = dto.getBoardUrl();
 						BBS bbsObject = BBSManager.getBBSFromUrl(boardUrl);
