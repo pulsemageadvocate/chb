@@ -46,6 +46,11 @@ public class LinkHistManager {
 		return sb.toString();
 	}
 
+	/**
+	 * linkhist.txtのエントリを取得する。
+	 * @param url
+	 * @return
+	 */
 	private static LinkHistDto get(String url) {
 		if (url == null || !url.startsWith("http")) {
 			return null;

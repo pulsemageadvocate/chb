@@ -2,6 +2,7 @@ package pulad.chb;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,7 @@ import pulad.chb.constant.ChainIdentifier;
 import pulad.chb.dto.AboneBodyDto;
 import pulad.chb.dto.AboneIDDto;
 import pulad.chb.dto.AboneIPDto;
+import pulad.chb.dto.AboneImageDto;
 import pulad.chb.dto.AboneNameDto;
 import pulad.chb.dto.AboneWacchoiDto;
 import pulad.chb.dto.NGFileDto;
@@ -117,6 +119,22 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			return false;
 		}
 
+		// timeLong検索
+		long timeLong = 0L;
+		Node n = target.getParentNode();
+		while (n != null) {
+			NamedNodeMap attributes = n.getAttributes();
+			if (attributes != null) {
+				Node timeLongAttribute = attributes.getNamedItem("data-timeLong");
+				if (timeLongAttribute != null) {
+					timeLong = Long.parseLong(timeLongAttribute.getNodeValue());
+					break;
+				}
+			}
+			n = n.getParentNode();
+		}
+		int scrollY = (int) threadView.getEngine().executeScript("document.body.scrollTop");
+
 		HTMLImageElement img = (HTMLImageElement) target;
 		String src = img.getSrc();
 		String httpsrc = LocalURLStreamHandler.getSourceUrl(src);
@@ -136,6 +154,24 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			MenuItem item = new MenuItem("ファイル名をコピー");
 			item.setOnAction(new CopyAction(imageFileName));
 			itemList.add(item);
+			try {
+				String hash = Paths.get(imageFileName).getFileName().toString();
+				hash = hash.substring(0, hash.indexOf(".")); // -1の場合は例外
+				itemList.add(new SeparatorMenuItem());
+				item = new MenuItem("(WIP)あぼ～ん スレッド");
+				item.setOnAction(new AddAboneImageAction(tab, url, getThread(url), hash, false, false, httpsrc, timeLong, scrollY));
+				itemList.add(item);
+				item = new MenuItem("(WIP)あぼ～ん 板");
+				item.setOnAction(new AddAboneImageAction(tab, url, getBoard(url), hash, false, false, httpsrc, timeLong, scrollY));
+				itemList.add(item);
+				item = new MenuItem("(WIP)あぼ～ん BBS");
+				item.setOnAction(new AddAboneImageAction(tab, url, getBBS(url), hash, false, false, httpsrc, timeLong, scrollY));
+				itemList.add(item);
+				item = new MenuItem("(WIP)あぼ～ん 全部");
+				item.setOnAction(new AddAboneImageAction(tab, url, getAll(url), hash, false, false, httpsrc, timeLong, scrollY));
+				itemList.add(item);
+			} catch (IndexOutOfBoundsException e) {
+			}
 		}
 		ContextMenu menu = new ContextMenu(itemList.toArray(new MenuItem[itemList.size()]));
 		menu.setAutoHide(true);
@@ -604,18 +640,16 @@ public class ThreadViewRightClickEventListener implements EventListener {
 		protected Tab tab;
 		protected String url;
 		protected File file;
-		protected String word;
 		protected boolean white;
 		protected boolean invisible;
 		protected String label;
 		protected long createDate;
 		protected int scrollY;
 
-		protected AddAboneAction(Tab tab, String url, File file, String word, boolean white, boolean invisible, String label, long createDate, int scrollY) {
+		protected AddAboneAction(Tab tab, String url, File file, boolean white, boolean invisible, String label, long createDate, int scrollY) {
 			this.tab = tab;
 			this.url = url;
 			this.file = file;
-			this.word = word;
 			this.white = white;
 			this.invisible = invisible;
 			this.label = label;
@@ -648,9 +682,11 @@ public class ThreadViewRightClickEventListener implements EventListener {
 	}
 
 	private static class AddAboneNameAction extends AddAboneAction {
+		private String word;
 
 		private AddAboneNameAction(Tab tab, String url, File file, String word, boolean white, boolean invisible, String label, long createDate, int scrollY) {
-			super(tab, url, file, word, white, invisible, label, createDate, scrollY);
+			super(tab, url, file, white, invisible, label, createDate, scrollY);
+			this.word = word;
 		}
 
 		@Override
@@ -685,9 +721,11 @@ public class ThreadViewRightClickEventListener implements EventListener {
 	}
 
 	private static class AddAboneWacchoiAction extends AddAboneAction {
+		private String word;
 
 		private AddAboneWacchoiAction(Tab tab, String url, File file, String word, boolean white, boolean invisible, String label, long createDate, int scrollY) {
-			super(tab, url, file, word, white, invisible, label, createDate, scrollY);
+			super(tab, url, file, white, invisible, label, createDate, scrollY);
+			this.word = word;
 		}
 
 		@Override
@@ -722,9 +760,11 @@ public class ThreadViewRightClickEventListener implements EventListener {
 	}
 
 	private static class AddAboneIDAction extends AddAboneAction {
+		private String word;
 
 		private AddAboneIDAction(Tab tab, String url, File file, String word, boolean white, boolean invisible, String label, long createDate, int scrollY) {
-			super(tab, url, file, word, white, invisible, label, createDate, scrollY);
+			super(tab, url, file, white, invisible, label, createDate, scrollY);
+			this.word = word;
 		}
 
 		@Override
@@ -759,9 +799,11 @@ public class ThreadViewRightClickEventListener implements EventListener {
 	}
 
 	private static class AddAboneIPAction extends AddAboneAction {
+		private String word;
 
 		private AddAboneIPAction(Tab tab, String url, File file, String word, boolean white, boolean invisible, String label, long createDate, int scrollY) {
-			super(tab, url, file, word, white, invisible, label, createDate, scrollY);
+			super(tab, url, file, white, invisible, label, createDate, scrollY);
+			this.word = word;
 		}
 
 		@Override
@@ -796,9 +838,11 @@ public class ThreadViewRightClickEventListener implements EventListener {
 	}
 
 	private static class AddAboneBodyAction extends AddAboneAction {
+		private String word;
 
 		private AddAboneBodyAction(Tab tab, String url, File file, String word, boolean white, boolean invisible, String label, long createDate, int scrollY) {
-			super(tab, url, file, word, white, invisible, label, createDate, scrollY);
+			super(tab, url, file, white, invisible, label, createDate, scrollY);
+			this.word = word;
 		}
 
 		@Override
@@ -828,6 +872,44 @@ public class ThreadViewRightClickEventListener implements EventListener {
 			body.setCreateDate(createDate);
 			body.setDurationDay(0);
 			bodyList.add(body);
+			writeFile(ngFileDto);
+		}
+	}
+
+	private static class AddAboneImageAction extends AddAboneAction {
+		private String hash;
+
+		private AddAboneImageAction(Tab tab, String url, File file, String hash, boolean white, boolean invisible, String label, long createDate, int scrollY) {
+			super(tab, url, file, white, invisible, label, createDate, scrollY);
+			this.hash = hash;
+		}
+
+		@Override
+		public void handle(ActionEvent event) {
+			addAboneImage();
+			ThreadViewProcessor.open(tab, url, false, scrollY);
+		}
+
+		private void addAboneImage() {
+			NGFileDto ngFileDto = readFile();
+			if (ngFileDto == null) {
+				return;
+			}
+			List<AboneImageDto> imageList = ngFileDto.getImage();
+			if (imageList == null) {
+				imageList = new ArrayList<>();
+				ngFileDto.setImage(imageList);
+			}
+			AboneImageDto image = new AboneImageDto();
+			image.setHash(hash);
+			image.setWhite(white);
+			image.setInvisible(invisible);
+			image.setLabel(label);
+			image.setChainIdentifier(ChainIdentifier.ID);
+			image.setReferenceChain(1);
+			image.setCreateDate(createDate);
+			image.setDurationDay(0);
+			imageList.add(image);
 			writeFile(ngFileDto);
 		}
 	}

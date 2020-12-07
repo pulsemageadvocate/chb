@@ -9,6 +9,7 @@ public class NGFileDto implements Serializable {
 	List<AboneIPDto> ip;
 	List<AboneIDDto> id;
 	List<AboneBodyDto> body;
+	List<AboneImageDto> image;
 	public List<AboneNameDto> getName() {
 		return name;
 	}
@@ -38,5 +39,11 @@ public class NGFileDto implements Serializable {
 	}
 	public void setBody(List<AboneBodyDto> body) {
 		this.body = body;
+	}
+	public List<AboneImageDto> getImage() {
+		return image;
+	}
+	public void setImage(List<AboneImageDto> image) {
+		this.image = image;
 	}
 }
