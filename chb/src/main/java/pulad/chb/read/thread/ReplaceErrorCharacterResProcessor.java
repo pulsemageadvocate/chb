@@ -16,7 +16,7 @@ public class ReplaceErrorCharacterResProcessor implements ResProcessor {
 	// 絵文字結合
 	// &lrm;
 	// &rlm;
-	private final Pattern reg = Pattern.compile("&(?=(#820[4-7]|#x200[c-f]|zwnj|zwj|lrm|rlm);)", Pattern.CASE_INSENSITIVE);
+	private final Pattern reg = Pattern.compile("&(#820[4-7]|#x200[c-f]|zwnj|zwj|lrm|rlm);", Pattern.CASE_INSENSITIVE);
 
 	@Override
 	public void process(String url, TreeMap<Integer, ResDto> res, long now) {
@@ -26,7 +26,7 @@ public class ReplaceErrorCharacterResProcessor implements ResProcessor {
 
 			Matcher matcher = reg.matcher(body);
 			while (matcher.find()) {
-				matcher.appendReplacement(sb, "&amp;");
+				matcher.appendReplacement(sb, "");
 			}
 			matcher.appendTail(sb);
 			dto.setBody(sb.toString());
