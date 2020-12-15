@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 
 import org.thymeleaf.util.StringUtils;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
@@ -42,6 +41,7 @@ import pulad.chb.dto.NGFileDto;
 import pulad.chb.interfaces.BBS;
 import pulad.chb.read.thread.LinkHistManager;
 import pulad.chb.read.thread.LocalURLStreamHandler;
+import pulad.chb.util.DomUtil;
 
 public class ThreadViewRightClickEventListener implements EventListener {
 	//private static final Pattern regWacchoiLower = Pattern.compile("-[^ -]{4}");
@@ -120,25 +120,14 @@ public class ThreadViewRightClickEventListener implements EventListener {
 		}
 
 		// timeLong検索
-		long timeLong = 0L;
-		Node n = target.getParentNode();
-		while (n != null) {
-			NamedNodeMap attributes = n.getAttributes();
-			if (attributes != null) {
-				Node timeLongAttribute = attributes.getNamedItem("data-timeLong");
-				if (timeLongAttribute != null) {
-					timeLong = Long.parseLong(timeLongAttribute.getNodeValue());
-					break;
-				}
-			}
-			n = n.getParentNode();
-		}
+		long timeLong = Long.parseLong(DomUtil.searchAttribute(target.getParentNode(), "data-timeLong"));
 		int scrollY = (int) threadView.getEngine().executeScript("document.body.scrollTop");
 
 		HTMLImageElement img = (HTMLImageElement) target;
 		String src = img.getSrc();
 		String httpsrc = LocalURLStreamHandler.getSourceUrl(src);
 		String imageFileName = LinkHistManager.getCacheFileName(httpsrc);
+		String httpdatasrc = LocalURLStreamHandler.getSourceUrl(DomUtil.getAttribute(img, "data-src"));
 		List<MenuItem> itemList = new ArrayList<MenuItem>();
 		if (imageFileName == null || imageFileName.startsWith("classpath:")) {
 			// notfound.gif等
@@ -150,9 +139,15 @@ public class ThreadViewRightClickEventListener implements EventListener {
 				img.setSrc(src);
 			});
 			itemList.add(item);
+			item = new MenuItem("URLをコピー");
+			item.setOnAction(new CopyAction(httpdatasrc));
+			itemList.add(item);
 		} else {
 			MenuItem item = new MenuItem("ファイル名をコピー");
 			item.setOnAction(new CopyAction(imageFileName));
+			itemList.add(item);
+			item = new MenuItem("URLをコピー");
+			item.setOnAction(new CopyAction(httpdatasrc));
 			itemList.add(item);
 			try {
 				String hash = Paths.get(imageFileName).getFileName().toString();
@@ -182,37 +177,13 @@ public class ThreadViewRightClickEventListener implements EventListener {
 	private boolean handleAboneable(MouseEvent event) {
 		Node target = (Node) event.getTarget();
 		// aboneable検索
-		String aboneable = null;
-		Node aboneableNode = target;
-		while (aboneableNode != null) {
-			NamedNodeMap attributes = aboneableNode.getAttributes();
-			if (attributes != null) {
-				Node aboneableAttribute = attributes.getNamedItem("aboneable");
-				if (aboneableAttribute != null) {
-					aboneable = aboneableAttribute.getNodeValue();
-					break;
-				}
-			}
-			aboneableNode = aboneableNode.getParentNode();
-		}
+		String aboneable = DomUtil.searchAttribute(target, "aboneable");
 		if (aboneable == null) {
 			return false;
 		}
 
 		// timeLong検索
-		long timeLong = 0L;
-		Node n = target.getParentNode();
-		while (n != null) {
-			NamedNodeMap attributes = n.getAttributes();
-			if (attributes != null) {
-				Node timeLongAttribute = attributes.getNamedItem("data-timeLong");
-				if (timeLongAttribute != null) {
-					timeLong = Long.parseLong(timeLongAttribute.getNodeValue());
-					break;
-				}
-			}
-			n = n.getParentNode();
-		}
+		long timeLong = Long.parseLong(DomUtil.searchAttribute(target.getParentNode(), "data-timeLong"));
 		int scrollY = (int) threadView.getEngine().executeScript("document.body.scrollTop");
 		String word = target.getTextContent().trim();
 		switch (aboneable.toLowerCase()) {
@@ -480,18 +451,7 @@ public class ThreadViewRightClickEventListener implements EventListener {
 		// timeLong検索
 		long timeLong = 0L;
 		if (selectNode != null) {
-			Node resDiv = selectNode;
-			while (resDiv != null) {
-				NamedNodeMap resAttributes = resDiv.getAttributes();
-				if (resAttributes != null) {
-					Node timeLongNode = resAttributes.getNamedItem("data-timeLong");
-					if (timeLongNode != null) {
-						timeLong = Long.parseLong(timeLongNode.getNodeValue());
-						break;
-					}
-				}
-				resDiv = resDiv.getParentNode();
-			}
+			timeLong = Long.parseLong(DomUtil.searchAttribute(selectNode, "data-timeLong"));
 		}
 		if (StringUtils.isEmpty(selection)) {
 			List<MenuItem> itemList = new ArrayList<MenuItem>();

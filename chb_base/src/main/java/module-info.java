@@ -1,5 +1,6 @@
 module pulad.chb.base {
 	requires transitive slf4j.api;
+	requires transitive java.xml;
 	requires transitive javafx.graphics;
 	requires com.fasterxml.jackson.databind;
 	requires thymeleaf;

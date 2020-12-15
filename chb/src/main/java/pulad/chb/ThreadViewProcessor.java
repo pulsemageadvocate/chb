@@ -10,7 +10,6 @@ import java.util.function.Consumer;
 import org.thymeleaf.util.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.events.Event;
@@ -50,6 +49,7 @@ import pulad.chb.interfaces.BBS;
 import pulad.chb.read.thread.LinkHistManager;
 import pulad.chb.read.thread.LocalURLStreamHandler;
 import pulad.chb.read.thread.ThreadLoadTask;
+import pulad.chb.util.DomUtil;
 
 /**
  * スレッドを開く処理。
@@ -287,52 +287,6 @@ public class ThreadViewProcessor {
 		
 	}
 
-//	private static class MouseOverEventListener implements EventListener {
-//		private WebEngine engine;
-//		private String url;
-//		private EventListener clickEventListener;
-//		private EventListener rightClickEventListener;
-//
-//		public MouseOverEventListener(WebEngine engine, String url,
-//				EventListener clickEventListener,
-//				EventListener rightClickEventListener) {
-//			this.engine = engine;
-//			this.url = url;
-//			this.clickEventListener = clickEventListener;
-//			this.rightClickEventListener = rightClickEventListener;
-//		}
-//
-//		@Override
-//		public void handleEvent(Event evt) {
-//			if (!(evt instanceof MouseEvent)) {
-//				return;
-//			}
-//			MouseEvent event = (MouseEvent) evt;
-//			if (!(event.getTarget() instanceof Node)) {
-//				return;
-//			}
-//			Node target = (Node) event.getTarget();
-//			String nodeName = target.getNodeName();
-//			// <a href="#xxx">
-//			if ("a".equalsIgnoreCase(nodeName)) {
-//				NamedNodeMap attributes = target.getAttributes();
-//				if (attributes == null) {
-//					return;
-//				}
-//				// レス一覧リンク
-//				Node chainNode = attributes.getNamedItem("chain");
-//				if (chainNode != null) {
-//					String chain = chainNode.getNodeValue();
-//					if (chain == null) {
-//						return;
-//					}
-//					App.getInstance().openPopupThread(url, chain, this, clickEventListener, rightClickEventListener);
-//					return;
-//				}
-//			}
-//		}
-//	}
-
 	private static class ClickEventListener implements EventListener {
 		private String url;
 		private ThreadViewRightClickEventListener rightClickEventListener;
@@ -377,45 +331,14 @@ public class ThreadViewProcessor {
 			String nodeName = target.getNodeName();
 			// <a href="#xxx">
 			if ("a".equalsIgnoreCase(nodeName)) {
-				NamedNodeMap attributes = target.getAttributes();
-				if (attributes == null) {
+				String chain = DomUtil.getAttribute(target, "chain");
+				if (chain == null) {
 					return true;
 				}
-				// レスアンカー
-//				Node hrefNode = attributes.getNamedItem("href");
-//				if (hrefNode != null) {
-//					String href = hrefNode.getNodeValue();
-//					if (href == null) {
-//						return;
-//					}
-//					if (href.startsWith("#")) {
-//						try {
-//							engine.executeScript("document.getElementsByName(\"" + href.substring(1) + "\")[0].scrollIntoView(true)");
-//						} catch (Exception e) {
-//						}
-//					}
-//					return;
-//				}
-				// レス一覧リンク
-				Node chainNode = attributes.getNamedItem("chain");
-				if (chainNode != null) {
-					String chain = chainNode.getNodeValue();
-					if (chain == null) {
-						return true;
-					}
-					App.getInstance().openPopupThread(url, chain, this, rightClickEventListener);
-					return true;
-				}
+				App.getInstance().openPopupThread(url, chain, this, rightClickEventListener);
+				return true;
 			} else if ("img".equalsIgnoreCase(nodeName)) {
-				NamedNodeMap attributes = target.getAttributes();
-				if (attributes == null) {
-					return true;
-				}
-				Node srcNode = attributes.getNamedItem("data-src");
-				if (srcNode == null) {
-					return true;
-				}
-				String src = srcNode.getNodeValue();
+				String src = DomUtil.getAttribute(target, "data-src");
 				if (src == null) {
 					return true;
 				}
