@@ -25,6 +25,14 @@ import pulad.chb.util.NumberUtil;
  *
  */
 public class Threadst {
+	/**
+	 * スレッド終了？
+	 */
+	public static final int STATE_END = 1;
+	/**
+	 * 過去ログ化？
+	 */
+	public static final int STATE_OLD = 8;
 
 	private Threadst() {}
 

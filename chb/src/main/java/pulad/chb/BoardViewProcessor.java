@@ -28,6 +28,7 @@ import pulad.chb.config.Config;
 import pulad.chb.dto.BoardDto;
 import pulad.chb.dto.BoardLoadTaskResponseDto;
 import pulad.chb.dto.ThreadDto;
+import pulad.chb.file.Threadst;
 import pulad.chb.interfaces.BBS;
 import pulad.chb.read.board.BoardLoadTask;
 
@@ -95,33 +96,50 @@ public class BoardViewProcessor extends AbstractBoardViewProcessor {
 						Clipboard.getSystemClipboard().setContent(content);
 					});
 					itemList.add(item);
-					item = new MenuItem("ログを削除");
-					item.setOnAction(x -> {
-						String boardUrl = dto.getBoardUrl();
-						BBS bbsObject = BBSManager.getBBSFromUrl(boardUrl);
-						String bbs = bbsObject.getLogDirectoryName();
-						String board = bbsObject.getBoardFromBoardUrl(boardUrl);
-						String datName = dto.getDatName();
-						Path boardPath = Config.getLogFolder().resolve(bbs).resolve(board);
-						try {
-							Files.deleteIfExists(boardPath.resolve(datName));
-						} catch (IOException e) {
-						}
-						try {
-							Files.deleteIfExists(boardPath.resolve(datName + ".chb.txt"));
-						} catch (IOException e) {
-						}
 
-						BoardDto boardDto = BoardManager.get(boardUrl);
-						ConcurrentHashMap<String, ThreadDto> logThread = boardDto.getLogThread();
-						if (logThread.remove(datName) != null) {
+					if (dto.getLogCount() > 0) {
+						item = new MenuItem("ログを削除");
+						item.setOnAction(x -> {
+							String boardUrl = dto.getBoardUrl();
+							BBS bbsObject = BBSManager.getBBSFromUrl(boardUrl);
+							String bbs = bbsObject.getLogDirectoryName();
+							String board = bbsObject.getBoardFromBoardUrl(boardUrl);
+							String datName = dto.getDatName();
+							Path boardPath = Config.getLogFolder().resolve(bbs).resolve(board);
+							try {
+								Files.deleteIfExists(boardPath.resolve(datName));
+							} catch (IOException e) {
+							}
+							try {
+								Files.deleteIfExists(boardPath.resolve(datName + ".chb.txt"));
+							} catch (IOException e) {
+							}
+	
+							BoardDto boardDto = BoardManager.get(boardUrl);
+							ConcurrentHashMap<String, ThreadDto> logThread = boardDto.getLogThread();
+							if (logThread.remove(datName) != null) {
+								BoardManager.updateThreadst(boardDto);
+							}
+	
+							dto.setLogCount(0);
+							tableView.refresh();
+						});
+						itemList.add(item);
+						item = new MenuItem(((dto.getState() & Threadst.STATE_OLD) == Threadst.STATE_OLD) ? "過去ログ化解除" : "過去ログ化");
+						item.setOnAction(x -> {
+							dto.setState(dto.getState() ^ Threadst.STATE_OLD);
+	
+							BoardDto boardDto = BoardManager.get(dto.getBoardUrl());
+							ConcurrentHashMap<String, ThreadDto> logThread = boardDto.getLogThread();
+							ThreadDto logThreadDto = logThread.get(dto.getDatName());
+							logThreadDto.setState(dto.getState());
 							BoardManager.updateThreadst(boardDto);
-						}
+	
+							tableView.refresh();
+						});
+						itemList.add(item);
+					}
 
-						dto.setLogCount(0);
-						tableView.refresh();
-					});
-					itemList.add(item);
 					ContextMenu menu = new ContextMenu(itemList.toArray(new MenuItem[itemList.size()]));
 					menu.setAutoHide(true);
 					menu.show(tableView.getScene().getWindow(), event.getScreenX(), event.getScreenY());
