@@ -102,6 +102,7 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 				dto.setBoardUrl(urlStr);
 				dto.setDatName(log.getDatName());
 				dto.setNumber(number++);
+				dto.setState(log.getState());
 				dto.setResCount(log.getResCount());
 				dto.setBuildTime(log.getBuildTime());
 				dto.setTitle(log.getTitle());
@@ -141,6 +142,7 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 
 						ThreadDto log = logThread.get(dat);
 						if (log != null) {
+							dto.setState(log.getState());
 							dto.setLogCount(log.getLogCount());
 							log.setResCount(dto.getResCount());
 							dto.settLast(log.gettLast());

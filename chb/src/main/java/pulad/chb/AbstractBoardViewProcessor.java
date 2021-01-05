@@ -84,7 +84,7 @@ public abstract class AbstractBoardViewProcessor {
 				ThreadDto dto = p.getValue();
 				int res = dto.getResCount();
 				int log = dto.getLogCount();
-				return new ReadOnlyObjectWrapper<Integer>((log == 0 || (dto.getState() & Threadst.STATE_OLD) == Threadst.STATE_OLD) ? null : Integer.valueOf(res - log));
+				return new ReadOnlyObjectWrapper<Integer>((log == 0 || ((dto.getState() & Threadst.STATE_OLD) == Threadst.STATE_OLD)) ? null : Integer.valueOf(res - log));
 			}
 		});
 		newCountColumn.setComparator(new ResCountComparator());
