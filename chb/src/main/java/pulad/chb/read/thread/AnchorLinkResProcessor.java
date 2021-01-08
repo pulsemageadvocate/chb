@@ -29,7 +29,7 @@ public class AnchorLinkResProcessor implements ResProcessor {
 
 	@Override
 	public void process(String url, TreeMap<Integer, ResDto> res, long now) {
-		res.values().parallelStream().forEach(dto -> {
+		res.values().forEach(dto -> {
 			Matcher matcherBody = regBody.matcher(dto.getBody());
 			StringBuilder sb = new StringBuilder();
 			while (matcherBody.find()) {
@@ -70,6 +70,8 @@ public class AnchorLinkResProcessor implements ResProcessor {
 						continue;
 					}
 
+					// parallelStream不可
+					// ConcurrentSkipListSetとか使ってもいいけれど
 					Set<Integer> referredSet = referDto.getReferredSet();
 					if (referredSet == null) {
 						referredSet = new TreeSet<Integer>();
