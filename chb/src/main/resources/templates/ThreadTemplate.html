@@ -28,6 +28,9 @@
 .abone {
 	background-color: #C0C0C0;
 }
+.invisible {
+	display: none;
+}
 .resmsg {
 	padding: 1px 10px 17px 30px;
 }
@@ -79,7 +82,7 @@ a {
 		</DIV>
 	</DIV>
 <th:block th:each="res, iter : ${resMap.values()}" th:with="number=(${res.number} lt 1) ? ${iter.count} : ${res.number}" class="res">
-	<DIV th:if="${filtered} or ${res.abone} == ${ABONE_LEVEL_WHITE} or ${res.abone} == ${ABONE_LEVEL_NONE}" th:data-timeLong="${res.timeLong}">
+	<DIV class="resabonetarget" th:if="${filtered} or ${res.abone} == ${ABONE_LEVEL_WHITE} or ${res.abone} == ${ABONE_LEVEL_NONE}" th:data-timeLong="${res.timeLong}">
 		<DIV class="resdiv0">
 			<SPAN class="sa7">│<a th:name="'R' + ${number}" th:text="${number}" th:chain="${#sets.isEmpty(res.referredSet)} ? '' : ${res.referredLink}">1</a><!--
 				--><th:block th:unless="${#sets.isEmpty(res.referredSet)}">+<span th:text="${#sets.size(res.referredSet)}">3</span></th:block>

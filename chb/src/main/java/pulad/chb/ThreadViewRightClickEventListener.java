@@ -124,17 +124,16 @@ public class ThreadViewRightClickEventListener implements EventListener {
 		int scrollY = (int) threadView.getEngine().executeScript("document.body.scrollTop");
 
 		HTMLImageElement img = (HTMLImageElement) target;
-		String src = img.getSrc();
-		String httpsrc = LocalURLStreamHandler.getSourceUrl(src);
-		String imageFileName = LinkHistManager.getCacheFileName(httpsrc);
 		String httpdatasrc = LocalURLStreamHandler.getSourceUrl(DomUtil.getAttribute(img, "data-src"));
+		String imageFileName = LinkHistManager.getCacheFileName(httpdatasrc);
 		List<MenuItem> itemList = new ArrayList<MenuItem>();
-		if (imageFileName == null || imageFileName.startsWith("classpath:")) {
+		if (imageFileName == null || imageFileName.startsWith("classpath:notfound.gif")) {
 			// notfound.gif等
 			MenuItem item = new MenuItem("再読み込み");
 			item.setOnAction(e -> {
+				String src = img.getSrc();
 				// 動いているかよくわからない
-				LinkHistManager.delete(httpsrc);
+				LinkHistManager.delete(httpdatasrc);
 				img.setSrc("");
 				img.setSrc(src);
 			});
@@ -154,16 +153,41 @@ public class ThreadViewRightClickEventListener implements EventListener {
 				hash = hash.substring(0, hash.indexOf(".")); // -1の場合は例外
 				itemList.add(new SeparatorMenuItem());
 				item = new MenuItem("あぼ～ん スレッド");
-				item.setOnAction(new AddAboneImageAction(tab, url, getThread(url), hash, false, false, httpsrc, timeLong, scrollY));
+				item.setOnAction(new AddAboneImageAction(tab, url, getThread(url), hash, false, false, httpdatasrc, timeLong, scrollY));
 				itemList.add(item);
 				item = new MenuItem("あぼ～ん 板");
-				item.setOnAction(new AddAboneImageAction(tab, url, getBoard(url), hash, false, false, httpsrc, timeLong, scrollY));
+				item.setOnAction(new AddAboneImageAction(tab, url, getBoard(url), hash, false, false, httpdatasrc, timeLong, scrollY));
 				itemList.add(item);
 				item = new MenuItem("あぼ～ん BBS");
-				item.setOnAction(new AddAboneImageAction(tab, url, getBBS(url), hash, false, false, httpsrc, timeLong, scrollY));
+				item.setOnAction(new AddAboneImageAction(tab, url, getBBS(url), hash, false, false, httpdatasrc, timeLong, scrollY));
 				itemList.add(item);
 				item = new MenuItem("あぼ～ん 全部");
-				item.setOnAction(new AddAboneImageAction(tab, url, getAll(url), hash, false, false, httpsrc, timeLong, scrollY));
+				item.setOnAction(new AddAboneImageAction(tab, url, getAll(url), hash, false, false, httpdatasrc, timeLong, scrollY));
+				itemList.add(item);
+				item = new MenuItem("透明あぼ～ん スレッド");
+				item.setOnAction(new AddAboneImageAction(tab, url, getThread(url), hash, false, true, httpdatasrc, timeLong, scrollY));
+				itemList.add(item);
+				item = new MenuItem("透明あぼ～ん 板");
+				item.setOnAction(new AddAboneImageAction(tab, url, getBoard(url), hash, false, true, httpdatasrc, timeLong, scrollY));
+				itemList.add(item);
+				item = new MenuItem("透明あぼ～ん BBS");
+				item.setOnAction(new AddAboneImageAction(tab, url, getBBS(url), hash, false, true, httpdatasrc, timeLong, scrollY));
+				itemList.add(item);
+				item = new MenuItem("透明あぼ～ん 全部");
+				item.setOnAction(new AddAboneImageAction(tab, url, getAll(url), hash, false, true, httpdatasrc, timeLong, scrollY));
+				itemList.add(item);
+				itemList.add(new SeparatorMenuItem());
+				item = new MenuItem("ホワイトリスト スレッド");
+				item.setOnAction(new AddAboneImageAction(tab, url, getThread(url), hash, true, false, httpdatasrc, timeLong, scrollY));
+				itemList.add(item);
+				item = new MenuItem("ホワイトリスト 板");
+				item.setOnAction(new AddAboneImageAction(tab, url, getBoard(url), hash, true, false, httpdatasrc, timeLong, scrollY));
+				itemList.add(item);
+				item = new MenuItem("ホワイトリスト BBS");
+				item.setOnAction(new AddAboneImageAction(tab, url, getBBS(url), hash, true, false, httpdatasrc, timeLong, scrollY));
+				itemList.add(item);
+				item = new MenuItem("ホワイトリスト 全部");
+				item.setOnAction(new AddAboneImageAction(tab, url, getAll(url), hash, true, false, httpdatasrc, timeLong, scrollY));
 				itemList.add(item);
 			} catch (IndexOutOfBoundsException e) {
 			}

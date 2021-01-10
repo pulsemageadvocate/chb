@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import org.thymeleaf.util.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.events.Event;
@@ -431,6 +432,38 @@ public class ThreadViewProcessor {
 								if (hash.equals(aboneDto.getHash())) {
 									img.setSrc("image:abone.png");
 									img.setTitle(aboneDto.getLabel());
+									if (aboneDto.isInvisible()) {
+										// :hasなんて無いのでDIVを探してinvisibleを付ける
+										Node n = img.getParentNode();
+										while (n != null) {
+											String c = DomUtil.getAttribute(n, "class");
+											if (c != null) {
+												String[] token = c.split(" ");
+												boolean matched = false;
+												for (String t : token) {
+													if (t.equals("resabonetarget")) {
+														matched = true;
+														break;
+													}
+												}
+												if (matched) {
+													break;
+												}
+											}
+											n = n.getParentNode();
+										}
+										if (n != null) {
+											NamedNodeMap attributes = n.getAttributes();
+											if (attributes != null) {
+												String c = null;
+												Node attribute = attributes.getNamedItem("class");
+												if (attribute != null) {
+													c = attribute.getNodeValue();
+												}
+												attribute.setNodeValue(StringUtils.isEmptyOrWhitespace(c) ? "invisible" : (c + " invisible"));
+											}
+										}
+									}
 									// あぼ～んの場合は読み込み完了カウントしない
 									return;
 								}
