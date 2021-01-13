@@ -5,6 +5,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.thymeleaf.util.StringUtils;
 
@@ -133,13 +135,15 @@ public abstract class AbstractBoardViewProcessor {
 			if (StringUtils.isEmpty(text)) {
 				return;
 			}
+			final Pattern regSubject = Pattern.compile(Pattern.quote(text), Pattern.CASE_INSENSITIVE);
 			List<ThreadDto> items = tableView.getItems();
 			TableViewSelectionModel<ThreadDto> selection = tableView.getSelectionModel();
 			int selectedIndex = selection.getSelectedIndex();
 			// -1でもそのままでよい
 			for (int i = selectedIndex + 1; i < items.size(); i++) {
 				ThreadDto dto = items.get(i);
-				if (dto.getTitle().contains(text)) {
+				Matcher matcher = regSubject.matcher(dto.getTitle());
+				if (matcher.find()) {
 					selection.focus(i);
 					selection.clearAndSelect(i);
 					tableView.scrollTo(i);
@@ -148,7 +152,8 @@ public abstract class AbstractBoardViewProcessor {
 			}
 			for (int i = 0; i <= selectedIndex; i++) {
 				ThreadDto dto = items.get(i);
-				if (dto.getTitle().contains(text)) {
+				Matcher matcher = regSubject.matcher(dto.getTitle());
+				if (matcher.find()) {
 					selection.focus(i);
 					selection.clearAndSelect(i);
 					tableView.scrollTo(i);
