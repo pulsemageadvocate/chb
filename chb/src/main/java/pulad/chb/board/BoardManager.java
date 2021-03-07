@@ -65,6 +65,7 @@ public class BoardManager {
 				try {
 					DownloadProcessor.download(bbsObject.getSettingTxtUrl(url), settingFilePath, 1048576);
 				} catch (IOException e) {
+					App.logger.error("SETTING.TXTダウンロード失敗", e);
 				}
 			}
 
