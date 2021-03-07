@@ -1,6 +1,7 @@
 package pulad.chb.read.thread;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.TreeMap;
@@ -106,7 +107,8 @@ public class ThreadLoadTask extends Task<ThreadLoadTaskResponseDto> {
 
 			// 加工
 			logger.debug("ThreadLoadTask ThreadLoadProcessor.applyResProcessor start");
-			threadLoadProcessor.applyResProcessor(res, now);
+			ArrayList<String> errorDetails = new ArrayList<>();
+			threadLoadProcessor.applyResProcessor(res, now, errorDetails);
 			logger.debug("ThreadLoadTask ThreadLoadProcessor.applyResProcessor end");
 
 			if (this.isCancelled()) {
@@ -132,6 +134,7 @@ public class ThreadLoadTask extends Task<ThreadLoadTaskResponseDto> {
 			context.setVariable("newResCount", NumberUtil.integerCache(remote ? newResCount : -1));
 			context.setVariable("filtered", Boolean.valueOf(filtered));
 			context.setVariable("errorMessage", threadLoadTaskResponseDto.getErrorMessage());
+			context.setVariable("errorDetails", errorDetails);
 			// enum定数 SpELでないからT()が使えない
 			context.setVariable("ABONE_LEVEL_WHITE", AboneLevel.WHITE);
 			context.setVariable("ABONE_LEVEL_NONE", AboneLevel.NONE);

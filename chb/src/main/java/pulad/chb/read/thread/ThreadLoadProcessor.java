@@ -103,6 +103,14 @@ public class ThreadLoadProcessor {
 		threadLoader.readDat(setting, res, new BufferedReader(new StringReader(source)));
 	}
 
+	/**
+	 * HTTP要求を実行し、ファイルに書き込む。
+	 * @param setting
+	 * @param res
+	 * @param now
+	 * @return
+	 * @throws IOException
+	 */
 	public ThreadResponseDto request(ConcurrentHashMap<String, String> setting, TreeMap<Integer, ResDto> res, long now) throws IOException {
 		ThreadResponseDto threadResponseDto = threadLoader.request(res, now);
 		if (threadResponseDto.getData() != null) {
@@ -181,9 +189,20 @@ public class ThreadLoadProcessor {
 		BoardManager.updateThreadst(boardDto);
 	}
 
-	public void applyResProcessor(TreeMap<Integer, ResDto> res, long now) {
+	/**
+	 * レスを加工する。
+	 * @param res
+	 * @param now
+	 * @param errorDetails
+	 */
+	public void applyResProcessor(TreeMap<Integer, ResDto> res, long now, List<String> errorDetails) {
 		for (ResProcessor processor : resProcessors) {
-			processor.process(urlStr, res, now);
+			try {
+				processor.process(urlStr, res, now);
+			} catch (Exception e) {
+				// ログファイルだけではなくページにも表示する
+				errorDetails.add(e.toString());
+			}
 		}
 	}
 

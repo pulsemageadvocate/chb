@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -200,7 +201,8 @@ public class SearchResultViewProcessor extends AbstractBoardViewProcessor {
 				threadLoadProcessor.readDat(setting, res);
 
 				// 加工
-				threadLoadProcessor.applyResProcessor(res, now);
+				ArrayList<String> errorDetails = new ArrayList<>();
+				threadLoadProcessor.applyResProcessor(res, now, errorDetails);
 
 				// 検索条件
 				TreeMap<Integer, ResDto> filtered = res.entrySet().stream()

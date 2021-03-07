@@ -208,6 +208,13 @@ a {
 			404 Not Found
 		</DIV>
 	</DIV>
+	<DIV th:if="(${number} == ${lastResCount}) and (! ${#lists.isEmpty(errorDetails)})">
+		<DIV class="resdiv0">
+			<th:block th:each="errorDetailLine, iter : ${errorDetails}">
+				<span th:text="${errorDetailLine}" /><br />
+			</th:block>
+		</DIV>
+	</DIV>
 </th:block>
 </body>
 </html>

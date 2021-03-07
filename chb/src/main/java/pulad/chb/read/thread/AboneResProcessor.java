@@ -318,6 +318,7 @@ public class AboneResProcessor implements ResProcessor {
 			}
 		} catch (IOException e) {
 			App.logger.error("readAboneFile失敗", e);
+			throw new RuntimeException("readAboneFile失敗", e);
 		}
 	}
 
