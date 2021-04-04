@@ -166,7 +166,6 @@ public class App extends Application {
 
 		ToggleButton offlineButton = new ToggleButton();
 		offlineButton.setText("Offline");
-		//offlineButton.setStyle("-fx-focus-color: transparent; -fx-faint-focus-color: transparent; -jfx-toggle-color: yellow;");
 		offlineButton.getStyleClass().add("toggle");
 		offlineButton.setOnAction(event -> {
 			offline = !offline;
@@ -194,11 +193,9 @@ public class App extends Application {
 		HBox buttonBox = new HBox(offlineButton, emojiButton, pastButton, searchButton);
 
 		urlField = new TextField();
-		urlField.setMaxWidth(Double.MAX_VALUE);
+		urlField.getStyleClass().add("urlField");
 		searchField = new TextField();
-		searchField.setPrefWidth(200d);
-		searchField.setMinWidth(200d);
-		searchField.setMaxWidth(200d);
+		searchField.getStyleClass().add("searchField");
 		BorderPane toolbar = new BorderPane();
 		toolbar.setLeft(buttonBox);
 		toolbar.setCenter(urlField);
@@ -231,7 +228,8 @@ public class App extends Application {
 		VBox bottomPane = new VBox(statusBar);
 
 		favoriteTreeTabPane = new TabPane();
-		favoriteTreeTabPane.setPrefWidth(400d);
+		favoriteTreeTabPane.getStyleClass().add("favoriteTreeTabPane");
+
 		favoriteTab = new Tab("お気に入り");
 		reloadFavorite();
 		favoriteTreeTabPane.getTabs().add(favoriteTab);

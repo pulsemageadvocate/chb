@@ -2,6 +2,17 @@
 	-fx-font-family: "メイリオ", "ＭＳ Ｐゴシック", "MS PGothic", "游ゴシック", sans-serif;
 	-fx-font-size: 16px;
 }
+.urlField {
+	-fx-max-width: 2147483647px;
+}
+.searchField {
+	-fx-pref-width: 12em;
+	-fx-min-width: 12em;
+	-fx-max-width: 12em;
+}
+.favoriteTreeTabPane {
+	-fx-pref-width: 24em;
+}
 
 .toggle:selected {
 	-fx-background-color: yellow;
