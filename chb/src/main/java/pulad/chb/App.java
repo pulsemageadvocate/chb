@@ -545,9 +545,13 @@ public class App extends Application {
 		}
 
 		for (Popup p : popupList) {
-			p.hide();
-			Event.fireEvent(p, new WindowEvent(p, WindowEvent.WINDOW_HIDDEN));
-			//Event.fireEvent(p, new Event(p, p, Event.ANY));
+			try {
+				p.hide();
+				Event.fireEvent(p, new WindowEvent(p, WindowEvent.WINDOW_HIDDEN));
+				//Event.fireEvent(p, new Event(p, p, Event.ANY));
+			} catch (Exception e) {
+				logger.error("closePopupThreads失敗", e);
+			}
 		}
 	}
 
@@ -575,7 +579,11 @@ public class App extends Application {
 		}
 
 		for (Popup p : popupList) {
-			p.hide();
+			try {
+				p.hide();
+			} catch (Exception e) {
+				logger.error("closeImages失敗", e);
+			}
 		}
 	}
 
