@@ -57,7 +57,8 @@ public class ImageViewProcessor {
 		imageView.setOnMouseDragOver(dragOverEventHandler);
 		imageView.setOnDragDetected(new DragDetectedEventHandler(popup, imageView, dragOverEventHandler));
 		imageView.setOnScroll(new MouseScrollEventHandler(imageView));
-		popup.setAutoFix(true);
+		// 端で止まらないようにする
+		popup.setAutoFix(false);
 		popup.setAutoHide(true);
 
 		popup.show(owner);
