@@ -17,6 +17,7 @@ import javafx.concurrent.Task;
 import pulad.chb.App;
 import pulad.chb.bbs.BBSManager;
 import pulad.chb.board.BoardManager;
+import pulad.chb.config.Config;
 import pulad.chb.constant.AboneLevel;
 import pulad.chb.dto.BoardDto;
 import pulad.chb.dto.ResDto;
@@ -127,6 +128,7 @@ public class ThreadLoadTask extends Task<ThreadLoadTaskResponseDto> {
 
 			// html生成
 			org.thymeleaf.context.Context context = new org.thymeleaf.context.Context(Locale.JAPANESE);
+			context.setVariable("fontSize", Config.threadFontSize + "px");
 			// 件名を入れる
 			context.setVariable("title", res.isEmpty() ? "不明" : res.firstEntry().getValue().getTitle().trim() + (remote ? ("(" + newResCount + ")") : ""));
 			context.setVariable("resMap", res);

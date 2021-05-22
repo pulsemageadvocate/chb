@@ -3,7 +3,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<style>
+<style th:inline="css">
 .root {
 	padding: 1.0625em 1.25em 1.0625em 0.3125em;
 }
@@ -12,7 +12,7 @@
 }
 .root,.popuproot {
 	font-family: "ＭＳ Ｐゴシック","MS PGothic","RobotoJAA","IPA モナー Pゴシック","IPAMonaPGothic","OpenSymbol","Impact",sans-serif;
-	font-size: 16px;
+	font-size: /*[(${fontSize})]*/ 16px;
 	line-height: 1.25em;
 	letter-spacing: 0;
 	background-image: url("20051018020842.gif");

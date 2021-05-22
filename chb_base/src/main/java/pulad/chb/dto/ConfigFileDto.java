@@ -9,6 +9,7 @@ public class ConfigFileDto implements Serializable {
 	private Integer width;
 	private Integer height;
 	private String editor;
+	private Integer threadFontSize;
 	public Boolean getMaximized() {
 		return maximized;
 	}
@@ -44,5 +45,11 @@ public class ConfigFileDto implements Serializable {
 	}
 	public void setEditor(String editor) {
 		this.editor = editor;
+	}
+	public Integer getThreadFontSize() {
+		return threadFontSize;
+	}
+	public void setThreadFontSize(Integer threadFontSize) {
+		this.threadFontSize = threadFontSize;
 	}
 }

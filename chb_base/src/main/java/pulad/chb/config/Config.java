@@ -34,6 +34,7 @@ public class Config {
 	private static ObjectMapper mapper;
 	public static String ua = "chb/0.0.1-SNAPSHOT";
 	public static String editorCommand = "C:\\Programs\\sakura\\sakura.exe $LINK";
+	public static int threadFontSize;
 	public static String styleCss;
 
 	public static void init(String baseDir, Class<?> resourceClass) {
@@ -115,6 +116,10 @@ public class Config {
 		if (editorCommand == null) {
 			editorCommand = "C:\\Programs\\sakura\\sakura.exe $LINK";
 		}
+		if (configFileDto.getThreadFontSize() == null) {
+			configFileDto.setThreadFontSize(Integer.valueOf(16));
+		}
+		threadFontSize = configFileDto.getThreadFontSize().intValue();
 		return configFileDto;
 	}
 
