@@ -21,6 +21,8 @@ public class ImageUtil {
 			return "6";
 		case "image/webp":
 			return "7";
+		case "video/webm":
+			return "a";
 		}
 		return null;
 	}
@@ -44,6 +46,8 @@ public class ImageUtil {
 			return ".bmp";
 		case "image/webp":
 			return ".webp";
+		case "video/webm":
+			return ".webm";
 		}
 		return null;
 	}
