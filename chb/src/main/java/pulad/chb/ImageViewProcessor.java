@@ -1,6 +1,7 @@
 package pulad.chb;
 
 import javafx.event.EventHandler;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -10,6 +11,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Popup;
+import javafx.stage.Screen;
 import javafx.stage.Window;
 import pulad.chb.config.Config;
 
@@ -24,6 +26,38 @@ public class ImageViewProcessor {
 	public static Popup view(Window owner, String url) {
 		Image image = new Image(url);
 
+		// 画像が画面よりも大きい場合にサイズを調整する
+		double imageWidth = image.getWidth();
+		double imageHeight = image.getHeight();
+		double minX = 0;
+		double minY = 0;
+		double maxX = 0;
+		double maxY = 0;
+		for (Screen s : Screen.getScreensForRectangle(owner.getX(), owner.getY(), owner.getWidth(), owner.getHeight())) {
+			Rectangle2D r = s.getBounds();
+			if (minX > r.getMinX()) {
+				minX = r.getMinX();
+			}
+			if (minY > r.getMinY()) {
+				minY = r.getMinY();
+			}
+			if (maxX < r.getMaxX()) {
+				maxX = r.getMaxX();
+			}
+			if (maxY < r.getMaxY()) {
+				maxY = r.getMaxY();
+			}
+		}
+		double screenWidth = maxX - minX;
+		double screenHeight = maxY - minY;
+		double scale = 1d;
+		if (screenWidth >= 1d || screenHeight >= 1d) {
+			while (imageWidth * scale > screenWidth ||
+					imageHeight * scale > screenHeight) {
+				scale /= 2d;
+			}
+		}
+
 		Popup popup = new Popup();
 		Scene scene = popup.getScene();
 		scene.getStylesheets().add(Config.styleCss);
@@ -32,8 +66,8 @@ public class ImageViewProcessor {
 		// 縮小時は中央に縮小、拡大時は右下へ伸びるのを右下へ統一する。
 		imageView.setFitWidth(image.getWidth() / 16d);
 		imageView.setFitHeight(image.getHeight() / 16d);
-		imageView.setScaleX(imageView.getScaleX() * 16d);
-		imageView.setScaleY(imageView.getScaleY() * 16d);
+		imageView.setScaleX(imageView.getScaleX() * scale * 16d);
+		imageView.setScaleY(imageView.getScaleY() * scale * 16d);
 //		AnchorPane rootPane = new AnchorPane(imageView);
 //		rootPane.setStyle("-fx-background-color: black;");
 //		rootPane.setPadding(new Insets(1d));
