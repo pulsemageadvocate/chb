@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -113,6 +114,7 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 			}
 		} else {
 			BufferedReader br = null;
+			HashSet<ThreadIdentityDto> duplicateSet = new HashSet<>();
 			try {
 				logger.debug("BoardLoadTask subject.txt start");
 				br = new BufferedReader(new FileReader(subjectFilePath.toString(), bbsObject.getCharset()));
@@ -127,6 +129,13 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 					Matcher matcher = regSubject.matcher(str);
 					if (matcher.find()) {
 						String dat = matcher.group("dat");
+						ThreadIdentityDto idto = new ThreadIdentityDto();
+						idto.boardUrl = urlStr;
+						idto.datName = dat;
+						if (duplicateSet.contains(idto)) {
+							continue;
+						}
+						duplicateSet.add(idto);
 						ThreadDto dto = new ThreadDto();
 						dto.setBoardUrl(urlStr);
 						dto.setDatName(dat);
@@ -184,5 +193,61 @@ public class BoardLoadTask extends Task<BoardLoadTaskResponseDto> {
 		logger.debug("BoardLoadTask end");
 		boardLoadTaskResponseDto.setDto(boardDto);
 		return boardLoadTaskResponseDto;
+	}
+
+	/**
+	 * スレッド重複確認用
+	 * @author pulad
+	 *
+	 */
+	private static class ThreadIdentityDto {
+		/**
+		 * BOARDURL
+		 * url。
+		 */
+		private String boardUrl;
+		/**
+		 * DATNAME
+		 * datファイル名。
+		 */
+		private String datName;
+
+		@Override
+		public int hashCode() {
+			return (boardUrl == null ? 0 : boardUrl.hashCode()) * 31 + (datName == null ? 0 : datName.hashCode());
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			ThreadIdentityDto o = (ThreadIdentityDto) obj;
+			if (boardUrl == null) {
+				if (o.boardUrl != null) {
+					return false;
+				}
+			} else {
+				if (!boardUrl.equals(o.boardUrl)) {
+					return false;
+				}
+			}
+			if (datName == null) {
+				if (o.datName != null) {
+					return false;
+				}
+			} else {
+				if (!datName.equals(o.datName)) {
+					return false;
+				}
+			}
+			return true;
+		}
 	}
 }
