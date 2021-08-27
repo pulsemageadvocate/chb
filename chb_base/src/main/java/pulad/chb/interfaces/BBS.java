@@ -27,6 +27,12 @@ public interface BBS {
 	public String getDatFileNameFromThreadUrl(String threadUrl);
 	public String getThreadUrlFromBoardUrl(String boardUrl, String thread);
 	public String getThreadUrlFromBoardUrlAndDatFileName(String boardUrl, String datFileName);
+	/**
+	 * 末尾のレス番指定を削除する。
+	 * @param rawUrl
+	 * @return
+	 */
+	public String getThreadUrlFromRawUrl(String rawUrl);
 	public String getThreadWriteUrlFromThreadUrl(String threadUrl);
 	public Charset getCharset();
 	public String getSubjectTxtUrl(String boardUrl);

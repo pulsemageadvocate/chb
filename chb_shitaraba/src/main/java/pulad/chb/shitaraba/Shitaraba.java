@@ -116,6 +116,15 @@ public class Shitaraba implements BBS {
 	}
 
 	@Override
+	public String getThreadUrlFromRawUrl(String rawUrl) {
+		Matcher matcher = regShitarabaThread.matcher(rawUrl);
+		if (matcher.find()) {
+			return matcher.group("root") + "bbs/read.cgi/" + matcher.group("board") + "/" + matcher.group("num") + "/" + matcher.group("thread") + "/" ;
+		}
+		return null;
+	}
+
+	@Override
 	public String getThreadWriteUrlFromThreadUrl(String threadUrl) {
 		throw new UnsupportedOperationException("実装されていません。");
 	}

@@ -62,30 +62,34 @@ public class ThreadViewProcessor {
 	/**
 	 * スレッドを開く。
 	 * @param tab
-	 * @param url
+	 * @param rawUrl
 	 */
-	public static void open(Tab tab, String url) {
-		open(tab, url, true, -1);
+	public static void open(Tab tab, String rawUrl) {
+		open(tab, rawUrl, true, -1);
 	}
 
 	/**
 	 * スレッドを開く。
 	 * @param tab
-	 * @param url
+	 * @param rawUrl
 	 * @param remote ネットワークに接続するか。ここではオフラインボタンの状態を含まない。
 	 */
-	public static void open(Tab tab, String url, boolean remote) {
-		open(tab, url, remote, -1);
+	public static void open(Tab tab, String rawUrl, boolean remote) {
+		open(tab, rawUrl, remote, -1);
 	}
 
 	/**
 	 * スレッドを開く。
 	 * @param tab
-	 * @param url
+	 * @param rawUrl
 	 * @param remote ネットワークに接続するか。ここではオフラインボタンの状態を含まない。
 	 * @param scrollY 開いた後でY軸をスクロールする。
 	 */
-	public static void open(Tab tab, String url, boolean remote, int scrollY) {
+	public static void open(Tab tab, String rawUrl, boolean remote, int scrollY) {
+		String url = getActualUrl(rawUrl);
+		if (url == null) {
+			return;
+		}
 		WebView threadView = getWebView(tab);
 		threadView.setCursor(Cursor.WAIT);
 
@@ -98,10 +102,14 @@ public class ThreadViewProcessor {
 	/**
 	 * スレッドを再読み込みする。
 	 * @param tab
-	 * @param url
+	 * @param rawUrl
 	 * @param remote ネットワークに接続するか。ここではオフラインボタンの状態を含まない。
 	 */
-	public static void reload(Tab tab, String url, boolean remote) {
+	public static void reload(Tab tab, String rawUrl, boolean remote) {
+		String url = getActualUrl(rawUrl);
+		if (url == null) {
+			return;
+		}
 		WebView threadView = getWebView(tab);
 		threadView.setCursor(Cursor.WAIT);
 
@@ -110,6 +118,19 @@ public class ThreadViewProcessor {
 		ThreadLoadService service = new ThreadLoadService(url, !App.offline && remote, App.replaceEmoji);
 		service.setOnSucceeded(new ThreadLoadSucceededEventHandler(tab, url, !App.offline && remote, scrollY));
 		service.start();
+	}
+
+	/**
+	 * 末尾のレス番指定を削除する。
+	 * @param rawUrl
+	 * @return
+	 */
+	private static String getActualUrl(String rawUrl) {
+		BBS bbsObject = BBSManager.getBBSFromUrl(rawUrl);
+		if (bbsObject == null) {
+			return null;
+		}
+		return bbsObject.getThreadUrlFromRawUrl(rawUrl);
 	}
 
 	/**
