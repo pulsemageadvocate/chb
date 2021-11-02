@@ -104,6 +104,11 @@ public class Config {
 		return configFile;
 	}
 
+	/**
+	 * Configファイルを読み込む。
+	 * 戻り値のDTOは{@link #write}に使用されるので全てのnull値をデフォルトで置き換える。
+	 * @return
+	 */
 	public static ConfigFileDto read() {
 		ConfigFileDto configFileDto = null;
 
@@ -117,23 +122,32 @@ public class Config {
 		if (configFileDto == null) {
 			configFileDto = new ConfigFileDto();
 		}
+
 		editorCommand = configFileDto.getEditor();
 		if (editorCommand == null) {
 			editorCommand = "C:\\Programs\\sakura\\sakura.exe $LINK";
+			configFileDto.setEditor(editorCommand);
 		}
+
 		if (configFileDto.getThreadFontSize() == null) {
 			configFileDto.setThreadFontSize(Integer.valueOf(16));
 		}
 		threadFontSize = configFileDto.getThreadFontSize().intValue();
+
 		boardListUrl = configFileDto.getBoardListUrl();
 		if (boardListUrl == null) {
 			boardListUrl = new HashMap<>();
+			configFileDto.setBoardListUrl(boardListUrl);
 		}
+
 		return configFileDto;
 	}
 
+	/**
+	 * Configファイルを書き込む。
+	 * @param dto
+	 */
 	public static void write(ConfigFileDto dto) {
-		dto.setEditor(editorCommand);
 		synchronized(file) {
 			try {
 				mapper.writeValue(file, dto);
