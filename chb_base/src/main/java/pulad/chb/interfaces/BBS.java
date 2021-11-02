@@ -38,6 +38,7 @@ public interface BBS {
 	public String getSubjectTxtUrl(String boardUrl);
 	public String getSettingTxtUrl(String boardUrl);
 	public ConcurrentHashMap<String, String> readSettingTxt(String boardUrl) throws IOException;
+	public BoardListLoader createBoardListLoader(String url);
 	public ThreadLoader createThreadLoader(String url);
 	public Task<ThreadWriteTaskResponseDto> createWriteTask(String url, String name, String mail, String body);
 }

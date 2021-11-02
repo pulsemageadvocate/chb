@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,10 @@ public class Config {
 	public static String editorCommand = "C:\\Programs\\sakura\\sakura.exe $LINK";
 	public static int threadFontSize;
 	public static String styleCss;
+	/**
+	 * 板一覧の更新URLをBBSディレクトリ名をキーにして格納する。
+	 */
+	public static HashMap<String, String> boardListUrl;
 
 	public static void init(String baseDir, Class<?> resourceClass) {
 		rootFolder = Paths.get(baseDir);
@@ -120,6 +125,10 @@ public class Config {
 			configFileDto.setThreadFontSize(Integer.valueOf(16));
 		}
 		threadFontSize = configFileDto.getThreadFontSize().intValue();
+		boardListUrl = configFileDto.getBoardListUrl();
+		if (boardListUrl == null) {
+			boardListUrl = new HashMap<>();
+		}
 		return configFileDto;
 	}
 

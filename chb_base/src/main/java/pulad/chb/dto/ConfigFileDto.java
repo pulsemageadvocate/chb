@@ -1,6 +1,7 @@
 package pulad.chb.dto;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 public class ConfigFileDto implements Serializable {
 	private Boolean maximized;
@@ -10,6 +11,7 @@ public class ConfigFileDto implements Serializable {
 	private Integer height;
 	private String editor;
 	private Integer threadFontSize;
+	private HashMap<String, String> boardListUrl;
 	public Boolean getMaximized() {
 		return maximized;
 	}
@@ -51,5 +53,11 @@ public class ConfigFileDto implements Serializable {
 	}
 	public void setThreadFontSize(Integer threadFontSize) {
 		this.threadFontSize = threadFontSize;
+	}
+	public HashMap<String, String> getBoardListUrl() {
+		return boardListUrl;
+	}
+	public void setBoardListUrl(HashMap<String, String> boardListUrl) {
+		this.boardListUrl = boardListUrl;
 	}
 }

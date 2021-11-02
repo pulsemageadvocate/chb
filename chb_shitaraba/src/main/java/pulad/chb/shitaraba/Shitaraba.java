@@ -14,6 +14,7 @@ import javafx.concurrent.Task;
 import pulad.chb.config.Config;
 import pulad.chb.dto.ThreadWriteTaskResponseDto;
 import pulad.chb.interfaces.BBS;
+import pulad.chb.interfaces.BoardListLoader;
 import pulad.chb.interfaces.ThreadLoader;
 import pulad.chb.util.FileUtil;
 
@@ -177,6 +178,11 @@ public class Shitaraba implements BBS {
 				br = null;
 			}
 		}
+	}
+
+	@Override
+	public BoardListLoader createBoardListLoader(String url) {
+		throw new UnsupportedOperationException("実装されていません。");
 	}
 
 	@Override
