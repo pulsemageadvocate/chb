@@ -156,7 +156,7 @@ public class SearchResultViewProcessor extends AbstractBoardViewProcessor {
 				ThreadDto threadDto = thread.values().stream().findAny().get();
 				String boardUrl = threadDto.getBoardUrl();
 				BBS bbsObject = BBSManager.getBBSFromUrl(boardUrl);
-				// setting.txt
+				// SETTING.TXT
 				ConcurrentHashMap<String, String> setting = bbsObject.readSettingTxt(boardUrl);
 
 				thread.values().stream()

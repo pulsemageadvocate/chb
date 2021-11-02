@@ -36,6 +36,11 @@ public interface BBS {
 	public String getThreadWriteUrlFromThreadUrl(String threadUrl);
 	public Charset getCharset();
 	public String getSubjectTxtUrl(String boardUrl);
+	/**
+	 * SETTING.TXTのURLを取得する。
+	 * @param boardUrl
+	 * @return
+	 */
 	public String getSettingTxtUrl(String boardUrl);
 	public ConcurrentHashMap<String, String> readSettingTxt(String boardUrl) throws IOException;
 	public BoardListLoader createBoardListLoader(String url);

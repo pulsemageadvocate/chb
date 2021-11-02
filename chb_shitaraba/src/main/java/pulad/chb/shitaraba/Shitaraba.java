@@ -153,7 +153,7 @@ public class Shitaraba implements BBS {
 	public ConcurrentHashMap<String, String> readSettingTxt(String boardUrl) throws IOException {
 		String bbs = this.getLogDirectoryName();
 		String board = this.getBoardFromBoardUrl(boardUrl);
-		Path settingFilePath = FileUtil.realCapitalPath(Config.getLogFolder().resolve(bbs).resolve(board).resolve("setting.txt"));
+		Path settingFilePath = FileUtil.realCapitalPath(Config.getLogFolder().resolve(bbs).resolve(board).resolve("SETTING.TXT"));
 
 		ConcurrentHashMap<String, String> setting = new ConcurrentHashMap<>();
 		BufferedReader br = null;

@@ -11,6 +11,7 @@ import pulad.chb.App;
 import pulad.chb.bbs.BBSManager;
 import pulad.chb.config.Config;
 import pulad.chb.dto.BoardDto;
+import pulad.chb.dto.DownloadDto;
 import pulad.chb.file.Threadst;
 import pulad.chb.interfaces.BBS;
 import pulad.chb.util.DownloadProcessor;
@@ -57,13 +58,16 @@ public class BoardManager {
 			}
 			String bbs = bbsObject.getLogDirectoryName();
 			String board = bbsObject.getBoardFromBoardUrl(url);
-			Path settingFilePath = FileUtil.realCapitalPath(Config.getLogFolder().resolve(bbs).resolve(board).resolve("setting.txt"));
+			Path settingFilePath = FileUtil.realCapitalPath(Config.getLogFolder().resolve(bbs).resolve(board).resolve("SETTING.TXT"));
 			dto = new BoardDto();
 			dto.setUrl(url);
 			// SETTING.TXTを（無ければ）ダウンロード
 			if (!Files.exists(settingFilePath) && remote) {
 				try {
-					DownloadProcessor.download(bbsObject.getSettingTxtUrl(url), settingFilePath, 1048576);
+					DownloadDto downloadDto = DownloadProcessor.download(bbsObject.getSettingTxtUrl(url), settingFilePath, 1048576);
+					if (downloadDto.getResponseCode() != 200) {
+						App.logger.error("SETTING.TXTダウンロード失敗 HTTP " + downloadDto.getResponseCode() + " " + downloadDto.getResponseMessage());
+					}
 				} catch (IOException e) {
 					App.logger.error("SETTING.TXTダウンロード失敗", e);
 				}
