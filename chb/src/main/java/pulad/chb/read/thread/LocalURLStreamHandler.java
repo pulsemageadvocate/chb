@@ -3,6 +3,7 @@ package pulad.chb.read.thread;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
@@ -10,6 +11,8 @@ import java.net.URLStreamHandlerFactory;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,7 +21,6 @@ import pulad.chb.config.Config;
 import pulad.chb.dto.DownloadDto;
 import pulad.chb.util.DownloadProcessor;
 import pulad.chb.util.ImageUtil;
-import pulad.chb.util.V2CSHA1Value;
 
 public class LocalURLStreamHandler extends URLStreamHandler {
 	private static final Pattern regImage = Pattern.compile("^image:[A-Za-z0-9._\\-]+$");
@@ -71,10 +73,11 @@ public class LocalURLStreamHandler extends URLStreamHandler {
 						String imageExt = ImageUtil.getImageExt(contentType);
 						String fileExt = ImageUtil.getFileExt(contentType);
 
-						V2CSHA1Value sha1 = V2CSHA1Value.createInstance();
-						sha1.update(data, 0, data.length);
-						sha1.digest();
-						String sha1FileName = sha1.toString();
+						MessageDigest md = MessageDigest.getInstance("SHA-1");
+						md.update(data, 0, data.length);
+						byte[] digest = md.digest();
+						String sha1FileName = String.format("%040x", new BigInteger(1, digest));
+
 						downloadDto.setImageCache(sha1FileName);
 						downloadDto.setImageExt(imageExt);
 						sha1FileName = sha1FileName + fileExt;
@@ -96,6 +99,8 @@ public class LocalURLStreamHandler extends URLStreamHandler {
 				return new LocalURLConnection(u);
 				//return new URL(u.toExternalForm().replaceFirst(PROTOCOL, "http")).openConnection();
 			} catch (InterruptedException e) {
+				throw new IOException(e);
+			} catch (NoSuchAlgorithmException e) {
 				throw new IOException(e);
 			} finally {
 				LinkHistManager.release(urlStr);
