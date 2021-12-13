@@ -18,6 +18,7 @@ import org.thymeleaf.util.StringUtils;
 import pulad.chb.App;
 import pulad.chb.config.Config;
 import pulad.chb.dto.DownloadDto;
+import pulad.chb.dto.ImageDto;
 import pulad.chb.util.ImageUtil;
 
 public class LinkHistManager {
@@ -29,21 +30,45 @@ public class LinkHistManager {
 	 * @return ファイル名。キャッシュが無い場合はnull。
 	 */
 	public static String getCacheFileName(String url) {
+		ImageDto dto = getCache(url);
+		if (dto == null) {
+			return null;
+		}
+		return dto.getFileName();
+	}
+
+	/**
+	 * ローカルキャッシュの情報を取得する。キャッシュが無い場合はnull。
+	 * @param url
+	 * @return ImageDto。キャッシュが無い場合はnull。
+	 */
+	public static ImageDto getCache(String url) {
 		// URL,CHECKTIME,ACCESSTIME,RESPONSECODE,CONTENTTYPE,CONTENTLENGTH,EXPIRATION,DATE,LASTMODIFIED,LOCATION,IMAGECACHE
-		LinkHistDto dto = get(url);
-		if (dto == null || dto.lock != null) {
+		LinkHistDto linkHistDto = get(url);
+		if (linkHistDto == null || linkHistDto.lock != null) {
 			return null;
 		}
 
+		ImageDto dto = new ImageDto();
+		dto.setUrl(url);
+		dto.setResponseCode(Integer.parseInt(linkHistDto.record[3]));
+		dto.setContentType(linkHistDto.record[4]);
+		dto.setContentLength(Long.parseLong(linkHistDto.record[5]));
+		dto.setExpiration(Long.parseLong(linkHistDto.record[6]));
+		dto.setDate(Long.parseLong(linkHistDto.record[7]));
+		dto.setLastModified(Long.parseLong(linkHistDto.record[8]));
+		dto.setLocation(linkHistDto.record[9]);
 		// キャッシュ無し（失敗履歴有り）
-		if (dto.record[10].length() <= 0) {
-			return "classpath:image/notfound.gif";
+		if (linkHistDto.record[10].length() <= 0) {
+			dto.setFileName("classpath:image/notfound.gif");
+		} else {
+			StringBuilder sb = new StringBuilder();
+			sb.append(Config.getImageFolder().resolve(linkHistDto.record[10].substring(0, 1)).resolve(linkHistDto.record[10]).toString());
+			sb.setLength(sb.length() - 1);
+			sb.append(ImageUtil.getFileExt(linkHistDto.record[4]));
+			dto.setFileName(sb.toString());
 		}
-		StringBuilder sb = new StringBuilder();
-		sb.append(Config.getImageFolder().resolve(dto.record[10].substring(0, 1)).resolve(dto.record[10]).toString());
-		sb.setLength(sb.length() - 1);
-		sb.append(ImageUtil.getFileExt(dto.record[4]));
-		return sb.toString();
+		return dto;
 	}
 
 	/**
