@@ -24,8 +24,8 @@ public class AnchorLinkResProcessor implements ResProcessor {
 	private static final String anchor4 = "</a>";
 
 	// immutable
-	private final Pattern regBody = Pattern.compile("(＞|&gt;)+(?<a>[1-9][0-9]*(-[1-9][0-9]*)?)(?<b>(,[1-9][0-9]*(-[1-9][0-9]*)?)*)", Pattern.CASE_INSENSITIVE);
-	private final Pattern regIndividual = Pattern.compile(",?(?<from>[1-9][0-9]*)(-(?<to>[1-9][0-9]*))?", Pattern.CASE_INSENSITIVE);
+	private final Pattern regBody = Pattern.compile("(＞|&gt;)+(?<a>[1-9][0-9]{0,5}(?![0-9])(-[1-9][0-9]{0,5}(?![0-9]))?)(?<b>(,[1-9][0-9]{0,5}(?![0-9])(-[1-9][0-9]{0,5}(?![0-9]))?)*)", Pattern.CASE_INSENSITIVE);
+	private final Pattern regIndividual = Pattern.compile(",?(?<from>[1-9][0-9]{0,5}(?![0-9]))(-(?<to>[1-9][0-9]{0,5}(?![0-9])))?", Pattern.CASE_INSENSITIVE);
 
 	@Override
 	public void process(String url, TreeMap<Integer, ResDto> res, long now) {
@@ -46,22 +46,24 @@ public class AnchorLinkResProcessor implements ResProcessor {
 				//?<a>
 				Matcher matcherIndividual = regIndividual.matcher(matcherBody.group("a"));
 				matcherIndividual.find();
-				int from = Integer.parseInt(matcherIndividual.group("from"));
+				int from = NumberUtil.parseInt(matcherIndividual.group("from"), -1);
 				int to = NumberUtil.parseInt(matcherIndividual.group("to"), -1);
 				addLinkRefer(linkReferSet, from, to);
 				//?<b>
 				matcherIndividual = regIndividual.matcher(matcherBody.group("b"));
 				while (matcherIndividual.find()) {
-					from = Integer.parseInt(matcherIndividual.group("from"));
-					to = NumberUtil.parseInt(matcherIndividual.group("to"), -1);
-					addLinkRefer(linkReferSet, from, to);
+					int from2 = NumberUtil.parseInt(matcherIndividual.group("from"), -1);
+					int to2 = NumberUtil.parseInt(matcherIndividual.group("to"), -1);
+					addLinkRefer(linkReferSet, from2, to2);
 				}
 
-				// ポップアップ用にカンマ区切り
-				String chain = createLinkString(linkReferSet);
-				matcherBody.appendReplacement(sb, anchor1 + from + anchor2 + chain + anchor3 + matcherBody.group() + anchor4);
-				// このレス全体の参照先
-				referSet.addAll(linkReferSet);
+				if (from > 0) {
+					// ポップアップ用にカンマ区切り
+					String chain = createLinkString(linkReferSet);
+					matcherBody.appendReplacement(sb, anchor1 + from + anchor2 + chain + anchor3 + matcherBody.group() + anchor4);
+					// このレス全体の参照先
+					referSet.addAll(linkReferSet);
+				}
 
 				// 参照元
 				for (Integer referIndex : referSet) {
@@ -90,6 +92,9 @@ public class AnchorLinkResProcessor implements ResProcessor {
 	}
 
 	private void addLinkRefer(Set<Integer> linkReferSet, int from, int to) {
+		if (from <= 0) {
+			return;
+		}
 		if (to <= 0) {
 			linkReferSet.add(NumberUtil.integerCache(from));
 		} else {
