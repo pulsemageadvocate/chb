@@ -194,14 +194,16 @@ public class ThreadLoadProcessor {
 	 * @param res
 	 * @param now
 	 * @param errorDetails
+	 * @throws Exception ResProcessorが例外をスローした場合 
 	 */
-	public void applyResProcessor(TreeMap<Integer, ResDto> res, long now, List<String> errorDetails) {
+	public void applyResProcessor(TreeMap<Integer, ResDto> res, long now, List<String> errorDetails) throws Exception {
 		for (ResProcessor processor : resProcessors) {
 			try {
 				processor.process(urlStr, res, now);
 			} catch (Exception e) {
 				// ログファイルだけではなくページにも表示する
 				errorDetails.add(e.toString());
+				throw e;
 			}
 		}
 	}

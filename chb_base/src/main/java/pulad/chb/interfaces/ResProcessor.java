@@ -15,6 +15,7 @@ public interface ResProcessor {
 	 * @param url スレッドのURL
 	 * @param res レス
 	 * @param now 処理開始時刻
+	 * @throws Exception
 	 */
-	public void process(String url, TreeMap<Integer, ResDto> res, long now);
+	public void process(String url, TreeMap<Integer, ResDto> res, long now) throws Exception;
 }

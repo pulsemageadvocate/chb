@@ -1,6 +1,5 @@
 package pulad.chb.read.thread;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -19,9 +18,15 @@ import java.util.regex.Pattern;
 import pulad.chb.App;
 import pulad.chb.config.Config;
 import pulad.chb.dto.DownloadDto;
+import pulad.chb.dto.ImageDto;
 import pulad.chb.util.DownloadProcessor;
 import pulad.chb.util.ImageUtil;
 
+/**
+ * imgcache://、imgcaches://、imglocal://、imglocals://、image://で始まるURLを処理する。
+ * @author pulad
+ *
+ */
 public class LocalURLStreamHandler extends URLStreamHandler {
 	private static final Pattern regImage = Pattern.compile("^image:[A-Za-z0-9._\\-]+$");
 
@@ -55,63 +60,94 @@ public class LocalURLStreamHandler extends URLStreamHandler {
 	@Override
 	protected URLConnection openConnection(URL u) throws IOException {
 		String urlStr = u.toExternalForm();
-		if (App.offline || urlStr.startsWith(PROTOCOL_LOCAL) || urlStr.startsWith(PROTOCOL_IMAGE)) {
+		String source = getSourceUrl(urlStr);
+
+		if (urlStr.startsWith(PROTOCOL_IMAGE)) {
 			return new LocalURLConnection(u);
 		}
-		urlStr = urlStr.replaceFirst(PROTOCOL, "http");
-		String cachePath = LinkHistManager.getCacheFileName(urlStr);
-		if (cachePath == null) {
-			try {
-				if (LinkHistManager.lock(urlStr)) {
-					DownloadDto downloadDto = DownloadProcessor.downloadBytes(
-							urlStr,
-							1048576 * 4,
-							x -> (ImageUtil.getFileExt(x.getContentType()) != null));
-					byte[] data = downloadDto.getData();
-					String contentType = downloadDto.getContentType();
-					if (data != null) {
-						String imageExt = ImageUtil.getImageExt(contentType);
-						String fileExt = ImageUtil.getFileExt(contentType);
 
-						MessageDigest md = MessageDigest.getInstance("SHA-1");
-						md.update(data, 0, data.length);
-						byte[] digest = md.digest();
-						String sha1FileName = String.format("%040x", new BigInteger(1, digest));
+		ImageDto cache = LinkHistManager.getCache(source);
+		if (cache != null) {
+			return new LocalHttpURLConnection(
+					new URL(source),
+					cache.getResponseCode(),
+					cache.getContentType(),
+					cache.getContentLength(),
+					cache.getExpiration(),
+					cache.getDate(),
+					cache.getLastModified(),
+					cache.getLocation(),
+					cache.getFileName());
+		}
 
-						downloadDto.setImageCache(sha1FileName);
-						downloadDto.setImageExt(imageExt);
-						sha1FileName = sha1FileName + fileExt;
+		if (App.offline || urlStr.startsWith(PROTOCOL_LOCAL)) {
+			return new LocalURLConnection(u);
+		}
 
-						try {
-							Files.write(Config.getImageFolder().resolve(sha1FileName.substring(0, 1)).resolve(sha1FileName), data, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
-						} catch (FileAlreadyExistsException e) {
-							// URLが別でも内容のハッシュが同じならありうる
-						} catch (IOException e) {
-							App.logger.error("download失敗", e);
-							return new LocalURLConnection(u);
-						}
-					}
+		try {
+			if (LinkHistManager.lock(source)) {
+				DownloadDto downloadDto = DownloadProcessor.downloadBytes(
+						source,
+						1048576 * 4,
+						x -> (ImageUtil.getFileExt(x.getContentType()) != null));
+				byte[] data = downloadDto.getData();
+				String contentType = downloadDto.getContentType();
+				if (data != null) {
+					String imageExt = ImageUtil.getImageExt(contentType);
+					String fileExt = ImageUtil.getFileExt(contentType);
 
-					if (downloadDto.getResponseCode() != -1) {
-						LinkHistManager.addFile(downloadDto);
+					MessageDigest md = MessageDigest.getInstance("SHA-1");
+					md.update(data, 0, data.length);
+					byte[] digest = md.digest();
+					String sha1FileName = String.format("%040x", new BigInteger(1, digest));
+
+					downloadDto.setImageCache(sha1FileName);
+					downloadDto.setImageExt(imageExt);
+					sha1FileName = sha1FileName + fileExt;
+
+					try {
+						Files.write(Config.getImageFolder().resolve(sha1FileName.substring(0, 1)).resolve(sha1FileName), data, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
+					} catch (FileAlreadyExistsException e) {
+						// URLが別でも内容のハッシュが同じならありうる
+					} catch (IOException e) {
+						App.logger.error("download失敗", e);
+						return new LocalURLConnection(u);
 					}
 				}
-				return new LocalURLConnection(u);
-				//return new URL(u.toExternalForm().replaceFirst(PROTOCOL, "http")).openConnection();
-			} catch (InterruptedException e) {
-				throw new IOException(e);
-			} catch (NoSuchAlgorithmException e) {
-				throw new IOException(e);
-			} finally {
-				LinkHistManager.release(urlStr);
+
+				if (downloadDto.getResponseCode() != -1) {
+					LinkHistManager.addFile(downloadDto);
+				}
 			}
-		} else {
+
+			cache = LinkHistManager.getCache(source);
+			if (cache != null) {
+				return new LocalHttpURLConnection(
+						new URL(source),
+						cache.getResponseCode(),
+						cache.getContentType(),
+						cache.getContentLength(),
+						cache.getExpiration(),
+						cache.getDate(),
+						cache.getLastModified(),
+						cache.getLocation(),
+						cache.getFileName());
+			}
+
 			return new LocalURLConnection(u);
+			//return new URL(u.toExternalForm().replaceFirst(PROTOCOL, "http")).openConnection();
+		} catch (InterruptedException e) {
+			throw new IOException(e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new IOException(e);
+		} finally {
+			LinkHistManager.release(source);
 		}
 	}
 
 	/**
 	 * ローカルのファイルに対するURLConnectionの実装。
+	 * LocalHttpURLConnectionの実装により不要になるはず。
 	 * @author pulad
 	 *
 	 */
@@ -121,6 +157,7 @@ public class LocalURLStreamHandler extends URLStreamHandler {
 		public LocalURLConnection(URL u) {
 			super(u);
 			this.url = LocalURLStreamHandler.getSourceUrl(u.toExternalForm());
+			App.logger.warn("new LocalURLConnection: {}", this.url);
 		}
 
 		@Override
@@ -137,14 +174,7 @@ public class LocalURLStreamHandler extends URLStreamHandler {
 				}
 				return getClass().getClassLoader().getResourceAsStream("image/" + url.substring(6));
 			}
-			String cachePath = LinkHistManager.getCacheFileName(url);
-			if (cachePath == null) {
-				throw new IOException("みつかりません");
-			}
-			if (cachePath.startsWith("classpath:")) {
-				return getClass().getClassLoader().getResourceAsStream(cachePath.substring(10));
-			}
-			return new File(cachePath).toURI().toURL().openStream();
+			throw new IOException("みつかりません");
 		}
 
 		@Override
