@@ -68,8 +68,8 @@ public class ImageViewProcessor {
 		scene.getStylesheets().add(Config.styleCss);
 
 		ImageView imageView = new ImageView(image);
-		imageView.setFitWidth(image.getWidth());
-		imageView.setFitHeight(image.getHeight());
+		imageView.setFitWidth(image.getWidth() * scaleNumerator / scaleDenominator);
+		imageView.setFitHeight(image.getHeight() * scaleNumerator / scaleDenominator);
 
 		AnchorPane anchorPane = new AnchorPane(imageView);
 		anchorPane.setStyle("-fx-background-color: black;");
