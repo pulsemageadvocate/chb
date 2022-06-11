@@ -354,10 +354,15 @@ public class ThreadViewProcessor {
 			// <a href="#xxx">
 			if ("a".equalsIgnoreCase(nodeName)) {
 				String chain = DomUtil.getAttribute(target, "chain");
-				if (chain == null) {
+				if (chain != null) {
+					App.getInstance().openPopupThread(url, chain, this, rightClickEventListener);
 					return true;
 				}
-				App.getInstance().openPopupThread(url, chain, this, rightClickEventListener);
+				String bbsurl = DomUtil.getAttribute(target, "bbsurl");
+				if (bbsurl != null) {
+					App.getInstance().openUrl(bbsurl);
+					return true;
+				}
 				return true;
 			} else if ("img".equalsIgnoreCase(nodeName)) {
 				String src = DomUtil.getAttribute(target, "data-src");

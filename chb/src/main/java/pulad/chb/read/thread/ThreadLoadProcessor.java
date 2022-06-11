@@ -70,6 +70,7 @@ public class ThreadLoadProcessor {
 		resProcessors.add(new ImageResProcessor());
 		resProcessors.add(new CountResProcessor());
 		resProcessors.add(new LinkPopupResProcessor());
+		resProcessors.add(new BBSUrlResProcessor());
 		resProcessors.add(new AboneResProcessor());
 		resProcessors.add(new BodyNGAnchorResProcessor());
 		if (replaceEmoji) {
