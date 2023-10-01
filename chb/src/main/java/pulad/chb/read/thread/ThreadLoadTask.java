@@ -95,7 +95,7 @@ public class ThreadLoadTask extends Task<ThreadLoadTaskResponseDto> {
 				logger.debug("ThreadLoadTask ThreadLoadProcessor.request start");
 				ThreadResponseDto threadResponseDto = threadLoadProcessor.request(setting, res, now);
 				logger.debug("ThreadLoadTask ThreadLoadProcessor.request end");
-				newResCount = res.lastKey() - lastResCount;
+				newResCount = res.isEmpty() ? 0 : (res.lastKey() - lastResCount);
 				if (threadResponseDto.getData() == null) {
 					// エラー時
 					threadLoadTaskResponseDto.setErrorMessage(threadResponseDto.getResponseMessage());

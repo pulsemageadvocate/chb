@@ -1,0 +1,3 @@
+[submodule "chb_ch"]
+	path = chb_ch
+	url = https://github.com/pulsemageadvocate/chb_ch
